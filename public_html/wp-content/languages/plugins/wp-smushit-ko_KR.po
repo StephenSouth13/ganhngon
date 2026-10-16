@@ -1,0 +1,2082 @@
+# Translation of Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release) in Korean
+# This file is distributed under the same license as the Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-12-10 02:33:50+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: ko_KR\n"
+"Project-Id-Version: Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release)\n"
+
+#: core/media-library/class-media-library-row.php:837
+msgid "No backup image available. Enable Back up original images to restore them in the future."
+msgstr "사용 가능한 백업 이미지가 없습니다. 원본 이미지를 백업하여 향후 복원할 수 있도록 설정하세요."
+
+#: core/media-library/class-media-library-row.php:831
+#: core/media-library/class-media-library-row.php:838
+msgid "Restore original"
+msgstr "원본 복원"
+
+#: core/lazy-load/video-embed/class-video-thumbnail-controller.php:87
+msgid "Thumbnail URL not found."
+msgstr "썸네일 URL을 찾을 수 없습니다."
+
+#: core/lazy-load/video-embed/class-video-thumbnail-controller.php:70
+msgid "Video thumbnail not found."
+msgstr "동영상 썸네일을 찾을 수 없습니다."
+
+#: core/lazy-load/video-embed/class-video-thumbnail-controller.php:60
+msgid "Invalid video URL or dimensions."
+msgstr "잘못된 동영상 URL 또는 크기입니다."
+
+#: core/external/hub-connector/inc/class-upgrader.php:164
+msgid "Invalid or empty slug."
+msgstr "잘못되었거나 빈 슬러그입니다."
+
+#: core/external/hub-connector/inc/class-rest.php:62
+msgid "Should do a force sync."
+msgstr "강제 동기화 필요"
+
+#: core/external/hub-connector/inc/class-remote.php:288
+msgid "Nonce check failed"
+msgstr "논스 체크 실패"
+
+#: core/external/hub-connector/inc/class-remote.php:277
+msgid "Incorrect authentication"
+msgstr "인증 오류"
+
+#: core/external/hub-connector/inc/class-remote.php:259
+msgid "Missing authentication header"
+msgstr "인증 헤더 누락"
+
+#: core/external/hub-connector/inc/class-remote.php:246
+msgid "Remote calls are disabled in wp-config.php"
+msgstr "Wp-config.php에서 원격 호출이 비활성화되었습니다."
+
+#: core/external/hub-connector/inc/class-remote.php:150
+msgid "This action is not registered. The required plugin is not installed, updated, or configured properly."
+msgstr "이 작업은 등록되지 않았습니다. 필요한 플러그인이 설치, 업데이트 또는 올바르게 구성되지 않았습니다."
+
+#: core/external/hub-connector/inc/class-remote.php:109
+msgid "The \"params\" object is missing"
+msgstr "“params” 객체가 누락되었습니다"
+
+#: core/external/hub-connector/inc/class-remote.php:99
+msgid "The \"action\" parameter is missing"
+msgstr "“action” 매개변수가 누락되었습니다."
+
+#. translators: %s Support URL.
+#: core/external/hub-connector/inc/class-api.php:574
+msgid "This site is currently registered to a different user. Please <a target=\"_blank\" href=\"%s\">contact support for assistance</a>."
+msgstr "이 사이트는 현재 다른 사용자에게 등록되어 있습니다. <a target=\"_blank\" href=\"%s\">지원팀에 문의하여 도움을 받으십시오</a>."
+
+#: core/external/hub-connector/inc/class-api.php:410
+msgid "Error unserializing remote response."
+msgstr "원격 응답 역직렬화 오류."
+
+#: core/external/hub-connector/inc/class-api.php:261
+msgid "Invalid remote API response."
+msgstr "무효한 원격 API 응답."
+
+#: core/external/hub-connector/inc/class-api.php:175
+#: core/external/hub-connector/inc/class-api.php:314
+#: core/external/hub-connector/inc/class-api.php:384
+msgid "Not logged in."
+msgstr "로그인하지 않음."
+
+#: core/external/hub-connector/inc/class-admin.php:676
+msgid "Create a free account"
+msgstr "무료 계정 만들기"
+
+#: core/external/hub-connector/inc/class-admin.php:675
+msgid "OR continue with email"
+msgstr "이메일로 계속하기"
+
+#: core/external/hub-connector/inc/class-admin.php:674
+msgid "I am an existing user"
+msgstr "기존 사용자입니다"
+
+#: core/external/hub-connector/inc/class-admin.php:673
+msgid "I am a new user"
+msgstr "저는 신규 사용자입니다"
+
+#: core/external/hub-connector/inc/class-admin.php:672
+msgid "Login"
+msgstr "로그인"
+
+#: core/external/hub-connector/inc/class-admin.php:671
+msgid "Keep me logged in"
+msgstr "로그인 상태 유지"
+
+#: core/external/hub-connector/inc/class-admin.php:670
+msgid "Forgot password?"
+msgstr "비밀번호를 잊으셨나요?"
+
+#: core/external/hub-connector/inc/class-admin.php:669
+msgid "Sign in with Google"
+msgstr "Google로 로그인"
+
+#: core/external/hub-connector/inc/class-admin.php:668
+msgid "You do not have the permission to view this page."
+msgstr "이 페이지를 볼 권한이 없습니다."
+
+#: core/external/hub-connector/inc/class-admin.php:667
+msgid "Create a free account to connect your site to WPMU DEV and activate cloud-based link checker. <i>It's fast, seamless, and free.</i>"
+msgstr "무료 계정을 생성하여 사이트를 WPMU DEV에 연결하고 클라우드 기반 링크 검사기를 활성화하세요. <i>빠르고, 원활하며, 무료입니다.</i>"
+
+#: core/external/hub-connector/inc/class-admin.php:666
+msgid "Unknown API error occurred. Please try again."
+msgstr "알 수 없는 API 오류가 발생했습니다. 다시 시도해 주세요."
+
+#: core/external/hub-connector/inc/class-admin.php:665
+msgid "We've noticed that you are a member of multiple teams in The Hub. Which team would you like to connect to this site?"
+msgstr "The Hub에서 여러 팀의 멤버로 등록되어 있음을 확인했습니다. 이 사이트에 연결할 팀을 선택해 주세요."
+
+#: core/external/hub-connector/inc/class-admin.php:664
+msgid "Choose The Hub Team"
+msgstr "The Hub 팀 선택"
+
+#: core/external/hub-connector/inc/class-admin.php:663
+msgid "Please wait a few moments while we connect your website."
+msgstr "웹사이트 연결 중입니다. 잠시만 기다려 주세요."
+
+#: core/external/hub-connector/inc/class-admin.php:662
+msgid "Once your website is connected to the Hub, you will be able to perform updates, managing services - all from one place."
+msgstr "웹사이트를 허브에 연결하면 업데이트 수행, 서비스 관리 등 모든 작업을 한 곳에서 처리할 수 있습니다."
+
+#: core/external/hub-connector/inc/class-admin.php:661
+msgid "The Hub connects WPMU DEV to your website and unlocks all the power of our all-in-one platform services."
+msgstr "허브는 WPMU DEV를 웹사이트에 연결하여 올인원 플랫폼 서비스의 모든 기능을 활용할 수 있게 합니다."
+
+#: core/external/hub-connector/inc/class-admin.php:660
+msgid "Could not sync with Hub. Please try again."
+msgstr "허브와 동기화할 수 없습니다. 다시 시도해 주세요."
+
+#: core/external/hub-connector/inc/class-admin.php:659
+msgid "To manage your site from The Hub, log in with your WPMU DEV account email and password."
+msgstr "The Hub에서 사이트를 관리하려면 WPMU DEV 계정 이메일과 비밀번호로 로그인하세요."
+
+#: core/external/hub-connector/inc/class-admin.php:658
+msgid "Let’s connect your site"
+msgstr "사이트 연결하기"
+
+#: core/class-hub-connector.php:1022
+#: core/external/hub-connector/inc/class-admin.php:574
+msgid "Your API Key was invalid. Please try again."
+msgstr "API 키가 유효하지 않습니다. 다시 시도해 주세요."
+
+#. translators: url to API.
+#: core/class-hub-connector.php:1016
+#: core/external/hub-connector/inc/class-admin.php:568
+msgid "\"Is PHP on my server properly configured to be able to contact %s with a POST HTTP request via fsockopen or CURL?\""
+msgstr "“제 서버의 PHP가 fsockopen 또는 CURL을 통해 POST HTTP 요청으로 %s에 접근할 수 있도록 올바르게 구성되어 있나요?”"
+
+#: core/class-hub-connector.php:1013
+#: core/external/hub-connector/inc/class-admin.php:565
+msgid "If this problem continues, please contact your host with this error message and ask:"
+msgstr "이 문제가 지속될 경우, 해당 오류 메시지와 함께 호스팅 업체에 문의하여 다음을 요청하세요:"
+
+#: core/class-hub-connector.php:1012
+#: core/external/hub-connector/inc/class-admin.php:564
+msgid "Your server had a problem connecting to WPMU DEV. Please try again."
+msgstr "서버가 WPMU DEV에 연결하는 데 문제가 발생했습니다. 다시 시도해 주세요."
+
+#: core/class-hub-connector.php:1004
+#: core/external/hub-connector/inc/class-admin.php:556
+msgid "Unknown error. Please update the WPMU DEV Dashboard plugin and try again."
+msgstr "알 수 없는 오류가 발생했습니다. WPMU DEV 대시보드 플러그인을 업데이트한 후 다시 시도해 주세요."
+
+#: core/class-hub-connector.php:1000
+#: core/external/hub-connector/inc/class-admin.php:552
+msgid "Google login failed. Please try again."
+msgstr "Google 로그인 실패. 다시 시도해 주세요."
+
+#. translators: %s Support URL.
+#: core/class-hub-connector.php:981
+#: core/external/hub-connector/inc/class-admin.php:544
+msgid "This domain cannot be registered to your WPMU DEV account.<br><a href=\"%s\">Contact Accounts & Billing if you need further assistance »</a>"
+msgstr "이 도메인은 귀하의 WPMU DEV 계정에 등록할 수 없습니다.<br><a href=\"%s\">추가 지원이 필요하시면 계정 및 결제팀에 문의하세요 »</a>"
+
+#. translators: %1$d Account name, %2$s Security info, %3$s Hub URL, %4$s
+#. Support URL.
+#: core/class-hub-connector.php:967
+#: core/external/hub-connector/inc/class-admin.php:531
+msgid "This site is currently registered to %1$s. For <a target=\"_blank\" href=\"%2$s\">security reasons</a> they will need to go to the <a target=\"_blank\" href=\"%3$s\">WPMU DEV Hub</a> and remove this domain before you can log in. If you do not have access to that account, and have no way of contacting that user, please <a target=\"_blank\" href=\"%4$s\">contact support for assistance</a>."
+msgstr "이 사이트는 현재 %1$s에게 등록되어 있습니다. <a target=\"_blank\" href=\"%2$s\">보안상의 이유</a>로, 귀하가 로그인하기 전에 해당 사용자가 <a target=\"_blank\" href=\"%3$s\">WPMU DEV 허브</a>로 이동하여 이 도메인을 제거해야 합니다. 해당 계정에 접근 권한이 없거나 사용자와 연락할 방법이 없다면, <a target=\"_blank\" href=\"%4$s\">지원팀에 문의하여 도움을 받으십시오</a>."
+
+#: core/class-hub-connector.php:961
+#: core/external/hub-connector/inc/class-admin.php:525
+msgid "Contact support if you need further assistance &raquo;"
+msgstr "추가 지원이 필요하시면 지원팀에 문의하세요 &raquo;"
+
+#. translators: %1$s Rest URL, %2$s Upgrade URL, %3$s Trial URL.
+#: core/external/hub-connector/inc/class-admin.php:515
+msgid "This domain has previously been registered with us by the user %1$s. To use WPMU DEV on this domain, you can either log in with the original account (you can <a target=\"_blank\" href=\"%2$s\">reset your password</a>) or <a target=\"_blank\" href=\"%3$s\">upgrade your trial</a> to a full membership. Trial accounts can't use previously registered domains - <a target=\"_blank\" href=\"%4$s\">here's why</a>."
+msgstr "이 도메인은 이전에 %1$s 사용자에 의해 당사에 등록되었습니다. 이 도메인에서 WPMU DEV를 사용하려면 기존 계정으로 로그인하거나(<a target=\"_blank\" href=\"%2$s\">비밀번호 재설정</a> 가능) <a target=\"_blank\" href=\"%3$s\">체험판 업그레이드</a>를 통해 정식 멤버십으로 전환할 수 있습니다. 체험판 계정은 이전에 등록된 도메인을 사용할 수 없습니다 - <a target=\"_blank\" href=\"%4$s\">이유는 여기</a>를 참조하세요."
+
+#: core/class-hub-connector.php:940
+#: core/external/hub-connector/inc/class-admin.php:504
+msgid "Forgot your password?"
+msgstr "비밀번호를 잊으셨나요?"
+
+#: core/class-hub-connector.php:938
+#: core/external/hub-connector/inc/class-admin.php:502
+msgid "Your login details were incorrect. Please make sure you're using your WPMU DEV email and password and try again."
+msgstr "로그인 정보가 잘못되었습니다. WPMU DEV 이메일과 비밀번호를 사용하고 있는지 확인한 후 다시 시도해 주세요."
+
+#. translators: %1$s Account detail URL, %2$s Reset URL.
+#: core/external/hub-connector/inc/class-admin.php:490
+msgid "Due to security improvements, you will need to re-link your Google account in the Hub. Please log in with your WPMU DEV email & password for now, then set up your preferred <strong>Login Method</strong> in <a href=\"%1$s\" target=\"_blank\">your WPMU DEV account</a>. Forgot your password? You can <a href=\"%2$s\" target=\"_blank\">reset it here</a>."
+msgstr "보안 개선으로 인해 허브에서 Google 계정을 다시 연결해야 합니다. 현재는 WPMU DEV 이메일과 비밀번호로 로그인한 후, <a href=\"%1$s\" target=\"_blank\">WPMU DEV 계정</a>에서 선호하는 <strong>로그인 방법</strong>을 설정해 주세요. 비밀번호를 잊으셨나요? <a href=\"%2$s\" target=\"_blank\">여기에서 재설정</a>하실 수 있습니다."
+
+#. translators: %s Account detail URL.
+#: core/class-hub-connector.php:916
+#: core/external/hub-connector/inc/class-admin.php:480
+msgid "You are currently using your WPMU DEV email & password as your preferred login method. If you wish to login with your Google account instead, please change the <strong>Login Method</strong> in <a href=\"%s\" target=\"_blank\">your WPMU DEV account</a>."
+msgstr "현재 WPMU DEV 이메일과 비밀번호를 기본 로그인 방법으로 사용하고 있습니다. Google 계정으로 로그인하려면 <a href=\"%s\" target=\"_blank\">WPMU DEV 계정</a>에서 <strong>로그인 방법</strong>을 변경해 주세요."
+
+#. translators: %s Account detail URL.
+#: core/class-hub-connector.php:906
+#: core/external/hub-connector/inc/class-admin.php:470
+msgid "You are currently using your Google account as your preferred login method. If you wish to login with your WPMU DEV email & password instead, please change the <strong>Login Method</strong> in <a href=\"%s\" target=\"_blank\">your WPMU DEV account</a>."
+msgstr "현재 Google 계정을 기본 로그인 방법으로 사용하고 있습니다. WPMU DEV 이메일과 비밀번호로 로그인하려면 <a href=\"%s\" target=\"_blank\">WPMU DEV 계정</a>에서 <strong>로그인 방법</strong>을 변경해 주세요."
+
+#: core/class-settings.php:377
+msgid "Automatically add width and height attributes to images missing dimensions for better layout stability and performance."
+msgstr "레이아웃 안정성과 성능 향상을 위해 크기가 지정되지 않은 이미지에 자동으로 width 및 height 속성을 추가합니다."
+
+#: core/class-settings.php:375
+msgid "Automatically add missing image dimensions"
+msgstr "누락된 이미지 크기를 자동으로 추가합니다."
+
+#: core/class-settings.php:357
+msgid "Keep a backup of your original images so you can restore them anytime. Be aware this may increase the size of your uploads folder."
+msgstr "원본 이미지를 백업해 두시면 언제든지 복원할 수 있습니다. 이로 인해 업로드 폴더 크기가 증가할 수 있음을 유의하세요."
+
+#: core/class-settings.php:352
+msgid "Control how Smush processes your original image files when running bulk smush."
+msgstr "대량 Smush 실행 시 Smush가 원본 이미지 파일을 처리하는 방식을 제어하세요."
+
+#: core/class-settings.php:347
+msgid "When enabled, WordPress won’t create scaled versions of large images; only your original upload is kept."
+msgstr "이 기능이 활성화되면 WordPress는 큰 이미지의 축소 버전을 생성하지 않으며, 원본 업로드 파일만 보관됩니다."
+
+#: core/class-settings.php:342
+msgid "WordPress scales large images (over 2560px) and keeps the originals as a backup. You can adjust the size limit or turn scaling off entirely."
+msgstr "워드프레스는 큰 이미지(2560px 초과)를 축소하고 원본을 백업으로 보관합니다. 크기 제한을 조정하거나 축소 기능을 완전히 비활성화할 수 있습니다."
+
+#: core/class-settings.php:341
+msgid "Large Image Resizing"
+msgstr "대형 이미지 크기 조정"
+
+#: core/class-configs.php:777 core/class-settings.php:340
+msgid "Resize large images"
+msgstr "대형 이미지 크기 조정"
+
+#: core/class-settings.php:337
+msgid "Photos can include camera settings, date or location. Removing this EXIF data reduces the file size."
+msgstr "사진에는 카메라 설정, 날짜 또는 위치 정보가 포함될 수 있습니다. 이 EXIF 데이터를 제거하면 파일 크기가 줄어듭니다."
+
+#: core/class-settings.php:335
+msgid "Remove image metadata"
+msgstr "이미지 메타데이터 제거"
+
+#: core/class-settings.php:317
+msgid "WordPress creates multiple thumbnails for each uploaded image. Select which sizes to include in bulk smushing."
+msgstr "워드프레스는 업로드된 각 이미지에 대해 여러 개의 썸네일을 생성합니다. 일괄 압축에 포함할 크기를 선택하세요."
+
+#: core/class-hub-connector.php:708
+msgid "Site disconnected successfully."
+msgstr "사이트 연결 해제 성공."
+
+#: core/class-hub-connector.php:640
+msgid "Note: disconnecting your site from WPMU DEV will disable other services that rely on this connection."
+msgstr "참고: WPMU DEV 연결 해제는 이 연결에 의존하는 다른 서비스도 비활성화합니다."
+
+#: core/class-hub-connector.php:623
+msgid "Connects your site to the WPMU DEV Free Plan, unlocking the plugin's Free plan features."
+msgstr "사이트를 WPMU DEV 무료 플랜에 연결하여 플러그인의 무료 플랜 기능을 활성화합니다."
+
+#: core/class-hub-connector.php:621
+msgid "Hub Connector"
+msgstr "허브 커넥터"
+
+#. translators: %s: Feature
+#: core/class-hub-connector.php:487
+msgid "Log in with your WPMU DEV account credentials to activate %s."
+msgstr "WPMU DEV 계정 정보로 로그인하여 %s를 활성화하세요."
+
+#. translators: %1$s: Feature, %2$s: Opening italic tag, %3$s: Closing italic
+#. tag.
+#: core/class-hub-connector.php:480
+msgid "Create a free account to connect your site to WPMU DEV and activate %1$s. %2$s It`s fast, seamless, and free. %3$s"
+msgstr "무료 계정을 생성하여 사이트를 WPMU DEV에 연결하고 %1$s를 활성화하세요. %2$s 빠르고, 원활하며, 무료입니다. %3$s"
+
+#: core/class-hub-connector.php:200
+msgid "Library Error"
+msgstr "라이브러리 오류"
+
+#: core/class-hub-connector.php:199
+msgid "Required library is missing. Please reinstall the plugin."
+msgstr "필수 라이브러리가 누락되었습니다. 플러그인을 재설치하세요."
+
+#: app/class-media-library.php:589 app/class-media-library.php:591
+#: core/class-core.php:277
+msgid "Smushing..."
+msgstr "스머싱 중..."
+
+#: core/class-configs.php:920 core/class-settings.php:376
+msgid "Add Missing Image Dimensions"
+msgstr "누락된 이미지 크기 추가"
+
+#: core/class-configs.php:919
+msgid "Auto Resizing"
+msgstr "자동 크기 조정"
+
+#. translators: 1: link start tag, 2: link end tag
+#: app/class-media-library.php:242
+msgid "Ensure %1$sBackup original images%2$s is enabled to keep copies of your originals."
+msgstr "원본 이미지 사본을 보관하려면 %1$s원본 이미지 백업%2$s가 활성화되어 있는지 확인하세요."
+
+#: core/class-hub-connector.php:631
+msgid "Disconnect site"
+msgstr "사이트 연결 해제"
+
+#: app/views/deactivation-survey.php:107
+msgid "Requires connecting site to Smush API"
+msgstr "Smush API에 사이트 연결 필요"
+
+#: app/views/deactivation-survey.php:98
+msgid "Tell us more (optional)"
+msgstr "추가 정보 제공 (선택 사항)"
+
+#: app/class-media-library.php:702
+msgid "Connect my site"
+msgstr "내 사이트 연결"
+
+#. translators: %1$d: restored count, %2$d: total count
+#: app/class-media-library.php:234
+msgid "All selected images were restored successfully (%1$d/%2$d)."
+msgstr "선택한 모든 이미지가 성공적으로 복원되었습니다 (%1$d/%2$d)."
+
+#: app/class-media-library.php:111
+msgid "Smush restore"
+msgstr "스머시 복원"
+
+#: app/class-admin.php:603
+msgid "If your site’s feeling faster, we’d be so grateful for a quick 5-star review. It really helps us out!"
+msgstr "사이트 속도가 빨라진 느낌이 든다면, 간단한 5점 리뷰를 남겨주시면 정말 감사하겠습니다. 저희에게 큰 도움이 됩니다!"
+
+#: app/class-admin.php:602
+msgid "Thanks for choosing Smush! 💙"
+msgstr "Smush를 선택해 주셔서 감사합니다! 💙"
+
+#. translators: 1: <br>, 2: Open the link <a>, 3: Close the link </a>
+#: app/class-admin.php:564
+msgid "Your site’s faster and lighter than ever. Plus, Smush will keep every new image optimized, free for life. %1$sHappy with the results? Share the love with a 5-star review on %2$sWordPress.org%3$s."
+msgstr "귀하의 사이트는 그 어느 때보다 빠르고 가벼워졌습니다. 게다가 Smush는 모든 새 이미지를 평생 무료로 최적화해 드립니다. %1$s결과가 마음에 드셨나요? %2$sWordPress.org%3$s에 5점 만점 리뷰로 사랑을 나눠주세요."
+
+#: app/class-admin.php:559
+msgid "100% of your images are now optimized! 🎉"
+msgstr "이미지 100%가 최적화되었습니다! 🎉"
+
+#: app/class-admin.php:532 app/class-admin.php:575 app/class-admin.php:608
+msgid "I already did"
+msgstr "이미 완료했습니다"
+
+#: app/class-admin.php:531 app/class-admin.php:574 app/class-admin.php:607
+msgid "Remind me later"
+msgstr "나중에 알림"
+
+#: app/class-admin.php:527
+msgid "Seeing faster speeds? We’d really appreciate a quick review. It keeps us growing and helps more WordPress users discover Smush."
+msgstr "속도가 빨라졌나요? 간단한 리뷰를 남겨주시면 정말 감사하겠습니다. 여러분의 리뷰가 저희 성장을 돕고 더 많은 워드프레스 사용자가 스머시를 발견하는 데 도움이 됩니다."
+
+#. translators: %d: optimized images count
+#: app/class-admin.php:524
+msgid "You’ve optimized %d images! 🎉"
+msgstr "이미 %d개의 이미지를 최적화하셨습니다! 🎉"
+
+#: app/class-admin.php:517 app/class-admin.php:555 app/class-admin.php:598
+msgid "Smush review prompts icon"
+msgstr "스머시 리뷰 요청 아이콘"
+
+#: core/smush/class-smusher.php:623
+msgid "The request is taking longer than expected. Please check back in a few moments."
+msgstr "요청이 예상보다 오래 걸리고 있습니다. 잠시 후 다시 확인해 주세요."
+
+#: core/lazy-load/class-lazy-load-video-embed.php:326
+msgid "Play video"
+msgstr "동영상 재생"
+
+#: core/class-configs.php:1007
+msgid "Replace Video Embed with preview images"
+msgstr "동영상 삽입을 미리보기 이미지로 대체"
+
+#: core/class-configs.php:998
+msgid "Embedded Content"
+msgstr "임베디드 콘텐츠"
+
+#: core/frontend/class-frontend-controller.php:878
+msgid "Preload"
+msgstr "사전 로드"
+
+#: core/frontend/class-frontend-controller.php:812
+msgid "Lazy Load & Preload"
+msgstr "지연 로딩 및 사전 로딩"
+
+#: core/class-configs.php:898
+msgid "Preload Critical Images"
+msgstr "중요 이미지 사전 로드"
+
+#. Author URI of the plugin
+#: wp-smush.php
+msgid "https://wpmudev.com/"
+msgstr "https://wpmudev.com/"
+
+#. Plugin URI of the plugin
+#: wp-smush.php
+msgid "https://wpmudev.com/project/wp-smush-pro/"
+msgstr "https://wpmudev.com/project/wp-smush-pro/,"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:276
+msgid "Store backups for 50 days"
+msgstr "50일간 백업 저장"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:275
+msgid "Comes with up to 50GB storage"
+msgstr "최대 50GB 저장 공간 제공"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:274
+msgid "Our PRO-only backup plugin"
+msgstr "PRO 전용 백업 플러그인"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:272
+msgid "Space-efficient backups that happen effortlessly while you sleep."
+msgstr "수면 중에도 손쉽게 이루어지는 공간 효율적인 백업."
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:271
+msgid "Snapshot Pro"
+msgstr "스냅샷 프로"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:256
+msgid "Automatic integrated linking"
+msgstr "자동 통합 링크 생성"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:255
+msgid "SEO health audit reports"
+msgstr "SEO 건강 진단 보고서"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:254
+msgid "Site crawler SEO scan & reports"
+msgstr "사이트 크롤러 SEO 스캔 및 보고서"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:251
+msgid "SmartCrawl Pro"
+msgstr "스마트크롤 프로"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:236
+msgid "Turbocharged asset optimization"
+msgstr "터보차지된 자산 최적화"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:235
+msgid "Automated critical CSS generation"
+msgstr "중요 CSS 자동 생성"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:234
+msgid "Delay JavaScript execution"
+msgstr "자바스크립트 실행 지연"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:232
+msgid "For sites that load in one flap of a hummingbird’s wing."
+msgstr "벌새 날개 한 번 펄럭임에 로드되는 사이트를 위해."
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:231
+msgid "Hummingbird Pro"
+msgstr "허밍버드 프로"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:216
+msgid "Comprehensive audit logging"
+msgstr "포괄적인 감사 로그 기록"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:215
+msgid "AntiBot Global Firewall"
+msgstr "AntiBot 글로벌 방화벽"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:214
+msgid "Scheduled malware scanning"
+msgstr "예약된 악성코드 검사"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:211
+msgid "Defender Pro"
+msgstr "디펜더 프로"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:196
+msgid "Unlimited bulk and auto smushing"
+msgstr "무제한 대량 및 자동 압축"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:195
+msgid "123 point CDN + 50GB bandwidth"
+msgstr "123포인트 CDN + 50GB 대역폭"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:194
+msgid "Ultra Smush with 5X compression"
+msgstr "5배 압축의 울트라 스머시"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:176
+msgid "Get form submitter’s geolocation"
+msgstr "양식 제출자의 지리적 위치 확인"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:175
+msgid "Accept recurring payment"
+msgstr "정기 결제 수락"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:174
+msgid "Generate and send PDF files"
+msgstr "PDF 파일 생성 및 전송"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:171
+msgid "Forminator Pro"
+msgstr "포미네이터 프로"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:152
+msgid "Broken Link Checker"
+msgstr "깨진 링크 검사기"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:136
+msgid "Beehive"
+msgstr "비하이브"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:121
+msgid "Rebrand, customize, and white label WordPress without code."
+msgstr "코딩 없이 워드프레스 리브랜딩, 커스터마이징, 화이트 라벨링을 구현하세요."
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:120
+msgid "Branda"
+msgstr "브랜다"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:105
+msgid "Create high-converting and targeted marketing campaigns in minutes."
+msgstr "고효율 타겟 마케팅 캠페인을 몇 분 만에 생성하세요."
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:104
+msgid "Hustle"
+msgstr "허슬"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:89
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:252
+msgid "Take the mystery out of optimizing your site."
+msgstr "사이트 최적화의 복잡함을 해소하세요."
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:88
+msgid "SmartCrawl"
+msgstr "스마트크롤"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:73
+msgid "For sites that load in one flap of a hummingbird’s wing. "
+msgstr "벌새 날개짓 한 번에 로드되는 사이트를 위해. "
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:72
+msgid "Hummingbird"
+msgstr "허밍버드"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:57
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:212
+msgid "Automated and reliable WordPress security in a matter of clicks."
+msgstr "클릭 몇 번으로 자동화되고 신뢰할 수 있는 워드프레스 보안."
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:56
+msgid "Defender"
+msgstr "디펜더"
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:41
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:172
+msgid "Surveys, subscriptions, feedback, quizzes: Forminator makes it easy."
+msgstr "설문조사, 구독, 피드백, 퀴즈: 포미네이터로 간편하게 구현하세요."
+
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:40
+msgid "Forminator"
+msgstr "포미네이터"
+
+#: core/external/plugins-cross-sell-page/app/submenus/class-cross-sell.php:266
+#: core/external/plugins-cross-sell-page/app/submenus/class-cross-sell.php:267
+msgid "More free Plugins?"
+msgstr "더 많은 무료 플러그인?"
+
+#: core/external/plugins-cross-sell-page/app/rest-endpoints/class-install-plugin.php:118
+msgid "Plugin already installed."
+msgstr "플러그인 이미 설치됨."
+
+#: core/external/plugins-cross-sell-page/app/rest-endpoints/class-install-plugin.php:115
+msgid "Plugin installed successfully."
+msgstr "플러그인 설치 성공."
+
+#: core/external/plugins-cross-sell-page/app/rest-endpoints/class-install-plugin.php:106
+msgid "You are already using this plugin."
+msgstr "이미 이 플러그인을 사용 중입니다."
+
+#: core/external/plugins-cross-sell-page/app/rest-endpoints/class-activate-plugin.php:102
+msgid "Plugin not found."
+msgstr "플러그인을 찾을 수 없습니다."
+
+#: core/resize/class-resize-optimization.php:66
+msgid "Resize"
+msgstr "크기 조정"
+
+#: core/png2jpg/class-png2jpg-optimization.php:87
+msgid "PNG to JPG"
+msgstr "PNG를 JPG로 변환"
+
+#. translators: %s: Optimization name
+#: core/media-library/class-media-library-row.php:669
+msgid "%s Savings"
+msgstr "%s 절감"
+
+#: core/class-configs.php:745 core/class-settings.php:1405
+msgid "AVIF"
+msgstr "AVIF"
+
+#: core/frontend/class-frontend-controller.php:880
+msgid "Next-Gen Formats"
+msgstr "차세대 형식"
+
+#. translators: %s: Error message.
+#: core/smush/class-smusher.php:359
+msgid "Smush was successful but we were unable to save from URL: %s."
+msgstr "Smush는 성공했지만 URL: %s에서 저장할 수 없었습니다."
+
+#: core/media/class-media-item.php:821
+msgid "Missing attached file data in image metadata"
+msgstr "이미지 메타데이터에 첨부 파일 데이터가 누락되었습니다."
+
+#: core/cli/class-cli.php:360
+msgid ", and "
+msgstr "그리고 "
+
+#. translators: 1. unsmushed images message, 2. 'and' text for when having both
+#. unsmushed and re-smush images, 3. re-smush images message.
+#: core/cli/class-cli.php:358
+msgid "You have %1$s%2$s%3$s. %4$s"
+msgstr "%1$s%2$s%3$s가 있습니다. %4$s"
+
+#: core/cli/class-cli.php:353
+msgid "Run \"wp smush compress\" to smush all images."
+msgstr "\"wp smush compress\"를 실행하여 모든 이미지를 압축하세요."
+
+#. translators: %d - number of attachments.
+#: core/cli/class-cli.php:340
+msgid "Found %d attachment that needs re-smushing"
+msgid_plural "Found %d attachments that need re-smushing"
+msgstr[0] "%d개의 첨부 파일이 압축 재처리 필요"
+
+#. translators: %d - number of attachments.
+#: core/cli/class-cli.php:324
+msgid "Found %d attachment that needs smushing"
+msgid_plural "Found %d attachments that need smushing"
+msgstr[0] "압축이 필요한 첨부 파일 %1$d개를 발견했습니다"
+
+#: core/cli/class-cli.php:299
+msgid "Resmush Count"
+msgstr "Resmush 카운트"
+
+#: core/cli/class-cli.php:298
+msgid "Unsmushed Count"
+msgstr "압축 해제된 이미지 수"
+
+#: core/cli/class-cli.php:297
+msgid "Optimized Percent(%)"
+msgstr "최적화율(%)"
+
+#: core/cli/class-cli.php:295
+msgid "Savings Percent(%)"
+msgstr "절감률(%)"
+
+#: core/cli/class-cli.php:278
+msgid "Media library scan complete."
+msgstr "미디어 라이브러리 스캔 완료."
+
+#: core/cli/class-cli.php:274
+msgid "The background process is cancelled."
+msgstr "백그라운드 프로세스가 취소되었습니다."
+
+#: core/cli/class-cli.php:269
+msgid "Unfortunately the scan could not be completed due to an unknown error. Please restart the scan."
+msgstr "알 수 없는 오류로 인해 스캔을 완료할 수 없습니다. 스캔을 다시 시작해 주세요."
+
+#: core/cli/class-cli.php:247
+msgid "Starting media library scan"
+msgstr "미디어 라이브러리 스캔 시작"
+
+#: core/cli/class-cli.php:235
+msgid "Your site seems to have an issue with loopback requests. Please try again and if the problem persists find out more here: https://wpmudev.com/docs/wpmu-dev-plugins/smush/#background-processing"
+msgstr "사이트에서 루프백 요청 관련 문제가 발생한 것으로 보입니다. 다시 시도해 보시고 문제가 지속될 경우 자세한 내용은 여기에서 확인하세요: https://wpmudev.com/docs/wpmu-dev-plugins/smush/#background-processing"
+
+#. translators: %s Restore image Id(s)
+#: core/cli/class-cli.php:218
+msgid "Restoring %s image"
+msgid_plural "Restoring %s images"
+msgstr[0] "%s 이미지 복원 중"
+
+#: core/cli/class-cli.php:207
+msgid "Restoring all images"
+msgstr "모든 이미지 복원"
+
+#: core/cli/class-cli.php:169
+msgid "Images that need to be smushed:"
+msgstr "압축이 필요한 이미지:"
+
+#: core/cli/class-cli.php:102
+msgid "Missing image id(s)."
+msgstr "이미지 ID가 누락되었습니다."
+
+#: core/cli/class-cli-optimizer.php:267
+msgid "We did not find any images that need smushing."
+msgstr "스머싱이 필요한 이미지를 찾지 못했습니다."
+
+#. translators: %s: Error message
+#: core/cli/class-cli-optimizer.php:231
+msgid "Image could not be smushed: %s"
+msgstr "이미지 압축 실패: %s"
+
+#: core/cli/class-cli-optimizer.php:224
+msgid "Image smushed."
+msgstr "이미지 스머시 완료."
+
+#: core/cli/class-cli-optimizer.php:179 core/cli/class-cli-optimizer.php:181
+msgid "Starting smush ..."
+msgstr "스머시 시작 중..."
+
+#: core/cli/class-cli-optimizer.php:163
+msgid "Found %d attachments that need smushing!"
+msgstr "압축이 필요한 첨부 파일 %d개 발견!"
+
+#: core/cli/class-cli-optimizer.php:156
+msgid "No images available to smush."
+msgstr "Smush 적용 가능한 이미지가 없습니다."
+
+#: core/cli/class-cli-optimizer.php:139
+msgid "All of your images failed to restore. Find out why and how to resolve the issue(s) below."
+msgstr "모든 이미지 복원이 실패했습니다. 아래에서 문제 원인과 해결 방법을 확인하세요."
+
+#. translators: %s: Error message
+#: core/cli/class-cli-optimizer.php:118
+msgid "Image could not be restored: %s"
+msgstr "이미지 복원 실패: %s"
+
+#: core/cli/class-cli-optimizer.php:111
+msgid "Image restored successfully!"
+msgstr "이미지 복원 성공!"
+
+#: core/cli/class-cli-optimizer.php:79
+msgid "Starting bulk restoration ..."
+msgstr "대량 복원 시작 중..."
+
+#: core/cli/class-cli-optimizer.php:77
+msgid "Starting restoration ..."
+msgstr "복원 시작 중..."
+
+#: core/cli/class-cli-optimizer.php:61
+msgid "Found %d attachments that need to be restored!"
+msgstr "복원이 필요한 첨부 파일 %d개 발견!"
+
+#: core/cli/class-cli-optimizer.php:59 core/cli/class-cli-optimizer.php:160
+#: core/cli/class-cli.php:252
+msgid "Progress:"
+msgstr "진행률:"
+
+#: core/class-configs.php:925
+msgid "Noscript Tag"
+msgstr "Noscript 태그"
+
+#: app/views/deactivation-survey.php:180
+msgid "Submit & Deactivate"
+msgstr "제출 및 비활성화"
+
+#: app/views/deactivation-survey.php:178
+msgid "Skip & Deactivate"
+msgstr "건너뛰기 및 비활성화"
+
+#: app/views/deactivation-survey.php:164
+msgid "Other"
+msgstr "기타"
+
+#: app/views/deactivation-survey.php:155
+msgid "Please tell us why. (Optional)"
+msgstr "이유를 알려주세요. (선택 사항)"
+
+#: app/views/deactivation-survey.php:150
+msgid "No longer required"
+msgstr "더 이상 필요하지 않음"
+
+#: app/views/deactivation-survey.php:141 app/views/deactivation-survey.php:168
+msgid "Please tell us why. (optional)"
+msgstr "이유를 알려주세요. (선택 사항)"
+
+#: app/views/deactivation-survey.php:136
+msgid "Found a better plugin"
+msgstr "더 나은 플러그인을 찾으셨나요?"
+
+#: app/views/deactivation-survey.php:127
+msgid "Which plugin and how is it better? (optional)"
+msgstr "어떤 플러그인이 더 나은가요? (선택 사항)"
+
+#: app/views/deactivation-survey.php:122
+msgid "Doesn't meet expectations"
+msgstr "기대치 미달"
+
+#: app/views/deactivation-survey.php:113
+msgid "What could we do better? (optional)"
+msgstr "더 나아질 수 있는 부분은 무엇인가요? (선택 사항)"
+
+#: app/views/deactivation-survey.php:91
+msgid "Breaks the site or other plugins/services"
+msgstr "사이트 또는 다른 플러그인/서비스를 중단시킵니다"
+
+#: app/views/deactivation-survey.php:77
+msgid "Can't make it work"
+msgstr "작동하지 않음"
+
+#: app/views/deactivation-survey.php:68 app/views/deactivation-survey.php:82
+msgid "What issue did you face? (optional)"
+msgstr "어떤 문제를 겪으셨나요? (선택 사항)"
+
+#: app/views/deactivation-survey.php:63
+msgid "Temporary deactivation for debugging"
+msgstr "디버깅을 위한 일시적 비활성화"
+
+#: app/views/deactivation-survey.php:54
+msgid "What issue are you debugging? (optional)"
+msgstr "어떤 문제를 디버깅 중인가요? (선택 사항)"
+
+#: app/views/deactivation-survey.php:49
+msgid "Need Help?"
+msgstr "도움이 필요하신가요?"
+
+#. translators: %s: Support link
+#: app/views/deactivation-survey.php:48
+msgid "Please tell us why. Your feedback helps us improve. %s"
+msgstr "이유를 알려주세요. 피드백은 서비스 개선에 도움이 됩니다. %s"
+
+#: app/views/deactivation-survey.php:34
+msgid "Deactivate Smush?"
+msgstr "스머시 비활성화?"
+
+#: core/frontend/class-frontend-controller.php:1495
+msgid "Rate our plugin"
+msgstr "플러그인 평가하기"
+
+#: core/class-configs.php:772 core/class-settings.php:350
+msgid "Optimize original images"
+msgstr "원본 이미지 최적화"
+
+#: core/cache/class-cache-controller.php:88
+msgid "Next-Gen conversion method has been updated.<br/>If you have a page caching plugin or server caching, please clear it to ensure everything works as expected."
+msgstr "차세대 변환 방식이 업데이트되었습니다.<br/>페이지 캐싱 플러그인이나 서버 캐싱을 사용 중이라면, 모든 기능이 정상 작동하도록 캐시를 지워주세요."
+
+#: core/cache/class-cache-controller.php:87
+msgid "Next-Gen Formats status has changed.<br/>If you have a page caching plugin or server caching, please clear it to ensure everything works as expected."
+msgstr "차세대 형식 상태가 변경되었습니다.<br/>페이지 캐싱 플러그인이나 서버 캐싱을 사용 중이라면, 모든 기능이 정상 작동하도록 캐시를 지워주세요."
+
+#: core/cache/class-cache-controller.php:83
+msgid "CDN status has changed.<br/>If you have a page caching plugin or server caching, please clear it to ensure everything works as expected."
+msgstr "CDN 상태가 변경되었습니다.<br/>페이지 캐싱 플러그인 또는 서버 캐싱이 있는 경우 모든 것이 예상대로 작동하는지 확인하려면 지워주세요."
+
+#: app/views/email/bulk-smush.php:105
+msgid "View Full Report"
+msgstr "전체 보고서 보기"
+
+#. translators: 1: Open a link, 2: Close the link
+#: app/class-admin.php:476
+msgid "If you wish to also convert your original uploaded images to .%1$s format, please enable the %2$sOptimize original images%3$s setting below."
+msgstr "원본 업로드 이미지 또한 .%1$s 형식으로 변환하려면 아래의 %2$s원본 이미지 최적화%3$s 설정을 활성화하세요."
+
+#. translators: %1$s - Requires PHP version - %2$s URL to an article about our
+#. hosting benefits.
+#: wp-smush.php:119
+msgid "Your site is running an outdated version of PHP that is no longer supported or receiving security updates. Please update PHP to at least version %1$s at your hosting provider in order to activate Smush, or consider switching to <a href=\"%2$s\" target=\"_blank\" rel=\"noopener noreferrer\">WPMU DEV Hosting</a>."
+msgstr "사이트에서 더 이상 지원되지 않거나 보안 업데이트를 받지 않는 오래된 버전의 PHP를 실행하고 있습니다. 스머시를 활성화하려면 호스팅 제공업체에서 PHP를 버전 %1$s 이상으로 업데이트하거나 <a href=\"%2$s\" target=\"_blank\" rel=\"noopener noreferrer\">WPMU DEV 호스팅</a>으로 전환하는 것이 좋습니다."
+
+#. translators: 1: Opening <strong> 2: Closing </strong>
+#: core/class-settings.php:329
+msgid "Choose the level of compression that suits your needs. We recommend %1$sUltra%2$s for faster sites and impressive image quality."
+msgstr "필요에 맞는 압축 수준을 선택하세요. 더 빠른 사이트와 인상적인 이미지 품질을 위해 %1$sUltra%2$s를 권장합니다."
+
+#: core/class-settings.php:325
+msgid "Choose Compression Level"
+msgstr "압축 수준 선택"
+
+#: core/class-settings.php:326
+msgid "Smush Mode"
+msgstr "스머시 모드"
+
+#: core/class-settings.php:1520
+msgid "Ultra"
+msgstr "Ultra"
+
+#: core/class-settings.php:1519
+msgid "Super"
+msgstr "수퍼"
+
+#: core/class-settings.php:1518
+msgid "Basic"
+msgstr "기본"
+
+#: core/class-hub-connector.php:637
+msgid "Connect site"
+msgstr "사이트 연결"
+
+#: core/media-library/class-media-library-row.php:800
+msgid "Ultra Smush"
+msgstr "울트라 스머시"
+
+#: core/media-library/class-media-library-row.php:271
+msgid "Upgrade to Pro to Smush larger images."
+msgstr "더 큰 이미지를 스무시하려면 프로로 업그레이드하세요."
+
+#: core/media-library/class-media-library-row.php:148
+msgid "Upgrade to Serve GIFs faster with CDN."
+msgstr "CDN으로 GIF를 더 빠르게 전송하려면 업그레이드하세요."
+
+#: app/views/email/upsell-cdn.php:51
+msgid "Includes better GIF performance"
+msgstr "더 나은 GIF 성능 포함"
+
+#. translators: %s: File path.
+#: core/smush/class-smusher.php:375
+msgid "Smush was successful but we were unable to save the file due to a file system error: [%s]."
+msgstr "압축에는 성공했지만 파일 시스템 오류로 인해 파일을 저장할 수 없습니다: [%s]."
+
+#. translators: 1: Resized path, 2: Original path.
+#: core/resize/class-file-resizer.php:134
+msgid "Failed to copy from [%1$s] to [%2$s]"
+msgstr "%1$s]에서 [%2$s]로 복사하지 못했습니다."
+
+#. translators: %s: Resized path
+#: core/resize/class-file-resizer.php:95
+msgid "The resized image [%s] does not exist."
+msgstr "크기가 조정된 이미지 [%s]가 존재하지 않습니다."
+
+#. translators: %d: Image id.
+#: core/resize/class-resize-optimization.php:189
+msgid "Could not find a suitable source image for resizing media item [%d]."
+msgstr "미디어 항목 [%d]의 크기를 조정하는 데 적합한 원본 이미지를 찾을 수 없습니다."
+
+#. translators: %s: Error message.
+#: core/png2jpg/class-png2jpg-optimization.php:480
+msgid "The image editor was unable to save the image: %s"
+msgstr "이미지 편집기에서 이미지를 저장하지 못했습니다: %s"
+
+#. translators: 1: Image path, 2: Image id, 3: Error message.
+#: core/png2jpg/class-png2jpg-optimization.php:464
+msgid "Image Editor cannot load file [%1$s(%2$d)]: %3$s."
+msgstr "이미지 편집기에서 파일 [%1$s(%2$d)]: %3$s을(를) 로드할 수 없습니다."
+
+#. translators: 1: Converted path, 2: Converted file size, 3: Original path, 4:
+#. Original file size
+#: core/png2jpg/class-png2jpg-optimization.php:415
+msgid "The new file [%1$s](%2$s) is larger than the original file [%3$s](%4$s)."
+msgstr "새 파일 [%1$s](%2$s)이(가) 원본 파일 [%3$s](%4$s)보다 큽니다."
+
+#: core/png2jpg/class-png2jpg-optimization.php:409
+#: core/resize/class-file-resizer.php:111
+msgid "Skipped: Smushed file is larger than the original file."
+msgstr "건너뛰었습니다: 스무싱된 파일이 원본 파일보다 큽니다."
+
+#. translators: %1$s - <a>, %2$s - </a>
+#: core/photon/class-photon-controller.php:40
+msgid "We noticed that your site is configured to completely offload intermediate thumbnail sizes (they don't exist in your Media Library), so Smush can't optimize those images. You can still optimize your %1$sOriginal Images%2$s if you want to."
+msgstr "사이트가 중간 썸네일 크기를 완전히 오프로드하도록 구성되었으므로(미디어 라이브러리에 존재하지 않음) 스머시에서 해당 이미지를 최적화할 수 없습니다. 원하는 경우 %1$sOriginal Images%2$s를 최적화할 수 있습니다."
+
+#. translators: %s: Error message
+#: core/backups/class-backups-controller.php:157
+msgid "Image not restored. %s"
+msgstr "이미지가 복원되지 않았습니다. %s"
+
+#. translators: %s: Smush image filter
+#: core/media/class-media-item.php:853
+msgid "Skipped with %s filter."
+msgstr "%s 필터로 건너뛰었습니다."
+
+#. translators: %s: Image mime type
+#: core/media/class-media-item.php:812
+msgid "The mime type %s is not supported by Smush."
+msgstr "마임 유형 %s은(는) 스머시에서 지원되지 않습니다."
+
+#: core/media/class-media-item.php:804
+msgid "Attachment is not an image so it can't be smushed."
+msgstr "첨부파일은 이미지가 아니므로 스머시할 수 없습니다."
+
+#: core/media/class-media-item-controller.php:86
+msgid "Not found any failed items."
+msgstr "실패한 항목을 찾을 수 없습니다."
+
+#. translators: 1: <br/> tag, 2: Image file size
+#: core/media-library/class-media-library-row.php:609
+msgid "%1$sMain Image size: %2$s"
+msgstr "%1$s기본 이미지 크기: %2$s"
+
+#: core/media-library/class-media-library-row.php:394
+msgid "Skipped: Image is already optimized."
+msgstr "건너뛰었습니다: 이미지가 이미 최적화되었습니다."
+
+#: core/media-library/class-media-library-row.php:312
+msgid "We recommend regenerating the thumbnails."
+msgstr "미리보기 이미지를 다시 생성하는 것이 좋습니다."
+
+#: core/media-library/class-media-library-row.php:310
+msgid "We recommend using the restore image function to regenerate the thumbnails."
+msgstr "이미지 복원 기능을 사용하여 미리보기 이미지를 다시 생성하는 것이 좋습니다."
+
+#: core/media-library/class-background-media-library-scanner.php:91
+msgid "Background scan is already in processing."
+msgstr "배경 스캔이 이미 처리 중입니다."
+
+#. translators: %s Email address
+#: core/class-settings.php:306
+msgid "Be notified via email about the bulk smush status when the process has completed. You'll receive an email at %s."
+msgstr "프로세스가 완료되면 대량 스머시 상태에 대해 이메일로 알림을 받습니다. %s에 이메일을 받게 됩니다."
+
+#: core/bulk/class-mail.php:174
+msgid "Images failed to smush"
+msgstr "이미지 스무싱에 실패했습니다."
+
+#: core/bulk/class-mail.php:172
+msgid "Images smushed successfully"
+msgstr "이미지가 성공적으로 스무딩됨"
+
+#: core/bulk/class-mail.php:171
+msgid "The number of images analyzed during the bulk smush."
+msgstr "대량 스무싱 중에 분석된 이미지의 수입니다."
+
+#: core/bulk/class-mail.php:169
+msgid "The bulk smush you actioned has successfully completed. Here’s a quick summary of the results:"
+msgstr "작업한 대량 스머시가 성공적으로 완료되었습니다. 다음은 결과를 간략하게 요약한 내용입니다:"
+
+#: core/bulk/class-mail.php:161
+msgid "Images failed to compress"
+msgstr "이미지 압축에 실패했습니다."
+
+#: core/bulk/class-mail.php:160 core/bulk/class-mail.php:173
+msgid "The number of images successfully compressed."
+msgstr "성공적으로 압축된 이미지 수입니다."
+
+#: core/bulk/class-mail.php:159
+msgid "Images compressed successfully"
+msgstr "이미지가 성공적으로 압축되었습니다."
+
+#: core/bulk/class-mail.php:158
+msgid "The number of images analyzed during the bulk compress."
+msgstr "대량 압축 중에 분석된 이미지의 수입니다."
+
+#: core/bulk/class-mail.php:157 core/bulk/class-mail.php:170
+msgid "Total image attachments"
+msgstr "총 이미지 첨부 파일 수"
+
+#: core/bulk/class-mail.php:156
+msgid "The bulk compress you actioned has successfully completed. Here’s a quick summary of the results:"
+msgstr "작업한 대량 압축이 성공적으로 완료되었습니다. 다음은 결과를 간략하게 요약한 내용입니다:"
+
+#: core/bulk/class-mail.php:150
+msgid "The number of images unsuccessfully compressed."
+msgstr "압축에 실패한 이미지 수입니다."
+
+#: core/bulk/class-mail.php:148
+msgid "The number of images unsuccessfully compressed (find out why below)."
+msgstr "압축에 실패한 이미지 수입니다(아래에서 이유를 확인하세요)."
+
+#. translators: %s: Site URL
+#: core/bulk/class-mail.php:83 core/bulk/class-mail.php:168
+msgid "Bulk Smush completed for %s"
+msgstr "에 대해 대량 압축을 완료했습니다.%s"
+
+#. translators: %s: Site URL
+#: core/bulk/class-mail.php:80 core/bulk/class-mail.php:155
+msgid "Bulk compression completed for %s"
+msgstr "%s에 대한 대량 압축이 완료되었습니다."
+
+#: core/bulk/class-mail.php:61 core/bulk/class-mail.php:92
+msgid "Bulk Compression"
+msgstr "대량 압축"
+
+#. translators: %s: Email address
+#: core/bulk/class-background-bulk-smush-controller.php:357
+msgid "Feel free to close this page while Smush works its magic in the background. We’ll email you at <strong>%s</strong> when it’s done."
+msgstr "스머시가 백그라운드에서 마법을 부리는 동안 이 페이지를 닫아주세요. 완료되면 <strong>%s</strong>로 이메일을 보내드리겠습니다."
+
+#. translators: %s: a link
+#: core/bulk/class-background-bulk-smush-controller.php:351
+msgid "Feel free to close this page while Smush works its magic in the background. %s to receive an email when the process finishes."
+msgstr "스머시가 백그라운드에서 마법처럼 작동하는 동안 이 페이지를 닫아도 됩니다. %s를 입력하여 프로세스가 완료되면 이메일을 받으세요."
+
+#: core/bulk/class-background-bulk-smush-controller.php:347
+msgid "Enable the email notification"
+msgstr "이메일 알림 사용 설정"
+
+#. translators: %s: Cron interval in minutes
+#: core/background/class-background-process.php:334
+msgid "Every %d Minutes"
+msgstr "매 %d 분"
+
+#: core/class-configs.php:780 core/class-settings.php:312
+msgid "Email Notification"
+msgstr "이메일 알림"
+
+#: core/class-settings.php:311
+msgid "Enable email notification"
+msgstr "이메일 알림 사용"
+
+#: core/media-library/class-media-library-row.php:256
+#: core/media-library/class-media-library-row.php:277
+msgid "Ignored."
+msgstr "무시됨."
+
+#: core/class-core.php:298
+msgid "Cancelling ..."
+msgstr "취소 중 ..."
+
+#: app/class-media-library.php:592 core/class-core.php:286
+msgid "Ignored"
+msgstr "무시"
+
+#: core/class-core.php:279
+msgid "View Details"
+msgstr "세부 정보 보기"
+
+#: app/views/email/upsell-cdn.php:65
+msgid "Learn more about Pro"
+msgstr "프로에 대해 자세히 알아보기"
+
+#: app/views/email/upsell-cdn.php:23
+msgid "Serve images 2X faster with Smush Pro’s CDN"
+msgstr "스머시 프로의 CDN으로 2배 더 빠르게 이미지 제공"
+
+#: app/views/email/index.php:75
+msgid "The WPMU DEV Team."
+msgstr "WPMU 개발팀입니다."
+
+#: app/views/email/index.php:73
+msgid "Cheers,"
+msgstr "건배"
+
+#. translators: %s - Name
+#: app/views/email/bulk-smush.php:21
+msgid "Hi %s,"
+msgstr "안녕하세요 %s,"
+
+#: core/media-library/class-media-library-row.php:195
+msgid "Revert back to previous state"
+msgstr "이전 상태로 되돌리기"
+
+#: app/class-media-library.php:533
+#: core/frontend/class-frontend-controller.php:593
+msgid "Smush: Failed Processing"
+msgstr "스머시: 처리 실패"
+
+#: app/class-admin.php:448
+msgid "Smush images in the background"
+msgstr "백그라운드에서 스머시 이미지"
+
+#. translators: 1: Current MYSQL version, 2: Required MYSQL version
+#: app/class-admin.php:438
+msgid "Smush was unable to activate background processing on your site as your web hosting provider is using an old version of MySQL on your server (version %1$s). We highly recommend contacting your hosting provider to upgrade MySQL to version %2$s or higher to optimize images in the background."
+msgstr "웹 호스팅 공급업체가 서버에서 이전 버전의 MySQL(버전 %1$s)을 사용하고 있기 때문에 스머시에서 사이트에서 백그라운드 처리를 활성화할 수 없습니다. 백그라운드에서 이미지를 최적화하려면 호스팅 공급업체에 문의하여 MySQL을 %2$s 버전 이상으로 업그레이드하는 것이 좋습니다."
+
+#: app/class-admin.php:404
+msgid "Smush images faster with parallel image optimization"
+msgstr "병렬 이미지 최적화로 이미지를 더 빠르게 스머시하기"
+
+#. translators: %s: <strong>curl_multi_exec()</strong>
+#: app/class-admin.php:394
+msgid "Smush was unable to activate parallel processing on your site as your web hosting provider has disabled the %s function on your server. We highly recommend contacting your hosting provider to enable that function to optimize images on your site faster."
+msgstr "웹 호스팅 제공업체가 서버에서 %s 기능을 비활성화했기 때문에 스머시에서 사이트에서 병렬 처리를 활성화할 수 없습니다. 호스팅 제공업체에 문의하여 해당 기능을 활성화하여 사이트의 이미지를 더 빠르게 최적화하는 것이 좋습니다."
+
+#: core/class-settings.php:356
+msgid "Backup Original Images"
+msgstr "원본 이미지 백업"
+
+#: core/class-error-handler.php:259
+#: core/media-library/class-media-library-row.php:106
+msgid "File processing is in progress."
+msgstr "파일 처리가 진행 중입니다."
+
+#. translators: %d - attachment ID
+#: core/cli/class-cli-optimizer.php:89
+msgid "Image %d cannot be restored."
+msgstr "이미지 %d을(를) 복원할 수 없습니다."
+
+#. translators: %1$s: bytes savings, %2$s: percentage savings, %3$d: number of
+#. images
+#: core/media-library/class-media-library-row.php:584
+msgid "%3$d images reduced by %1$s (%2$s)"
+msgstr "%3$d 이미지가 %1$s(%2$s) 줄었습니다."
+
+#: core/integrations/class-gravity-forms.php:80
+msgid "To use this feature you need be using Gravity Forms."
+msgstr "이 기능을 사용하려면 그래비티 폼을 사용 중이어야 합니다."
+
+#: core/class-settings.php:399
+msgid "Allow compressing images uploaded with Gravity Forms."
+msgstr "그래비티 폼으로 업로드한 이미지 압축을 허용합니다."
+
+#: core/class-configs.php:785 core/class-settings.php:398
+msgid "Gravity Forms"
+msgstr "그래비티 양식"
+
+#: core/class-settings.php:397
+msgid "Enable Gravity Forms integration"
+msgstr "그래비티 폼 통합 사용"
+
+#: core/class-optimization-controller.php:80
+msgid "Nonce verification failed"
+msgstr "논스 인증 실패"
+
+#: core/class-error-handler.php:263
+msgid "Webp no response was received."
+msgstr "Webp 응답이 수신되지 않았습니다."
+
+#: core/class-error-handler.php:258
+#: core/media-library/class-media-library-row.php:140
+msgid "Skipped animated file."
+msgstr "애니메이션 파일 건너뛰기."
+
+#: core/class-error-handler.php:257
+msgid "Skip ignored file."
+msgstr "무시된 파일 건너뛰기."
+
+#. translators: %s Method name
+#: core/external/wdev-logger/wdev-logger.php:448
+msgid "Method %s does not exist."
+msgstr "메서드 %s이(가) 존재하지 않습니다."
+
+#. translators: %s Method name
+#: core/external/wdev-logger/wdev-logger.php:435
+msgid "Module %s does not exist."
+msgstr "모듈 %s이(가) 존재하지 않습니다."
+
+#: core/class-configs.php:193
+msgid "Undefined"
+msgstr "정의되지 않음"
+
+#: app/class-media-library.php:834
+msgid "Image not found!"
+msgstr "이미지를 찾을 수 없습니다!"
+
+#: core/backups/class-backups-controller.php:57
+msgid "Image not restored, nonce verification failed."
+msgstr "이미지가 복원되지 않았습니다. 논스 인증에 실패했습니다."
+
+#: core/backups/class-backups-controller.php:48
+msgid "Error in processing restore action, fields empty."
+msgstr "복원 작업을 처리하는 동안 오류가 발생했습니다."
+
+#: core/class-settings.php:346
+msgid "Disable Scaled Images"
+msgstr "크기 조정 이미지 비활성화"
+
+#: core/class-configs.php:778 core/class-settings.php:345
+msgid "Disable scaled images"
+msgstr "크기 조정 이미지 비활성화"
+
+#: core/class-settings.php:1029
+msgid "The tab these settings belong to is missing."
+msgstr "이 설정이 속한 탭이 누락되었습니다."
+
+#: core/class-settings.php:960
+msgid "The page these settings belong to is missing."
+msgstr "이 설정이 속한 페이지가 누락되었습니다."
+
+#: core/class-settings.php:370
+msgid "Allow usage tracking"
+msgstr "사용량 추적 허용"
+
+#: core/class-configs.php:973 core/class-configs.php:989
+msgid "none"
+msgstr "없음"
+
+#: core/class-configs.php:962 core/class-configs.php:1000
+msgid "No"
+msgstr "아니요"
+
+#: core/class-configs.php:962 core/class-configs.php:1004
+msgid "Yes"
+msgstr "예"
+
+#: core/class-configs.php:958
+msgid ". Fade in delay: "
+msgstr ". 페이드 인 지연 : "
+
+#: core/class-configs.php:957
+msgid ". Fade in duration: "
+msgstr ". 페이드 인 시간: "
+
+#: core/class-configs.php:955
+msgid "Selected: "
+msgstr "선택됨: "
+
+#: core/class-configs.php:924
+msgid "Native Lazy Load Enabled"
+msgstr "네이티브 지연 로드 활성화됨"
+
+#: core/class-configs.php:923
+msgid "Load Scripts In Footer"
+msgstr "바닥글에 스크립트 로드"
+
+#: core/class-configs.php:922
+msgid "Display And Animation"
+msgstr "디스플레이 및 애니메이션"
+
+#: core/class-configs.php:921
+msgid "Included Post Types"
+msgstr "포함된 글 유형"
+
+#: core/class-configs.php:839
+msgid "Keep Data On Uninstall"
+msgstr "제거 시 데이터 유지"
+
+#: core/class-configs.php:322
+msgid "The given config ID does not exist"
+msgstr "지정된 구성 ID가 존재하지 않습니다."
+
+#: core/class-configs.php:286
+msgid "The provided configs list isn’t correct. Please make sure the uploaded file is the correct one."
+msgstr "제공된 설정 목록이 올바르지 않습니다. 업로드한 파일이 올바른 파일인지 확인하세요."
+
+#: core/class-configs.php:271
+msgid "The uploaded config must have a name and a set of settings. Please make sure the uploaded file is the correct one."
+msgstr "업로드한 구성에는 이름과 설정 세트가 있어야 합니다. 업로드한 파일이 올바른 파일인지 확인하세요."
+
+#: core/class-configs.php:266
+msgid "There was an error decoding the file."
+msgstr "파일을 디코딩하는 동안 오류가 발생했습니다."
+
+#: core/class-configs.php:261
+msgid "There was an error getting the contents of the file."
+msgstr "파일 내용을 가져오는 동안 오류가 발생했습니다."
+
+#: core/class-configs.php:256
+msgid "The file must be a JSON."
+msgstr "파일은 JSON이어야 합니다."
+
+#. translators: error message
+#: core/class-configs.php:254
+msgid "Error: %s."
+msgstr "오류: %s."
+
+#: core/class-configs.php:251
+msgid "The configs file is required"
+msgstr "구성 파일은 필수입니다."
+
+#: core/class-configs.php:97
+msgid "Missing configs data"
+msgstr "누락된 구성 데이터"
+
+#: core/api/class-hub.php:140
+msgid "Missing config data"
+msgstr "누락된 구성 데이터"
+
+#: core/api/class-abstract-api.php:55
+msgid "API instances require a version and name properties"
+msgstr "API 인스턴스에는 버전 및 이름 속성이 필요합니다."
+
+#: core/class-configs.php:631 core/class-configs.php:816
+#: core/class-configs.php:882 core/class-configs.php:888
+msgid "Inactive"
+msgstr "비활성"
+
+#: core/frontend/class-frontend-controller.php:884
+msgid "Accessibility"
+msgstr "접근성"
+
+#: core/frontend/class-frontend-controller.php:883
+msgid "Data & Settings"
+msgstr "데이터 및 설정"
+
+#: core/frontend/class-frontend-controller.php:882
+msgid "General"
+msgstr "일반"
+
+#: core/class-configs-controller.php:83
+msgid "Missing config ID"
+msgstr "누락된 구성 ID"
+
+#: core/class-core.php:282
+msgid "Something went wrong with the request. Please reload the page and try again."
+msgstr "요청에 문제가 발생했습니다. 페이지를 새로고침한 후 다시 시도하세요."
+
+#: core/class-configs.php:744 core/class-settings.php:1404
+msgid "WebP"
+msgstr "WebP"
+
+#: core/bulk/class-ajax-bulk-smush-controller.php:47
+#: core/class-settings.php:946 core/media/class-media-item-controller.php:80
+msgid "You don't have permission to do this."
+msgstr "이 작업을 수행할 수 있는 권한이 없습니다."
+
+#: app/views/deactivation-survey.php:39
+msgid "Close this dialog window"
+msgstr "이 대화 상자 창 닫기"
+
+#: app/class-admin.php:337
+msgid " and "
+msgstr " 및 "
+
+#. translators: 1. opening strong tag, 2: re-smush images count,3. closing
+#. strong tag.
+#: app/class-admin.php:325
+msgid "%1$s%2$d attachment%3$s that needs re-smushing"
+msgid_plural "%1$s%2$d attachments%3$s that need re-smushing"
+msgstr[0] "다시 스머싱해야 하는 %1$s%2$d 첨부 파일%3$s"
+
+#. translators: 1. opening strong tag, 2: unsmushed images count,3. closing
+#. strong tag.
+#: app/class-admin.php:314
+msgid "%1$s%2$d attachment%3$s that needs smushing"
+msgid_plural "%1$s%2$d attachments%3$s that need smushing"
+msgstr[0] "스머싱이 필요한 %1$s%2$d 첨부파일%3$s"
+
+#: core/class-core.php:290
+msgid "Dismiss notice"
+msgstr "알림 해제"
+
+#: core/class-configs.php:757
+msgid "Native lazy load"
+msgstr "네이티브 지연 로드"
+
+#: core/class-configs.php:767
+msgid "REST API"
+msgstr "REST API"
+
+#: core/backups/class-backups-controller.php:170
+msgid "Error getting file name"
+msgstr "파일 이름 가져오기 오류"
+
+#: core/external/plugin-notice/notice.php:325
+msgid "Generate leads with pop-ups, slide-ins and email opt-ins."
+msgstr "팝업, 슬라이드인, 이메일 옵트인을 통해 리드를 생성하세요."
+
+#: core/external/plugin-notice/notice.php:317
+msgid "Create dynamic forms easily and quickly with our form builder."
+msgstr "양식 빌더로 쉽고 빠르게 동적 양식을 만들 수 있습니다."
+
+#: core/external/plugin-notice/notice.php:309
+msgid "Configure your markup for optimal page and social ranking."
+msgstr "최적의 페이지 및 소셜 순위를 위해 마크업을 구성합니다."
+
+#: core/external/plugin-notice/notice.php:301
+msgid "Secure and protect your site from malicious hackers and bots."
+msgstr "악의적인 해커와 봇으로부터 사이트를 보호하고 보안을 유지하세요."
+
+#: core/external/plugin-notice/notice.php:293
+msgid "Add powerful caching and optimize your assets."
+msgstr "강력한 캐싱을 추가하고 에셋을 최적화하세요."
+
+#: core/external/plugin-notice/notice.php:285
+msgid "Resize, optimize and compress all of your images to the max."
+msgstr "모든 이미지의 크기를 조정하고, 최적화하고, 최대로 압축하세요."
+
+#. translators: %s - plugin name
+#: core/external/plugin-notice/notice.php:193
+msgid "Enjoying %s? Try out a few of our other popular free plugins..."
+msgstr "%s를 즐기고 있나요? 다른 인기 무료 플러그인 몇 가지를 사용해 보세요..."
+
+#: core/lazy-load/class-lazy-load-video-embed.php:317
+msgid "Play"
+msgstr "재생"
+
+#. translators: %1$s: bytes savings, %2$s: percentage savings
+#: core/media-library/class-media-library-row.php:591
+msgid "Reduced by %1$s (%2$s)"
+msgstr "%1$s(%2$s) 감소했습니다."
+
+#: app/class-media-library.php:531
+#: core/frontend/class-frontend-controller.php:591
+msgid "Smush: Not processed"
+msgstr "스머시: 처리되지 않음"
+
+#: app/class-admin.php:287
+msgid "Manage Plugins"
+msgstr "플러그인 관리"
+
+#: core/frontend/class-frontend-controller.php:1480
+msgid "Premium Support"
+msgstr "프리미엄 지원"
+
+#: core/frontend/class-frontend-controller.php:1476
+msgid "View details"
+msgstr "세부 정보 보기"
+
+#: app/class-admin.php:530 app/class-admin.php:573 app/class-admin.php:606
+#: core/frontend/class-frontend-controller.php:1470
+msgid "Rate Smush"
+msgstr "Smush 평가하기"
+
+#: core/frontend/class-frontend-controller.php:1445
+msgid "Go to Smush Dashboard"
+msgstr "스머시 대시보드로 이동"
+
+#: core/frontend/class-frontend-controller.php:1440
+msgid "View Smush Documentation"
+msgstr "스머시 문서 보기"
+
+#: core/frontend/class-frontend-controller.php:1425
+#: core/frontend/class-frontend-controller.php:1426
+msgid "Renew Membership"
+msgstr "멤버십 갱신"
+
+#: core/modules/class-dir.php:308
+msgid "Potential Phar PHP Object Injection detected"
+msgstr "잠재적인 Phar PHP 객체 인젝션 감지됨"
+
+#: app/class-media-library.php:527
+msgid "Filter by Smush status"
+msgstr "스머시 상태로 필터링"
+
+#: core/integrations/class-composer.php:74
+msgid "To use this feature you need be using WPBakery Page Builder."
+msgstr "이 기능을 사용하려면 WP베이커리 페이지 빌더를 사용 중이어야 합니다."
+
+#: app/class-media-library.php:852 core/class-core.php:278
+#: core/media-library/class-media-library-row.php:217
+msgid "Ignore"
+msgstr "무시"
+
+#: core/class-helper.php:348
+msgid "Couldn't process image due to bad headers. Try re-saving the image in an image editor, then upload it again."
+msgstr "잘못된 헤더로 인해 이미지를 처리할 수 없습니다. 이미지 편집기에서 이미지를 다시 저장한 다음 다시 업로드하세요."
+
+#: core/frontend/class-frontend-controller.php:790
+#: core/frontend/class-frontend-controller.php:1445
+msgid "Dashboard"
+msgstr "대시보드"
+
+#: core/class-hub-connector.php:505
+msgid "Subsite Controls"
+msgstr "하위 사이트 제어"
+
+#: core/class-configs.php:764
+msgid "Background Images"
+msgstr "배경 이미지"
+
+#: core/class-settings.php:404
+msgid "Allow smushing images resized in WPBakery Page Builder editor."
+msgstr "WP베이커리 페이지 빌더 편집기에서 크기를 조정한 이미지 스무싱을 허용합니다."
+
+#: core/class-configs.php:784 core/class-settings.php:403
+msgid "WPBakery Page Builder"
+msgstr "WP베이커리 페이지 빌더"
+
+#: core/class-settings.php:402
+msgid "Enable WPBakery Page Builder integration"
+msgstr "WP베이커리 페이지 빌더 통합 활성화"
+
+#: core/class-configs.php:770 core/class-settings.php:321
+msgid "Automatic compression"
+msgstr "자동 압축"
+
+#: core/class-settings.php:316
+msgid "Image Sizes"
+msgstr "이미지 크기"
+
+#: core/class-configs.php:631 core/class-configs.php:882
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:2343
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:1571
+msgid "Active"
+msgstr "활성"
+
+#: core/api/class-smush-api.php:95
+msgid "[WPMUDEV API] Skipped sync due to API error exponential backoff."
+msgstr "[WPMUDEV API] API 오류 지수 백오프로 인해 동기화를 건너뛰었습니다."
+
+#: core/class-configs.php:1023
+msgid "All"
+msgstr "모두"
+
+#: core/class-configs.php:893
+msgid "Lazy Load"
+msgstr "지연 로드"
+
+#: core/class-core.php:284
+msgid "Ignore this image from bulk smushing"
+msgstr "대량 스무싱에서 이 이미지 무시"
+
+#: core/class-error-handler.php:260 core/media/class-media-item.php:817
+msgid "No file data found in image meta"
+msgstr "이미지 메타에서 파일 데이터를 찾을 수 없습니다."
+
+#: core/class-error-handler.php:256
+msgid "No attachment ID was received."
+msgstr "첨부파일 ID가 수신되지 않았습니다."
+
+#: core/class-configs.php:756
+msgid "Scripts"
+msgstr "스크립트"
+
+#: core/class-configs.php:1023 core/class-settings.php:1403
+msgid "None"
+msgstr "없음"
+
+#: core/class-configs.php:918
+msgid "Output Locations"
+msgstr "출력 위치"
+
+#: core/class-configs.php:917 core/class-configs.php:984
+msgid "Media Types"
+msgstr "미디어 유형"
+
+#: core/class-settings.php:372
+msgid "Help make Smush better by letting our designers learn how you’re using the plugin."
+msgstr "디자이너가 여러분의 플러그인 사용 방법을 파악하여 더 나은 스머시를 만들 수 있도록 도와주세요."
+
+#: core/class-settings.php:371
+msgid "Usage Tracking"
+msgstr "사용 추적"
+
+#: core/class-settings.php:367
+msgid "Increase the visibility and accessibility of elements and components to meet WCAG AAA requirements."
+msgstr "요소와 구성 요소의 가시성과 접근성을 높여 WCAG AAA 요구 사항을 충족합니다."
+
+#: core/class-settings.php:366
+msgid "Color Accessibility"
+msgstr "색상 접근성"
+
+#: core/class-settings.php:365
+msgid "Enable high contrast mode"
+msgstr "고대비 모드 사용"
+
+#: core/cli/class-cli-optimizer.php:147
+msgid "All images restored."
+msgstr "모든 이미지가 복원되었습니다."
+
+#: core/cli/class-cli-optimizer.php:55
+msgid "No images available to restore"
+msgstr "복원할 수 있는 이미지가 없습니다."
+
+#: core/cli/class-cli.php:129
+msgid "Smushing all images"
+msgstr "모든 이미지 스머싱 중"
+
+#. translators: %d - number of images
+#: core/cli/class-cli.php:124
+msgid "Smushing first %d images"
+msgstr "첫 번째 %d 이미지 압축 중"
+
+#. translators: %s Smush image Id(s)
+#: core/cli/class-cli.php:112
+msgid "Smushing image ID: %d"
+msgid_plural "Smushing images %s"
+msgstr[0] "이미지 압축 중 이미지 ID: %d"
+
+#: core/frontend/class-frontend-controller.php:1563
+msgid "Upgrade"
+msgstr "업그레이드"
+
+#: core/frontend/class-frontend-controller.php:1422
+#: core/frontend/class-frontend-controller.php:1560
+msgid "Upgrade to Smush Pro"
+msgstr "스무시 프로로 업그레이드"
+
+#: core/frontend/class-frontend-controller.php:596
+msgid "Select an image to view Smush stats."
+msgstr "이미지를 선택하여 스머시 통계를 확인합니다."
+
+#: core/class-helper.php:350
+msgid "Timeout error. You can increase the request timeout to make sure Smush has enough time to process larger files. `define('WP_SMUSH_TIMEOUT', 150);`"
+msgstr "시간 초과 오류. 요청 시간 초과를 늘려 스머시가 대용량 파일을 처리할 충분한 시간을 확보할 수 있습니다. `define('WP_SMUSH_TIMEOUT', 150);`"
+
+#: core/api/class-request.php:82
+msgid "Invalid API service."
+msgstr "잘못된 API 서비스입니다."
+
+#: core/frontend/class-frontend-controller.php:1440
+msgid "Docs"
+msgstr "문서"
+
+#: core/frontend/class-frontend-controller.php:1471
+msgid "Support"
+msgstr "지원"
+
+#: core/frontend/class-frontend-controller.php:1494
+msgid "Roadmap"
+msgstr "로드맵"
+
+#: core/frontend/class-frontend-controller.php:316
+#: core/frontend/class-frontend-controller.php:1564
+msgid "Pro"
+msgstr "프로"
+
+#: app/class-media-library.php:532
+#: core/frontend/class-frontend-controller.php:592
+msgid "Smush: Bulk ignored"
+msgstr "스머시: 일괄 무시됨"
+
+#: app/class-media-library.php:530
+#: core/frontend/class-frontend-controller.php:590
+msgid "Smush: All images"
+msgstr "스머시: 모든 이미지"
+
+#: core/class-error-handler.php:261
+msgid "Skipped with wp_smush_image filter"
+msgstr "Wp_smush_image 필터로 건너뛰기"
+
+#: core/class-settings.php:351
+msgid "Original Images"
+msgstr "원본 이미지"
+
+#: core/class-core.php:297
+msgid "Cancel"
+msgstr "취소"
+
+#: core/integrations/class-gutenberg.php:81
+msgid "To use this feature you need to install and activate the Gutenberg plugin."
+msgstr "이 기능을 사용하려면 구텐베르크 플러그인을 설치하고 활성화해야 합니다."
+
+#: core/class-settings.php:409
+msgid "Add statistics and the manual smush button to Gutenberg blocks that display images."
+msgstr "이미지를 표시하는 구텐베르크 블록에 통계 및 수동 스머시 버튼을 추가합니다."
+
+#: core/class-configs.php:783 core/class-settings.php:408
+msgid "Gutenberg Support"
+msgstr "구텐베르크 지원"
+
+#: core/class-settings.php:407
+msgid "Show Smush stats in Gutenberg blocks"
+msgstr "구텐베르크 블록에 스머시 통계 표시"
+
+#. translators: %1$s - opening <a>, %2$s - closing </a>
+#: app/class-admin.php:152
+msgid "Smush uses the Stackpath Content Delivery Network (CDN). Stackpath may store web log information of site visitors, including IPs, UA, referrer, Location and ISP info of site visitors for 7 days. Files and images served by the CDN may be stored and served from countries other than your own. Stackpath's privacy policy can be found %1$shere%2$s."
+msgstr "스머시는 스택패스 콘텐츠 전송 네트워크(CDN)를 사용합니다. 스택패스는 사이트 방문자의 IP, UA, 리퍼러, 위치 및 ISP 정보를 포함한 사이트 방문자의 웹 로그 정보를 7일간 저장할 수 있습니다. CDN에서 제공하는 파일과 이미지는 귀하의 국가가 아닌 다른 국가에서 저장 및 제공될 수 있습니다. Stackpath의 개인정보 처리방침은 %1$s여기%2$s에서 확인할 수 있습니다."
+
+#: core/modules/class-dir.php:954
+msgid "Empty Directory Path"
+msgstr "빈 디렉터리 경로"
+
+#: core/modules/class-dir.php:753
+msgid "There was a problem getting the selected directories"
+msgstr "선택한 디렉터리를 가져오는 데 문제가 있습니다."
+
+#: app/class-media-library.php:765
+#: core/backups/class-backups-controller.php:147
+#: core/backups/class-backups-controller.php:187
+#: core/bulk/class-background-bulk-smush-controller.php:185
+#: core/cache/class-cache-controller.php:45 core/class-hub-connector.php:655
+#: core/class-hub-connector.php:692 core/class-settings.php:837
+#: core/frontend/class-frontend-controller.php:111
+#: core/frontend/class-frontend-controller.php:124
+#: core/frontend/class-frontend-controller.php:1275
+#: core/frontend/class-frontend-controller.php:1512
+#: core/frontend/class-frontend-controller.php:1538
+#: core/modules/class-dir.php:201 core/modules/class-dir.php:218
+#: core/modules/class-dir.php:243 core/modules/class-dir.php:274
+#: core/modules/class-dir.php:546 core/modules/class-dir.php:557
+#: core/modules/class-dir.php:566 core/modules/class-dir.php:573
+#: core/modules/class-dir.php:829 core/modules/class-dir.php:946
+#: core/modules/class-dir.php:1385
+#: core/rating-notification/class-rating-notification-controller.php:28
+#: core/rating-notification/class-rating-notification-controller.php:48
+#: core/rating-notification/class-rating-notification-controller.php:67
+#: core/rating-notification/class-rating-notification-controller.php:86
+msgid "Unauthorized"
+msgstr "승인되지 않음"
+
+#: core/media-library/class-media-library-row.php:759
+msgid "Resmush"
+msgstr "Resmush"
+
+#: app/class-media-library.php:800
+msgid "PRO"
+msgstr "프로"
+
+#: core/cli/class-cli.php:296
+msgid "Images Smushed"
+msgstr "이미지 스미싱됨"
+
+#: core/cli/class-cli.php:294
+msgid "Total Savings"
+msgstr "총 절감액"
+
+#: core/frontend/class-frontend-controller.php:881
+msgid "Integrations"
+msgstr "통합"
+
+#: core/bulk/class-mail.php:95 core/class-hub-connector.php:501
+msgid "Bulk Smush"
+msgstr "대량 스머시"
+
+#: core/class-rest.php:76
+msgid "Smushing in progress"
+msgstr "스머싱 진행 중"
+
+#: core/class-rest.php:52
+msgid "Smush data."
+msgstr "스머시 데이터."
+
+#: core/media-library/class-media-library-row.php:329
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:1336
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:739
+msgid "Learn more"
+msgstr "자세히 알아보기"
+
+#: core/frontend/class-frontend-controller.php:869
+msgid "Directory Smush"
+msgstr "디렉토리 스머시"
+
+#: core/class-configs.php:838 core/frontend/class-frontend-controller.php:834
+#: core/frontend/class-frontend-controller.php:879
+msgid "CDN"
+msgstr "CDN"
+
+#: core/class-configs.php:771 core/class-settings.php:336
+msgid "Metadata"
+msgstr "메타데이터"
+
+#: core/modules/class-dir.php:1310
+msgid "Directory smushing requires custom tables and it seems there was an error creating tables. For help, please contact our team on the support forums."
+msgstr "디렉터리 스무싱에는 사용자 지정 테이블이 필요하며 테이블을 만드는 동안 오류가 발생한 것 같습니다. 도움이 필요하시면 지원 포럼에서 저희 팀에 문의하세요."
+
+#. Plugin Name of the plugin
+#: wp-smush.php app/views/deactivation-survey.php:33
+#: core/bulk/class-mail.php:64 core/class-configs.php:128
+#: core/class-installer.php:341
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:24
+#: core/frontend/class-frontend-controller.php:311
+#: core/frontend/class-frontend-controller.php:315
+#: core/frontend/class-frontend-controller.php:318
+#: core/frontend/class-frontend-controller.php:589
+#: core/media-library/class-media-library-row.php:725
+#: core/smush/class-smush-optimization.php:102 wp-smush.php:516
+msgid "Smush"
+msgstr "Smush"
+
+#: core/bulk/class-mail.php:64
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:191
+#: core/frontend/class-frontend-controller.php:311
+msgid "Smush Pro"
+msgstr "Smush Pro"
+
+#: app/class-admin.php:160
+msgid "Smush uses a third-party email service (Drip) to send informational emails to the site administrator. The administrator's email address is sent to Drip and a cookie is set by the service. Only administrator information is collected by Drip."
+msgstr "스머시는 타사 이메일 서비스(Drip)를 사용하여 사이트 관리자에게 정보 이메일을 보냅니다. 관리자의 이메일 주소가 Drip으로 전송되고 서비스에서 쿠키를 설정합니다. Drip은 관리자 정보만 수집합니다."
+
+#: app/class-admin.php:149
+msgid "Smush sends images to the WPMU DEV servers to optimize them for web use. This includes the transfer of EXIF data. The EXIF data will either be stripped or returned as it is. It is not stored on the WPMU DEV servers."
+msgstr "스머시는 웹용으로 최적화하기 위해 이미지를 WPMU DEV 서버로 전송합니다. 여기에는 EXIF 데이터 전송이 포함됩니다. EXIF 데이터는 제거되거나 그대로 반환됩니다. WPMU DEV 서버에는 저장되지 않습니다."
+
+#: app/class-admin.php:147
+msgid "Note: Smush does not interact with end users on your website. The only input option Smush has is to a newsletter subscription for site admins only. If you would like to notify your users of this in your privacy policy, you can use the information below."
+msgstr "참고: 스머시는 웹사이트의 최종 사용자와 상호 작용하지 않습니다. 스머시가 제공하는 유일한 입력 옵션은 사이트 관리자를 위한 뉴스레터 구독입니다. 개인정보처리방침에서 사용자에게 이 사실을 알리고 싶다면 아래 정보를 사용할 수 있습니다."
+
+#: app/class-admin.php:145
+msgid "Plugin: Smush"
+msgstr "플러그인: 스머시"
+
+#: core/frontend/class-frontend-controller.php:595
+msgid "Smush Stats"
+msgstr "스머시 통계"
+
+#: core/smush/class-smusher.php:590
+msgid "Skipped due to a timeout error. You can increase the request timeout to make sure Smush has enough time to process larger files. define('WP_SMUSH_TIMEOUT', 150);"
+msgstr "시간 초과 오류로 인해 건너뛰었습니다. 요청 시간 제한을 늘려 스머시가 대용량 파일을 처리할 충분한 시간을 확보할 수 있습니다. define('WP_SMUSH_TIMEOUT', 150);"
+
+#. translators: %1$s - <a>, %2$s - </a>
+#: core/class-settings.php:388
+msgid "Storing your image on S3 buckets using %1$sWP Offload Media%2$s? Smush can detect and smush those assets for you, including when you're removing files from your host server."
+msgstr "%1$sWP 오프로드 미디어%2$s를 사용하여 S3 버킷에 이미지를 저장하시나요? 스머시는 호스트 서버에서 파일을 제거할 때를 포함하여 이러한 자산을 감지하고 스머시할 수 있습니다."
+
+#: core/class-configs.php:786 core/class-configs.php:837
+#: core/class-settings.php:386
+msgid "Amazon S3"
+msgstr "Amazon S3"
+
+#: core/class-settings.php:385
+msgid "Enable Amazon S3 support"
+msgstr "Amazon S3 지원 사용"
+
+#: core/class-settings.php:381
+msgid "NextGen Gallery"
+msgstr "NextGen 갤러리"
+
+#: core/class-settings.php:362
+msgid "When you compress a PNG, Smush will check if converting it to JPEG could further reduce its size."
+msgstr "PNG를 압축할 때 스머시는 JPEG로 변환하면 크기를 더 줄일 수 있는지 확인합니다."
+
+#: core/class-configs.php:779 core/class-settings.php:361
+msgid "PNG to JPEG Conversion"
+msgstr "PNG를 JPEG로 변환"
+
+#: core/class-settings.php:360
+msgid "Auto-convert PNGs to JPEGs (lossy)"
+msgstr "PNG를 JPEG로 자동 변환(손실)"
+
+#: core/media-library/class-media-library-row.php:803
+msgid "Super Smush"
+msgstr "수퍼 스머시"
+
+#: core/class-settings.php:322
+msgid "When you upload images to your site, we will automatically optimize and compress them for you."
+msgstr "사이트에 이미지를 업로드하면 자동으로 이미지를 최적화하고 압축합니다."
+
+#: core/modules/class-dir.php:329
+msgid "Image couldn't be optimized"
+msgstr "이미지를 최적화할 수 없습니다."
+
+#: core/modules/class-dir.php:292
+msgid "Incorrect image id"
+msgstr "잘못된 이미지 ID"
+
+#: core/modules/class-dir.php:969
+msgid "We could not find any images in the selected directory."
+msgstr "선택한 디렉토리에서 이미지를 찾을 수 없습니다."
+
+#: core/media-library/class-media-library-row.php:756
+msgid "Smush image including original file"
+msgstr "원본 파일을 포함한 스머시 이미지"
+
+#: core/media-library/class-media-library-row.php:828
+msgid "Restore original image"
+msgstr "원본 이미지 복원"
+
+#: app/class-media-library.php:793
+msgid "Image couldn't be smushed as it exceeded the 5Mb size limit, Pro users can smush images without any size restriction."
+msgstr "이미지가 5Mb 크기 제한을 초과하여 스무싱할 수 없습니다. 프로 사용자는 크기 제한 없이 이미지를 스무싱할 수 있습니다."
+
+#. translators: %s: number of thumbnails
+#: app/class-media-library.php:787
+msgid "When you upload an image to WordPress it automatically creates %s thumbnail sizes that are commonly used in your pages. WordPress also stores the original full-size image, but because these are not usually embedded on your site we don’t Smush them. Pro users can override this."
+msgstr "워드프레스에 이미지를 업로드하면 페이지에서 일반적으로 사용되는 %s 썸네일 크기가 자동으로 생성됩니다. 워드프레스에서는 원본 전체 크기 이미지도 저장하지만 일반적으로 사이트에 임베드되지 않기 때문에 스무싱하지 않습니다. 프로 사용자는 이 기능을 재정의할 수 있습니다."
+
+#: core/media-library/class-media-library-row.php:845
+msgid "Detailed stats for all the image sizes"
+msgstr "모든 이미지 크기에 대한 상세 통계"
+
+#: core/backups/class-backups-controller.php:84
+msgid "Unable to restore image"
+msgstr "이미지를 복원할 수 없습니다."
+
+#: core/cli/class-cli.php:316
+msgid "Yay! All images are optimized as per your current settings."
+msgstr "예~! 모든 이미지가 현재 설정에 따라 최적화되었습니다."
+
+#: app/class-media-library.php:590 core/class-core.php:276
+msgid "Restoring image..."
+msgstr "이미지 복원 중..."
+
+#: core/class-core.php:274
+msgid "All images are fully optimized."
+msgstr "모든 이미지가 완전히 최적화되었습니다."
+
+#: core/class-settings.php:382
+msgid "Allow smushing images directly through NextGen Gallery settings."
+msgstr "NextGen 갤러리 설정을 통해 직접 이미지 스무싱을 허용합니다."
+
+#: core/class-settings.php:380
+msgid "Enable NextGen Gallery integration"
+msgstr "NextGen 갤러리 통합 사용"
+
+#: core/class-settings.php:320
+msgid "Automatically compress my images on upload"
+msgstr "업로드 시 이미지 자동 압축"
+
+#: app/class-admin.php:293 app/class-admin.php:411 app/class-admin.php:455
+#: core/cache/class-cache-controller.php:67 core/class-core.php:289
+#: core/external/plugin-notice/notice.php:485
+msgid "Dismiss"
+msgstr "무시"
+
+#. Author of the plugin
+#: wp-smush.php
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:1382
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:762
+msgid "WPMU DEV"
+msgstr "WPMU DEV"
+
+#. Description of the plugin
+#: wp-smush.php
+msgid "Reduce image file sizes, improve performance and boost your SEO using the free <a href=\"https://wpmudev.com/\">WPMU DEV</a> WordPress Smush API."
+msgstr "무료 <a href=\"https://wpmudev.com/\">WPMU DEV</a> 워드프레스 스머시 API를 사용하여 이미지 파일 크기를 줄이고, 성능을 개선하고, SEO를 향상하세요."
+
+#: core/frontend/class-frontend-controller.php:598
+msgid "Savings"
+msgstr "저장"
+
+#: core/frontend/class-frontend-controller.php:597
+#: core/media-library/class-media-library-row.php:666
+msgid "Image size"
+msgstr "이미지 크기"
+
+#: app/class-media-library.php:658
+msgid "Smush Now!"
+msgstr "지금 스머시하기!"
+
+#: app/class-media-library.php:593 app/class-media-library.php:834
+#: core/class-core.php:287 core/class-error-handler.php:264
+#: core/class-rest.php:82 core/media-library/class-media-library-row.php:102
+#: core/media-library/class-media-library-row.php:368
+msgid "Not processed"
+msgstr "처리되지 않음"
+
+#: core/smush/class-smusher.php:653
+msgid "Image couldn't be smushed"
+msgstr "이미지를 스무싱할 수 없습니다."
+
+#: core/smush/class-smusher.php:689
+msgid "Smush data corrupted, try again."
+msgstr "스머시 데이터가 손상되었습니다. 다시 시도하세요."
+
+#. translators: 1: Error code, 2: Error message.
+#: core/smush/class-smusher.php:635
+msgid "Error posting to API: %1$s %2$s"
+msgstr "API에 게시하는 동안 오류가 발생했습니다: %1$s %2$s"
+
+#. translators: %s: Error message.
+#: core/smush/class-smusher.php:602
+msgid "Error posting to API: %s"
+msgstr "API에 게시하는 동안 오류가 발생했습니다: %s"
+
+#: core/smush/class-smusher.php:665
+msgid "Unknown API error"
+msgstr "알 수 없는 API 오류"
+
+#. translators: %s: Directory path
+#. translators: %s: directory name
+#: core/class-error-handler.php:270 core/smush/class-smusher.php:281
+msgid "%s is not writable"
+msgstr "%s는 쓸 수 없습니다."
+
+#: core/class-error-handler.php:262 core/smush/class-smusher.php:262
+msgid "File path is empty"
+msgstr "파일 경로가 비어 있습니다."
+
+#: core/class-optimization-controller.php:74
+msgid "No attachment ID was provided."
+msgstr "첨부파일 ID가 제공되지 않았습니다."
+
+#: core/backups/class-backups-controller.php:65
+#: core/class-optimization-controller.php:86
+#: core/media/class-media-item-controller.php:29
+#: core/media/class-media-item-controller.php:56
+msgid "You don't have permission to work with uploaded files."
+msgstr "업로드된 파일에 대한 작업 권한이 없습니다."
+
+#: core/frontend/class-frontend-controller.php:952
+msgid "Settings"
+msgstr "설정"
+
+#: core/class-configs.php:773 core/class-settings.php:355
+msgid "Backup original images"
+msgstr "원본 이미지 백업"
+
+#: core/class-core.php:271
+msgid "Super-Smush"
+msgstr "수퍼 스머시"
+
+#: app/class-media-library.php:657
+msgid "Smushing in progress..."
+msgstr "스무싱 진행 중..."
+
+#: app/class-admin.php:164
+msgid "WP Smush"
+msgstr "WP Smush"

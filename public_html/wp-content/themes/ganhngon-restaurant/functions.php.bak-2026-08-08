@@ -1,0 +1,538 @@
+<?php
+if (!defined('ABSPATH')) exit;
+
+require_once get_template_directory() . '/inc/i18n.php';
+
+function gn_theme_setup() {
+    add_theme_support('post-thumbnails');
+    add_theme_support('title-tag');
+    add_theme_support('custom-logo');
+    add_theme_support('automatic-feed-links');
+    add_theme_support('html5', ['search-form','comment-form','comment-list','gallery','caption']);
+    register_nav_menus([
+        'primary' => __('Primary Menu', 'ganhngon-restaurant'),
+        'footer'  => __('Footer Menu', 'ganhngon-restaurant'),
+    ]);
+}
+add_action('after_setup_theme', 'gn_theme_setup');
+
+function gn_theme_scripts() {
+    wp_enqueue_style('gn-fonts', 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap', [], null);
+    wp_enqueue_style('gn-style', get_stylesheet_uri(), [], '3.1.0');
+    wp_enqueue_script('gn-main', get_template_directory_uri() . '/assets/main.js', [], '3.1.0', true);
+}
+add_action('wp_enqueue_scripts', 'gn_theme_scripts');
+
+// Render homepage sections on language-root URLs (/en/ /zh/ ...) which Polylang
+// shows as blog-home. Forces the translated front-page layout for all languages.
+add_action('template_redirect', function () {
+    if (is_admin()) return;
+    if (gn_cur_lang() === 'vi') return;          // VI uses normal front-page.php
+    if (!is_home() && !is_front_page()) return;  // only the language root
+    // Avoid intercepting real blog archives (paged, category, etc.)
+    if (is_paged() || is_archive() || is_search() || is_singular()) return;
+
+    status_header(200);
+    get_header();
+    foreach (['hero','about','menu','customer-types','gallery','testimonials','reservation','faq','location'] as $s) {
+        get_template_part('template-parts/section-' . $s);
+    }
+    get_footer();
+    exit;
+}, 1);
+
+// Force front-page template for translated home-* pages (if accessed directly)
+add_filter('template_include', function ($t) {
+    if (is_page() && preg_match('/^home-(en|zh|ko|ru|ar)$/', get_post_field('post_name', get_the_ID()))) {
+        $fp = locate_template('front-page.php');
+        if ($fp) return $fp;
+    }
+    return $t;
+}, 99);
+
+// Disable wpautop on pages whose content is hand-built HTML (grids/forms).
+// wpautop injects <br>/<p> that become extra CSS-grid items and break layout.
+add_action('wp', function () {
+    $raw_html_pages = ['dat-ban', 'khach-doan-tiec-rieng'];
+    if (is_page($raw_html_pages)) {
+        remove_filter('the_content', 'wpautop');
+        remove_filter('the_content', 'shortcode_unautop');
+    }
+});
+
+// Polylang-aware: get translated page URL by Vietnamese slug
+function gn_page_url($vi_slug) {
+    if ($vi_slug === '') return gn_home('/');
+    $lang = gn_cur_lang();
+    $vi_post = get_page_by_path($vi_slug);
+    if ($vi_post && $lang !== 'vi' && function_exists('pll_get_post')) {
+        $tid = pll_get_post($vi_post->ID, $lang);
+        if ($tid) return get_permalink($tid);
+    }
+    if ($vi_post) return get_permalink($vi_post->ID);
+    return gn_home('/' . $vi_slug . '/');
+}
+
+function gn_default_menu() {
+    $items = [
+        ''                        => gn_t('nav_home'),
+        've-ganh-ngon'            => gn_t('nav_about'),
+        'thuc-don'                => gn_t('nav_menu'),
+        'dat-ban'                 => gn_t('nav_book'),
+        'khach-doan-tiec-rieng'   => gn_t('nav_groups'),
+        'lien-he'                 => gn_t('nav_contact'),
+    ];
+    $current = rtrim($_SERVER['REQUEST_URI'] ?? '/', '/');
+    foreach ($items as $slug => $label) {
+        $url = gn_page_url($slug);
+        $path = rtrim(parse_url($url, PHP_URL_PATH), '/');
+        $active = ($current === $path) ? ' active' : '';
+        echo '<a class="' . esc_attr(trim($active)) . '" href="' . esc_url($url) . '">' . esc_html($label) . '</a>';
+    }
+}
+
+// Language switcher — clean dropdown (closed by default, JS toggle)
+function gn_lang_switcher() {
+    $flags = ['vi'=>'🇻🇳','en'=>'🇬🇧','zh'=>'🇨🇳','ko'=>'🇰🇷','ru'=>'🇷🇺','ar'=>'🇸🇦'];
+    $names = ['vi'=>'Tiếng Việt','en'=>'English','zh'=>'中文','ko'=>'한국어','ru'=>'Русский','ar'=>'العربية'];
+    $cur = gn_cur_lang();
+
+    // Build language list (Polylang if available, else static)
+    $items = [];
+    if (function_exists('pll_the_languages')) {
+        $langs = pll_the_languages(['raw' => 1, 'hide_if_empty' => 0]);
+        foreach ($langs as $l) {
+            $items[$l['slug']] = $l['url'];
+        }
+    }
+    if (empty($items)) {
+        foreach (['vi'=>'/','en'=>'/en/','zh'=>'/zh/','ko'=>'/ko/','ru'=>'/ru/','ar'=>'/ar/'] as $s=>$u) $items[$s] = home_url($u);
+    }
+
+    echo '<div class="gn-lang-switch">';
+    echo '<button class="gn-lang-current" type="button" aria-haspopup="true" aria-expanded="false" onclick="gnToggleLang(this)">';
+    echo '<span class="flag">' . ($flags[$cur] ?? '🌐') . '</span><span class="code">' . strtoupper($cur) . '</span><span class="caret">▾</span></button>';
+    echo '<ul class="gn-lang-dropdown" role="menu">';
+    foreach ($items as $slug => $url) {
+        $active = ($slug === $cur) ? ' aria-current="true"' : '';
+        $cls = ($slug === $cur) ? ' class="active"' : '';
+        echo '<li role="none"><a role="menuitem"' . $active . $cls . ' href="' . esc_url($url) . '">';
+        echo '<span class="flag">' . ($flags[$slug] ?? '🌐') . '</span> ' . esc_html($names[$slug] ?? strtoupper($slug)) . '</a></li>';
+    }
+    echo '</ul></div>';
+}
+
+function gn_phone_raw()     { return '+84979232233'; }
+function gn_phone_display() { return '0979 232 233'; }
+function gn_zalo_raw()      { return '2216004914337654583'; }
+function gn_whatsapp_raw()  { return '84979232233'; }
+function gn_telegram()      { return 'https://t.me/ganhngon'; }
+function gn_facebook()      { return 'https://facebook.com/ganhngon'; }
+function gn_instagram()     { return 'https://instagram.com/ganhngon'; }
+function gn_tiktok()        { return 'https://tiktok.com/@ganhngon'; }
+function gn_wechat_id()     { return 'ganhngon'; }
+function gn_youtube()       { return ''; } // 2026-06-20: kênh chưa tạo (404) → ẩn
+function gn_twitter_x()     { return ''; } // 2026-06-20: kênh chưa tạo (404) → ẩn
+function gn_address()       { return '113 Trần Hưng Đạo, Dương Đông, Phú Quốc'; }
+function gn_maps_url()      { return 'https://maps.google.com/?q=113+Tran+Hung+Dao+Duong+Dong+Phu+Quoc'; }
+function gn_hours_short()   { return 'Mở cửa hằng ngày 6:30 sáng – 2:00 sáng hôm sau'; }
+function gn_tagline_vi()    { return 'Đặc sản Việt Nam. Không gian sang trọng. Trải nghiệm đáng nhớ.'; }
+function gn_tagline_en()    { return 'Vietnamese Flavors. Elegant Dining. Memorable Moments.'; }
+
+// Social icons rendered as inline SVG (no external deps)
+function gn_social_icons($size = 24, $color = 'currentColor') {
+    return [
+        'zalo' => [
+            'href'  => 'https://zalo.me/' . gn_zalo_raw(),
+            'label' => 'Zalo',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path d="M12 2C6.477 2 2 5.91 2 10.73c0 2.74 1.46 5.18 3.74 6.78-.12.98-.5 2.26-1.04 3.13-.13.21.04.48.28.43 1.78-.38 3.2-1.1 4.1-1.67.93.21 1.9.33 2.92.33 5.523 0 10-3.91 10-8.73S17.523 2 12 2zm-3.05 10.5H7.2a.5.5 0 0 1-.4-.8l1.9-2.6H7.3a.5.5 0 0 1 0-1h2.05a.5.5 0 0 1 .4.8l-1.9 2.6h1.1a.5.5 0 0 1 0 1zm2.3-.5a.5.5 0 0 1-1 0V9a.5.5 0 0 1 1 0v3zm3.2.5a.5.5 0 0 1-.4-.2 1.7 1.7 0 0 1-.9.25 1.75 1.75 0 1 1 0-3.5c.33 0 .64.09.9.25a.5.5 0 0 1 .9.3v2.4a.5.5 0 0 1-.5.5zm2.55 0a.5.5 0 0 1-.5-.5V8.5a.5.5 0 0 1 1 0V12a.5.5 0 0 1-.5.5z"/></svg>'
+        ],
+        'whatsapp' => [
+            'href'  => 'https://wa.me/' . gn_whatsapp_raw(),
+            'label' => 'WhatsApp',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413"/></svg>'
+        ],
+        'facebook' => [
+            'href'  => gn_facebook(),
+            'label' => 'Facebook',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'
+        ],
+        'instagram' => [
+            'href'  => gn_instagram(),
+            'label' => 'Instagram',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.897 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.897-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>'
+        ],
+        'telegram' => [
+            'href'  => gn_telegram(),
+            'label' => 'Telegram',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.643.135-.953l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>'
+        ],
+        'wechat' => [
+            'href'  => '#wechat-qr',
+            'label' => 'WeChat',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.327.327 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177-.005-.02-.327-1.233-.327-1.233a.582.582 0 0 1 .184-.553c1.512-1.06 2.502-2.677 2.502-4.479 0-3.336-3.181-6.041-7.105-6.146-.022.001-.043-.001-.063-.001-.001 0-.001 0 0 0zm-2.213 2.474c.535 0 .967.44.967.981a.972.972 0 0 1-.967.981.972.972 0 0 1-.969-.981c0-.541.434-.981.969-.981zm4.842 0c.534 0 .967.44.967.981a.972.972 0 0 1-.967.981.972.972 0 0 1-.969-.981c0-.541.435-.981.969-.981z"/></svg>'
+        ],
+        'youtube' => [
+            'href'  => gn_youtube(),
+            'label' => 'YouTube',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>'
+        ],
+        'tiktok' => [
+            'href'  => gn_tiktok(),
+            'label' => 'TikTok',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>'
+        ],
+        'twitter_x' => [
+            'href'  => gn_twitter_x(),
+            'label' => 'X (Twitter)',
+            'svg'   => '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.esc_attr($color).'"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
+        ],
+    ];
+}
+
+function gn_render_social_row($with_label = true, $size = 22) {
+    $socials = gn_social_icons($size);
+    echo '<div class="gn-social-row">';
+    foreach ($socials as $key => $s) {
+        if (empty($s['href'])) continue; // bỏ qua kênh chưa tạo (href rỗng)
+        $target = (in_array($key, ['facebook','instagram','telegram','tiktok','youtube'])) ? ' target="_blank" rel="noopener"' : '';
+        $extra = ($key === 'wechat') ? ' data-wechat-id="' . esc_attr(gn_wechat_id()) . '" onclick="gnWechatPopup(event)"' : '';
+        echo '<a href="' . esc_url($s['href']) . '" class="gn-social-icon gn-social-' . $key . '" aria-label="' . esc_attr($s['label']) . '" title="' . esc_attr($s['label']) . '"' . $target . $extra . '>';
+        echo $s['svg'];
+        if ($with_label) echo '<span class="gn-social-label">' . esc_html($s['label']) . '</span>';
+        echo '</a>';
+    }
+    // AI Concierge
+    echo '<a href="' . esc_url(home_url('/ai-tu-van/')) . '" class="gn-social-icon gn-social-ai" aria-label="AI Concierge" title="AI Concierge">';
+    echo '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a1 1 0 0 1 1 1v1h3a3 3 0 0 1 3 3v2a2 2 0 0 1 0 4v2a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-2a2 2 0 0 1 0-4V7a3 3 0 0 1 3-3h3V3a1 1 0 0 1 1-1zM9 10a1.25 1.25 0 1 0 0 2.5A1.25 1.25 0 0 0 9 10zm6 0a1.25 1.25 0 1 0 0 2.5A1.25 1.25 0 0 0 15 10zm-6 5a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2H9z"/></svg>';
+    if ($with_label) echo '<span class="gn-social-label">AI Bot</span>';
+    echo '</a>';
+    echo '</div>';
+}
+
+function gn_sticky_bar() {
+    if (is_admin()) return;
+    ?>
+    <div class="gn-sticky-mobile">
+      <a href="tel:<?php echo esc_attr(gn_phone_raw()); ?>" class="gn-sticky-item" aria-label="<?php echo esc_attr(gn_t('sticky_call')); ?>"><span aria-hidden="true">📞</span><span><?php echo esc_html(gn_t('sticky_call')); ?></span></a>
+      <a href="https://zalo.me/<?php echo esc_attr(gn_zalo_raw()); ?>" class="gn-sticky-item" aria-label="Zalo"><span aria-hidden="true">💬</span><span>Zalo</span></a>
+      <a href="https://wa.me/<?php echo esc_attr(gn_whatsapp_raw()); ?>" class="gn-sticky-item" aria-label="WhatsApp"><span aria-hidden="true">🟢</span><span>WhatsApp</span></a>
+      <a href="<?php echo esc_url(home_url('/dat-ban/')); ?>" class="gn-sticky-item gn-sticky-cta" aria-label="<?php echo esc_attr(gn_t('sticky_book')); ?>"><span aria-hidden="true">📅</span><span><?php echo esc_html(gn_t('sticky_book')); ?></span></a>
+      <a href="<?php echo esc_url(home_url('/ai-tu-van/')); ?>" class="gn-sticky-item" aria-label="AI Concierge"><span aria-hidden="true">🤖</span><span>AI Bot</span></a>
+      <a href="<?php echo esc_url(gn_maps_url()); ?>" class="gn-sticky-item" target="_blank" aria-label="<?php echo esc_attr(gn_t('sticky_dir')); ?>"><span aria-hidden="true">📍</span><span><?php echo esc_html(gn_t('sticky_dir')); ?></span></a>
+    </div>
+    <div id="gn-wechat-modal" class="gn-wechat-modal" hidden>
+      <div class="gn-wechat-content">
+        <button class="gn-wechat-close" onclick="document.getElementById('gn-wechat-modal').hidden=true">×</button>
+        <h3>WeChat — Gánh Ngon</h3>
+        <p>Quét QR hoặc tìm ID: <strong><?php echo esc_html(gn_wechat_id()); ?></strong></p>
+        <div style="background:#fff;padding:18px;border-radius:8px;display:inline-block">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=weixin://contacts/profile/<?php echo esc_attr(gn_wechat_id()); ?>" alt="WeChat QR" width="200" height="200">
+        </div>
+        <p style="margin-top:14px;color:#5A5A5A;font-size:.85rem">Hoặc liên hệ qua WhatsApp / Zalo</p>
+      </div>
+    </div>
+    <script>
+    function gnWechatPopup(e){ e.preventDefault(); document.getElementById('gn-wechat-modal').hidden=false; }
+    </script>
+    <?php
+}
+add_action('wp_footer', 'gn_sticky_bar', 5);
+
+// ============================================================
+// AI Chatbot backend — Ollama (MiniMax M3) primary, DeepSeek fallback
+// Config stored in wp_options: gn_ai_ollama_url / gn_ai_ollama_model
+//   / gn_ai_deepseek_key / gn_ai_deepseek_model
+// ============================================================
+function gn_ai_system_prompt() {
+    return "Bạn là trợ lý ảo của nhà hàng GÁNH NGON — nhà hàng đặc sản Việt Nam tại 113 Trần Hưng Đạo, Dương Đông, Phú Quốc, Kiên Giang. "
+      . "Nhiệm vụ: tư vấn món ăn đặc sản, không gian (bàn thường, phòng VIP, khu gia đình, khu đoàn, tiệc riêng), hỗ trợ đặt bàn, giải đáp giờ mở cửa & dịch vụ. "
+      . "QUY TẮC BẮT BUỘC: TUYỆT ĐỐI KHÔNG báo giá món/set menu/phí phòng VIP. Nếu khách hỏi giá, lịch sự mời khách để lại SĐT/Zalo hoặc đặt bàn để tư vấn viên báo giá riêng. "
+      . "Hướng khách đặt bàn tại trang /dat-ban/, hoặc Zalo/WhatsApp 0979 232 233, hotline 0979 232 233. "
+      . "THÔNG TIN THẬT (chỉ dùng các dữ kiện này, KHÔNG bịa thêm): Giờ mở cửa 6h30 sáng đến 2h sáng hôm sau, tất cả các ngày trong tuần. Có chỗ đậu xe. "
+      . "Nếu khách hỏi thông tin chưa được cung cấp (sức chứa cụ thể, món/giá, sự kiện...), KHÔNG tự bịa — lịch sự mời khách liên hệ Zalo/hotline để được tư vấn chính xác. "
+      . "Trả lời NGẮN GỌN, thân thiện, đúng ngôn ngữ khách đang dùng (Việt/Anh/Trung/Hàn/Nga/Ả Rập). Nếu không chắc, mời khách liên hệ trực tiếp.";
+}
+function gn_ai_call_ollama($messages) {
+    $url   = trim(get_option('gn_ai_ollama_url', ''));
+    $model = trim(get_option('gn_ai_ollama_model', '')) ?: 'minimax-m3';
+    if ($url === '') return null;
+    $res = wp_remote_post(rtrim($url, '/') . '/api/chat', [
+        'timeout' => 25,
+        'headers' => ['Content-Type' => 'application/json'],
+        'body'    => wp_json_encode(['model' => $model, 'messages' => $messages, 'stream' => false]),
+    ]);
+    if (is_wp_error($res) || wp_remote_retrieve_response_code($res) !== 200) return null;
+    $j = json_decode(wp_remote_retrieve_body($res), true);
+    $txt = $j['message']['content'] ?? '';
+    return ($txt !== '') ? $txt : null;
+}
+function gn_ai_call_deepseek($messages) {
+    $key   = trim(get_option('gn_ai_deepseek_key', ''));
+    $model = trim(get_option('gn_ai_deepseek_model', '')) ?: 'deepseek-chat';
+    if ($key === '') return null;
+    $res = wp_remote_post('https://api.deepseek.com/chat/completions', [
+        'timeout' => 30,
+        'headers' => ['Content-Type' => 'application/json', 'Authorization' => 'Bearer ' . $key],
+        'body'    => wp_json_encode(['model' => $model, 'messages' => $messages, 'stream' => false, 'temperature' => 0.6]),
+    ]);
+    if (is_wp_error($res) || wp_remote_retrieve_response_code($res) !== 200) return null;
+    $j = json_decode(wp_remote_retrieve_body($res), true);
+    return $j['choices'][0]['message']['content'] ?? null;
+}
+function gn_ai_chat_handler() {
+    check_ajax_referer('gn_ai', 'nonce');
+    $msg  = isset($_POST['message']) ? sanitize_textarea_field(wp_unslash($_POST['message'])) : '';
+    $hist = isset($_POST['history']) ? json_decode(wp_unslash($_POST['history']), true) : [];
+    if (!is_array($hist)) $hist = [];
+    if ($msg === '') wp_send_json_error(['reply' => 'Anh/chị vui lòng nhập câu hỏi.']);
+
+    // simple per-IP rate limit
+    $rk  = 'gn_ai_rl_' . md5($_SERVER['REMOTE_ADDR'] ?? 'x');
+    $cnt = (int) get_transient($rk);
+    if ($cnt > 30) wp_send_json_success(['reply' => 'Anh/chị nhắn hơi nhanh — vui lòng thử lại sau ít phút hoặc chat Zalo/WhatsApp 0979 232 233 nhé.', 'source' => 'rl']);
+    set_transient($rk, $cnt + 1, 300);
+
+    $messages = [['role' => 'system', 'content' => gn_ai_system_prompt()]];
+    foreach (array_slice($hist, -8) as $h) {
+        if (!empty($h['role']) && !empty($h['content']))
+            $messages[] = ['role' => ($h['role'] === 'user' ? 'user' : 'assistant'), 'content' => (string) $h['content']];
+    }
+    $messages[] = ['role' => 'user', 'content' => $msg];
+
+    $reply = gn_ai_call_ollama($messages);       // primary: Ollama MiniMax M3
+    $src   = 'ollama';
+    if ($reply === null) { $reply = gn_ai_call_deepseek($messages); $src = 'deepseek'; } // fallback
+    if ($reply === null)
+        wp_send_json_success(['reply' => 'Trợ lý AI đang bận. Anh/chị vui lòng chat Zalo/WhatsApp 0979 232 233 hoặc đặt bàn tại trang Đặt bàn — nhân viên hỗ trợ ngay ạ. 🙏', 'source' => 'fallback']);
+    wp_send_json_success(['reply' => $reply, 'source' => $src]);
+}
+add_action('wp_ajax_gn_ai_chat', 'gn_ai_chat_handler');
+add_action('wp_ajax_nopriv_gn_ai_chat', 'gn_ai_chat_handler');
+
+// ============================================================
+// Floating chat launcher — AI concierge + multi-channel
+// ============================================================
+function gn_chat_widget() {
+    if (is_admin()) return;
+    $zalo = 'https://zalo.me/' . esc_attr(gn_zalo_raw());
+    $wa   = 'https://wa.me/' . esc_attr(gn_whatsapp_raw());
+    $mes  = esc_url(gn_facebook());
+    $tg   = esc_url(gn_telegram());
+    $tel  = 'tel:' . esc_attr(gn_phone_raw());
+    $ajax = esc_url(admin_url('admin-ajax.php'));
+    $nonce = wp_create_nonce('gn_ai');
+    ?>
+    <button class="gn-chat-fab" id="gnChatFab" aria-label="Chat với Gánh Ngon" aria-expanded="false" onclick="gnChatToggle()">
+      <span class="gn-chat-badge"></span>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.5 3.4 6-.1 1-.6 2.4-1.2 3.4-.2.3.1.7.5.6 1.9-.5 3.5-1.3 4.5-2 .9.2 1.8.3 2.8.3 5.5 0 10-3.6 10-8.3S17.5 3 12 3zm-4 9a1.2 1.2 0 1 1 0-2.4A1.2 1.2 0 0 1 8 12zm4 0a1.2 1.2 0 1 1 0-2.4A1.2 1.2 0 0 1 12 12zm4 0a1.2 1.2 0 1 1 0-2.4A1.2 1.2 0 0 1 16 12z"/></svg>
+    </button>
+    <div class="gn-chat-panel" id="gnChatPanel" role="dialog" aria-label="Chat">
+      <div class="gn-chat-head">
+        <strong>Gánh Ngon · Trợ lý AI</strong>
+        <span>Hỏi món, không gian, đặt bàn — AI trả lời ngay 24/7</span>
+      </div>
+      <div class="gn-chat-log" id="gnChatLog">
+        <div class="gn-msg gn-msg-bot">Xin chào 👋 Em là trợ lý AI của Gánh Ngon. Anh/chị cần tư vấn món đặc sản, không gian phòng VIP hay đặt bàn ạ?</div>
+      </div>
+      <form class="gn-chat-input" id="gnChatForm" onsubmit="return gnAiSend(event)">
+        <input type="text" id="gnChatText" autocomplete="off" placeholder="Nhập câu hỏi của anh/chị…" aria-label="Nhập tin nhắn">
+        <button type="submit" aria-label="Gửi"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3 10l12 2-12 2z"/></svg></button>
+      </form>
+      <div class="gn-chat-channels">
+        <span class="gn-chat-ch-label">Hoặc chat qua:</span>
+        <a href="<?php echo $zalo; ?>" target="_blank" rel="noopener" title="Zalo" style="background:#0068FF"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 5.9 2 10.7c0 2.7 1.5 5.2 3.7 6.8-.1 1-.5 2.3-1 3.1-.1.2 0 .5.3.4 1.8-.4 3.2-1.1 4.1-1.7.9.2 1.9.3 2.9.3 5.5 0 10-3.9 10-8.7S17.5 2 12 2z"/></svg></a>
+        <a href="<?php echo $wa; ?>" target="_blank" rel="noopener" title="WhatsApp" style="background:#25D366"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.2 14.8l-.3-.2-2.8.9.9-2.7-.2-.3A8 8 0 0 1 12 4z"/></svg></a>
+        <a href="<?php echo $mes; ?>" target="_blank" rel="noopener" title="Messenger" style="background:#0084FF"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.3 2 2 6.2 2 11.6c0 2.9 1.3 5.4 3.4 7.1V22l3.1-1.7c.8.2 1.6.3 2.5.3 5.7 0 10-4.2 10-9.6S17.7 2 12 2zm1 12.4-2.6-2.7-4.9 2.7 5.4-5.7 2.6 2.7 4.8-2.7-5.3 5.7z"/></svg></a>
+        <a href="<?php echo $tg; ?>" target="_blank" rel="noopener" title="Telegram" style="background:#0088CC"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.9 6.9-1.6 7.7c-.1.5-.4.7-.9.4l-2.5-1.8-1.2 1.2c-.1.1-.3.2-.5.2l.2-2.5 4.6-4.2c.2-.2 0-.3-.3-.1L9 13.2l-2.5-.8c-.5-.2-.5-.5.1-.8l9.6-3.7c.4-.2.8.1.7.8z"/></svg></a>
+        <a href="<?php echo $tel; ?>" title="Gọi điện" style="background:#2C1810"><svg viewBox="0 0 24 24" fill="#fff"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11 11 0 0 0 3.5.56 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.2.2 2.4.56 3.5a1 1 0 0 1-.25 1l-2.2 2.3z"/></svg></a>
+      </div>
+    </div>
+    <script>
+    (function(){
+      window.gnAiCfg = {url:"<?php echo $ajax; ?>", nonce:"<?php echo $nonce; ?>", hist:[]};
+    })();
+    function gnChatToggle(){var p=document.getElementById('gnChatPanel');var f=document.getElementById('gnChatFab');var o=p.classList.toggle('open');f.setAttribute('aria-expanded',o);if(o){setTimeout(function(){var t=document.getElementById('gnChatText');if(t)t.focus();},120);}}
+    document.addEventListener('click',function(e){if(!e.target.closest('#gnChatPanel')&&!e.target.closest('#gnChatFab')){var p=document.getElementById('gnChatPanel');if(p)p.classList.remove('open');}});
+    function gnAddMsg(text,who){var log=document.getElementById('gnChatLog');var d=document.createElement('div');d.className='gn-msg gn-msg-'+who;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+    function gnAiSend(e){
+      e.preventDefault();
+      var inp=document.getElementById('gnChatText');var msg=(inp.value||'').trim();if(!msg)return false;
+      gnAddMsg(msg,'user');gnAiCfg.hist.push({role:'user',content:msg});inp.value='';
+      var typing=gnAddMsg('Đang soạn…','bot');typing.classList.add('gn-typing');
+      var fd=new FormData();fd.append('action','gn_ai_chat');fd.append('nonce',gnAiCfg.nonce);fd.append('message',msg);fd.append('history',JSON.stringify(gnAiCfg.hist.slice(-8)));
+      fetch(gnAiCfg.url,{method:'POST',body:fd,credentials:'same-origin'})
+        .then(function(r){return r.json();})
+        .then(function(j){typing.remove();var rep=(j&&j.data&&j.data.reply)?j.data.reply:'Xin lỗi, em chưa trả lời được. Anh/chị chat Zalo/WhatsApp giúp em nhé.';gnAddMsg(rep,'bot');gnAiCfg.hist.push({role:'assistant',content:rep});})
+        .catch(function(){typing.remove();gnAddMsg('Kết nối gián đoạn. Anh/chị vui lòng chat Zalo/WhatsApp 0979 232 233 ạ.','bot');});
+      return false;
+    }
+    </script>
+    <?php
+}
+add_action('wp_footer', 'gn_chat_widget', 6);
+
+// ============================================================
+// Schema injection — per master brief §21
+// ============================================================
+function gn_schema_all() {
+    $schemas = [];
+    $org_base = [
+        '@type'     => 'Restaurant',
+        '@id'       => home_url('/') . '#restaurant',
+        'name'      => 'Gánh Ngon',
+        'alternateName' => 'Gánh Ngon Phú Quốc',
+        'url'       => home_url('/'),
+        'telephone' => gn_phone_raw(),
+        'email'     => 'contact@ganhngon.com',
+        'image'     => 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200',
+        'priceRange' => 'Liên hệ tư vấn',
+        'servesCuisine' => ['Vietnamese', 'Asian'],
+        'address'   => [
+            '@type'           => 'PostalAddress',
+            'streetAddress'   => '113 Trần Hưng Đạo',
+            'addressLocality' => 'Dương Đông',
+            'addressRegion'   => 'Phú Quốc, Kiên Giang',
+            'addressCountry'  => 'VN',
+        ],
+        'geo' => [
+            '@type'     => 'GeoCoordinates',
+            'latitude'  => 10.2167,
+            'longitude' => 103.9667,
+        ],
+        'description' => gn_tagline_vi(),
+        'sameAs' => [gn_facebook(), gn_instagram(), gn_telegram(), 'https://saophuquoc.com/'],
+    ];
+
+    if (is_front_page()) {
+        $schemas[] = $org_base + ['@context' => 'https://schema.org'];
+        $schemas[] = [
+            '@context' => 'https://schema.org',
+            '@type'    => 'LocalBusiness',
+            '@id'      => home_url('/') . '#localbusiness',
+            'name'     => 'Gánh Ngon',
+            'image'    => 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200',
+            'telephone' => gn_phone_raw(),
+            'address'  => $org_base['address'],
+            'url'      => home_url('/'),
+        ];
+        $schemas[] = [
+            '@context' => 'https://schema.org',
+            '@type'    => 'Organization',
+            '@id'      => home_url('/') . '#organization',
+            'name'     => 'Gánh Ngon',
+            'logo'     => home_url('/wp-content/themes/ganhngon-restaurant/screenshot.png'),
+            'url'      => home_url('/'),
+            'sameAs'   => array_values(array_filter([gn_facebook(), gn_instagram(), gn_telegram(), gn_tiktok(), gn_youtube()])),
+            'parentOrganization' => ['@type'=>'Organization','name'=>'SAO PHU QUOC','url'=>'https://saophuquoc.com/'],
+        ];
+        $faqs = gn_faqs_i18n();
+        if ($faqs) {
+            $schemas[] = [
+                '@context' => 'https://schema.org',
+                '@type'    => 'FAQPage',
+                'mainEntity' => array_map(function($f){
+                    return ['@type' => 'Question','name'  => $f['q'],'acceptedAnswer' => ['@type'=>'Answer','text'=>$f['a']]];
+                }, $faqs),
+            ];
+        }
+    }
+    if (is_page('thuc-don')) {
+        $schemas[] = [
+            '@context' => 'https://schema.org',
+            '@type'    => 'Menu',
+            'name'     => 'Thực đơn Gánh Ngon',
+            'description' => '220+ món đặc sản Việt Nam ba miền tại Phú Quốc',
+            'inLanguage' => ['vi','en','zh','ru'],
+        ];
+    }
+    if (is_page('khach-doan-tiec-rieng')) {
+        $schemas[] = [
+            '@context' => 'https://schema.org',
+            '@type'    => 'Event',
+            'name'     => 'Sự kiện & Tiệc riêng tại Gánh Ngon',
+            'description' => 'Đặt tiệc sinh nhật, tiệc công ty, gala dinner, họp mặt gia đình, khách đoàn du lịch và phòng VIP riêng tư',
+            'location' => $org_base,
+            'eventStatus' => 'https://schema.org/EventScheduled',
+            'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+        ];
+    }
+    foreach ($schemas as $s) {
+        echo '<script type="application/ld+json">' . wp_json_encode($s, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "</script>\n";
+    }
+}
+add_action('wp_head', 'gn_schema_all', 30);
+
+// Open Graph image fallback (if Yoast/theme didn't set one)
+function gn_og_image() {
+    if (function_exists('gn_t')) {
+        echo '<meta property="og:title" content="' . esc_attr(wp_get_document_title()) . '" />' . "
+";
+        echo '<meta property="og:description" content="' . esc_attr(gn_t('hero_lead')) . '" />' . "
+";
+    }
+    echo '<meta property="og:image" content="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200" />' . "\n";
+    echo '<meta property="og:image:width" content="1200" />' . "\n";
+    echo '<meta property="og:image:height" content="630" />' . "\n";
+    echo '<meta name="twitter:image" content="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200" />' . "\n";
+}
+add_action('wp_head', 'gn_og_image', 6);
+
+function gn_get_faqs() {
+    return [
+        ['q'=>'Gánh Ngon là nhà hàng gì?', 'a'=>'Gánh Ngon là nhà hàng đặc sản Việt Nam sang trọng tại Phú Quốc, phục vụ 220+ món Việt ba miền trong không gian rộng rãi, có 10 phòng VIP riêng tư. Phù hợp gia đình, nhóm bạn, khách đoàn, doanh nghiệp, khách VIP và khách quốc tế.'],
+        ['q'=>'Gánh Ngon có phòng VIP không?', 'a'=>'Có. Gánh Ngon sở hữu 10 phòng VIP từ 4–40 khách (Sen, Trúc, Đào, Mai, Cúc, Lan, Hồng, Nguyệt, Phượng, Signature). Mỗi phòng có concierge riêng, cách âm tốt, phù hợp tiếp khách, gia đình, doanh nghiệp, sinh nhật, họp mặt. Xem chi tiết tại trang Khách đoàn & Tiệc.'],
+        ['q'=>'Có cần đặt bàn trước không?', 'a'=>'Khách nên đặt bàn trước — đặc biệt vào giờ cao điểm (cuối tuần, mùa du lịch Nov–Mar) hoặc khi cần phòng VIP. Bàn thường: đặt trước 2 giờ. Phòng VIP: đặt trước 24h. Đoàn 20+: đặt trước 48–72h.'],
+        ['q'=>'Có nhận khách đoàn không?', 'a'=>'Có. Gánh Ngon nhận khách đoàn 10–80 người. Có set menu đoàn, phục vụ nhanh 60–90 phút, hóa đơn VAT 8% cho công ty du lịch, có người phụ trách đoàn riêng, có chỗ đậu xe 16/29/45 chỗ. Hướng dẫn viên đi cùng đoàn ăn miễn phí.'],
+        ['q'=>'Có menu cho khách quốc tế không?', 'a'=>'Có. Menu Gánh Ngon hỗ trợ 4 ngôn ngữ: Tiếng Việt · English · 中文 · Русский. Có món Việt dễ ăn cho khách lần đầu thử. Hỗ trợ WhatsApp, WeChat, Telegram đặt bàn cho khách quốc tế.'],
+        ['q'=>'Có thể đặt tiệc sinh nhật hoặc tiệc riêng không?', 'a'=>'Có. Gánh Ngon nhận tiệc sinh nhật, họp mặt gia đình, tiệc công ty, gala dinner nhỏ và tiệc riêng. Có bánh, hoa, backdrop, MC, DJ tùy gói. Vui lòng gửi form yêu cầu để nhận tư vấn set menu phù hợp.'],
+        ['q'=>'Có thể đặt phòng VIP online không?', 'a'=>'Có. Vui lòng dùng form tại /dat-ban/ chọn nhu cầu "Phòng VIP", hoặc gọi hotline / Zalo / WhatsApp để tư vấn viên gợi ý phòng phù hợp với số khách, ngân sách và mục đích.'],
+        ['q'=>'Nếu chưa biết chọn món thì sao?', 'a'=>'Khách có thể dùng Gánh Ngon Assistant (tại /ai-tu-van/) để được gợi ý món, set menu, bàn thường hoặc phòng VIP phù hợp. Hoặc gọi hotline để tư vấn viên hỗ trợ trực tiếp.'],
+    ];
+}
+
+function gn_quick_booking_strip() {
+    $ppl = gn_t('people');
+    ?>
+    <section class="gn-quick-booking">
+      <div class="gn-container">
+        <form method="post" action="<?php echo esc_url(gn_page_url('dat-ban')); ?>" class="gn-quick-form">
+          <div class="gn-quick-grid">
+            <label><?php echo esc_html(gn_t('qb_date')); ?><input type="date" name="booking_date" required min="<?php echo date('Y-m-d'); ?>"></label>
+            <label><?php echo esc_html(gn_t('qb_time')); ?><select name="booking_time"><option>11:30</option><option>12:00</option><option>18:00</option><option>18:30</option><option>19:00</option><option>19:30</option><option>20:00</option></select></label>
+            <label><?php echo esc_html(gn_t('qb_guests')); ?><select name="guests"><option>2 <?php echo esc_html($ppl); ?></option><option>4 <?php echo esc_html($ppl); ?></option><option>6 <?php echo esc_html($ppl); ?></option><option>8 <?php echo esc_html($ppl); ?></option><option>10+ <?php echo esc_html($ppl); ?></option></select></label>
+            <label><?php echo esc_html(gn_t('qb_type')); ?><select name="customer_type"><option><?php echo esc_html(gn_t('ct_family')); ?></option><option><?php echo esc_html(gn_t('ct_group')); ?></option><option><?php echo esc_html(gn_t('ct_biz')); ?></option><option><?php echo esc_html(gn_t('ct_intl')); ?></option><option><?php echo esc_html(gn_t('ct_vip')); ?></option></select></label>
+            <label><?php echo esc_html(gn_t('qb_phone')); ?><input type="tel" name="phone" placeholder="<?php echo esc_attr(gn_t('qb_phone')); ?>" required></label>
+          </div>
+          <button type="submit" class="gn-cta-btn"><?php echo esc_html(gn_t('qb_submit')); ?></button>
+        </form>
+      </div>
+    </section>
+    <?php
+}
+
+// Redirects
+add_action('template_redirect', function() {
+    $req = trim($_SERVER['REQUEST_URI'] ?? '', '/');
+    if ($req === 'phong-vip') { wp_redirect(home_url('/khach-doan-tiec-rieng/#phong-vip'), 301); exit; }
+    if ($req === 'partner')   { wp_redirect(home_url('/doi-tac/'), 301); exit; }
+});
+
+// === Hotline fix (2026-06-20): vá số placeholder hardcode trong post_content (DB) → hotline thật, không cần migrate DB ===
+function gn_fix_legacy_phone($html) {
+    if (strpos($html, '842971234567') !== false || strpos($html, '297 123 4567') !== false) {
+        $html = strtr($html, array(
+            '842971234567'     => '84979232233',
+            '+84 297 123 4567' => '0979 232 233',
+            '0297 123 4567'    => '0979 232 233',
+        ));
+    }
+    // VNPay đang ở chế độ sandbox (chưa thanh toán thật) → bỏ lời hứa "qua VNPay" để không sai với khách
+    if (stripos($html, 'qua VNPay') !== false) {
+        $html = str_ireplace(' qua VNPay', '', $html);
+    }
+    return $html;
+}
+add_filter('the_content', 'gn_fix_legacy_phone', 99);
+add_filter('widget_text', 'gn_fix_legacy_phone', 99);
+add_filter('render_block', 'gn_fix_legacy_phone', 99);

@@ -1,0 +1,16 @@
+# Local WordPress configuration and runtime data
+/public_html/wp-config.php
+/public_html/wp-content/debug.log
+/public_html/wp-content/*.lock
+/public_html/wp-content/cache/
+/public_html/wp-content/upgrade/
+/public_html/wp-content/backup*/
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+/.idea/
+/.vscode/

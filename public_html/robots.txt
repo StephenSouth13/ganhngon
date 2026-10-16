@@ -1,0 +1,45 @@
+# Gánh Ngon — robots.txt
+# Updated 2026-06-13
+
+User-agent: *
+Allow: /
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /?nps=
+Disallow: /sao-pay/
+Disallow: /booking/?code=
+Allow: /wp-admin/admin-ajax.php
+
+# AI Crawlers — explicitly allowed for content discovery
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+# Sitemap
+Sitemap: https://ganhngon.com/sitemap_index.xml
+
+# llms.txt for AI consumption
+# https://ganhngon.com/llms.txt

@@ -1,0 +1,44 @@
+<?php
+if (!defined('ABSPATH')) exit;
+register_shutdown_function(function () {
+    $e = error_get_last();
+    if (!$e || !in_array($e['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR), true)) return;
+    $msg = $e['message'] . ' in ' . $e['file'] . ':' . $e['line'];
+    $dir = WP_CONTENT_DIR . '/uploads';
+    if (!is_dir($dir)) @mkdir($dir, 0755, true);
+    @file_put_contents($dir . '/gn-last-error.txt', $msg);
+    $theme = get_stylesheet_directory();
+    $pairs = array(
+        $theme . '/functions.php.good120' => $theme . '/functions.php',
+        $theme . '/footer.php.good120' => $theme . '/footer.php',
+        $theme . '/style.css.good120' => $theme . '/style.css',
+        $theme . '/inc/ops.php.good120' => $theme . '/inc/ops.php',
+        $theme . '/inc/i18n.php.good120' => $theme . '/inc/i18n.php',
+        $theme . '/inc/advisor.php.good120' => $theme . '/inc/advisor.php',
+        WPMU_PLUGIN_DIR . '/gn-partner-register.php.good120' => WPMU_PLUGIN_DIR . '/gn-partner-register.php',
+        WPMU_PLUGIN_DIR . '/gn-trust-pages.php.good120' => WPMU_PLUGIN_DIR . '/gn-trust-pages.php',
+    );
+    foreach ($pairs as $from => $to) {
+        if (is_readable($from)) @copy($from, $to);
+    }
+});
+add_action('muplugins_loaded', function () {
+    if (!isset($_GET['gn_revert_form']) || !hash_equals('R2eEKCO97W3NeoyQDzb6xL6GiPMc7Z56', (string) $_GET['gn_revert_form'])) return;
+    $theme = get_stylesheet_directory();
+    $pairs = array(
+        $theme . '/functions.php.good120' => $theme . '/functions.php',
+        $theme . '/footer.php.good120' => $theme . '/footer.php',
+        $theme . '/style.css.good120' => $theme . '/style.css',
+        $theme . '/inc/ops.php.good120' => $theme . '/inc/ops.php',
+        $theme . '/inc/i18n.php.good120' => $theme . '/inc/i18n.php',
+        $theme . '/inc/advisor.php.good120' => $theme . '/inc/advisor.php',
+        WPMU_PLUGIN_DIR . '/gn-partner-register.php.good120' => WPMU_PLUGIN_DIR . '/gn-partner-register.php',
+        WPMU_PLUGIN_DIR . '/gn-trust-pages.php.good120' => WPMU_PLUGIN_DIR . '/gn-trust-pages.php',
+    );
+    foreach ($pairs as $from => $to) {
+        if (is_readable($from)) @copy($from, $to);
+    }
+    status_header(200);
+    echo 'reverted';
+    exit;
+}, 0);

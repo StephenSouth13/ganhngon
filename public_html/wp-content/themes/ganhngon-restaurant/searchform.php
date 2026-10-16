@@ -1,0 +1,1 @@
+<form role="search" method="get" class="search-form" action="<?php echo esc_url(home_url('/')); ?>"><input type="search" name="s" placeholder="Tìm món..."><button type="submit">Tìm</button></form>

@@ -1,0 +1,862 @@
+# Translation of Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release) in Chinese (China)
+# This file is distributed under the same license as the Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-08-31 07:08:58+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: zh_CN\n"
+"Project-Id-Version: Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release)\n"
+
+#: core/class-settings.php:356
+msgid "Backup Original Images"
+msgstr "备份原始图像"
+
+#: core/class-error-handler.php:259
+#: core/media-library/class-media-library-row.php:106
+msgid "File processing is in progress."
+msgstr "文件处理正在进行中。"
+
+#. translators: %1$s: bytes savings, %2$s: percentage savings, %3$d: number of
+#. images
+#: core/media-library/class-media-library-row.php:584
+msgid "%3$d images reduced by %1$s (%2$s)"
+msgstr "%3$d 张图片减少了 %1$s (%2$s)"
+
+#: core/integrations/class-gravity-forms.php:80
+msgid "To use this feature you need be using Gravity Forms."
+msgstr "要使用此功能，您需要使用 Gravity Forms。"
+
+#: core/class-settings.php:399
+msgid "Allow compressing images uploaded with Gravity Forms."
+msgstr "允许压缩使用 Gravity Forms 上传的图片。"
+
+#: core/class-configs.php:785 core/class-settings.php:398
+msgid "Gravity Forms"
+msgstr "Gravity Forms"
+
+#: core/class-settings.php:397
+msgid "Enable Gravity Forms integration"
+msgstr "启用 Gravity Forms 集成"
+
+#: core/class-optimization-controller.php:80
+msgid "Nonce verification failed"
+msgstr "随机数验证失败"
+
+#: core/class-error-handler.php:263
+msgid "Webp no response was received."
+msgstr "Webp 没有收到响应。"
+
+#: core/class-error-handler.php:258
+#: core/media-library/class-media-library-row.php:140
+msgid "Skipped animated file."
+msgstr "已跳过动画文件。"
+
+#: core/class-error-handler.php:257
+msgid "Skip ignored file."
+msgstr "跳过忽略的文件。"
+
+#. translators: %s Method name
+#: core/external/wdev-logger/wdev-logger.php:448
+msgid "Method %s does not exist."
+msgstr "方法 %s 不存在。"
+
+#. translators: %s Method name
+#: core/external/wdev-logger/wdev-logger.php:435
+msgid "Module %s does not exist."
+msgstr "模块 %s 不存在。"
+
+#: core/class-configs.php:193
+msgid "Undefined"
+msgstr "不明确的"
+
+#: app/class-media-library.php:834
+msgid "Image not found!"
+msgstr "找不到图片！"
+
+#: core/backups/class-backups-controller.php:57
+msgid "Image not restored, nonce verification failed."
+msgstr "图像未恢复，nonce 验证失败。"
+
+#: core/backups/class-backups-controller.php:48
+msgid "Error in processing restore action, fields empty."
+msgstr "处理恢复操作时出错，字段为空。"
+
+#: core/class-settings.php:346
+msgid "Disable Scaled Images"
+msgstr "禁用缩放图像"
+
+#: core/class-configs.php:778 core/class-settings.php:345
+msgid "Disable scaled images"
+msgstr "禁用缩放图像"
+
+#: core/class-settings.php:1029
+msgid "The tab these settings belong to is missing."
+msgstr "缺少这些设置所属的选项卡。"
+
+#: core/class-settings.php:960
+msgid "The page these settings belong to is missing."
+msgstr "缺少这些设置所属的页面。"
+
+#: core/class-settings.php:370
+msgid "Allow usage tracking"
+msgstr "允许使用情况跟踪"
+
+#: core/class-configs.php:973 core/class-configs.php:989
+msgid "none"
+msgstr "没有任何"
+
+#: core/class-configs.php:962 core/class-configs.php:1000
+msgid "No"
+msgstr "不"
+
+#: core/class-configs.php:962 core/class-configs.php:1004
+msgid "Yes"
+msgstr "是的"
+
+#: core/class-configs.php:958
+msgid ". Fade in delay: "
+msgstr ".淡入延迟："
+
+#: core/class-configs.php:957
+msgid ". Fade in duration: "
+msgstr ".淡入持续时间："
+
+#: core/class-configs.php:955
+msgid "Selected: "
+msgstr "已选择："
+
+#: core/class-configs.php:924
+msgid "Native Lazy Load Enabled"
+msgstr "已启用本机延迟加载"
+
+#: core/class-configs.php:923
+msgid "Load Scripts In Footer"
+msgstr "在页脚中加载脚本"
+
+#: core/class-configs.php:922
+msgid "Display And Animation"
+msgstr "显示和动画"
+
+#: core/class-configs.php:921
+msgid "Included Post Types"
+msgstr "包含的帖子类型"
+
+#: core/class-configs.php:839
+msgid "Keep Data On Uninstall"
+msgstr "卸载时保留数据"
+
+#: core/class-configs.php:322
+msgid "The given config ID does not exist"
+msgstr "给定的配置 ID 不存在"
+
+#: core/class-configs.php:286
+msgid "The provided configs list isn’t correct. Please make sure the uploaded file is the correct one."
+msgstr "提供的配置列表不正确。请确保上传的文件是正确的。"
+
+#: core/class-configs.php:271
+msgid "The uploaded config must have a name and a set of settings. Please make sure the uploaded file is the correct one."
+msgstr "上传的配置必须有一个名称和一组设置。请确保上传的文件是正确的。"
+
+#: core/class-configs.php:266
+msgid "There was an error decoding the file."
+msgstr "对文件进行解码时出现了错误。"
+
+#: core/class-configs.php:261
+msgid "There was an error getting the contents of the file."
+msgstr "获取文件内容时出错。"
+
+#: core/class-configs.php:256
+msgid "The file must be a JSON."
+msgstr "该文件必须是 JSON。"
+
+#. translators: error message
+#: core/class-configs.php:254
+msgid "Error: %s."
+msgstr "错误：%s。"
+
+#: core/class-configs.php:251
+msgid "The configs file is required"
+msgstr "配置文件是必需的"
+
+#: core/class-configs.php:97
+msgid "Missing configs data"
+msgstr "缺少配置数据"
+
+#: core/api/class-hub.php:140
+msgid "Missing config data"
+msgstr "缺少配置数据"
+
+#: core/api/class-abstract-api.php:55
+msgid "API instances require a version and name properties"
+msgstr "API 实例需要版本和名称属性"
+
+#: core/class-configs.php:631 core/class-configs.php:816
+#: core/class-configs.php:882 core/class-configs.php:888
+msgid "Inactive"
+msgstr "不活跃"
+
+#: core/frontend/class-frontend-controller.php:884
+msgid "Accessibility"
+msgstr "可访问性"
+
+#: core/frontend/class-frontend-controller.php:883
+msgid "Data & Settings"
+msgstr "数据和设置"
+
+#: core/frontend/class-frontend-controller.php:882
+msgid "General"
+msgstr "一般的"
+
+#: core/class-configs-controller.php:83
+msgid "Missing config ID"
+msgstr "缺少配置 ID"
+
+#: core/class-core.php:282
+msgid "Something went wrong with the request. Please reload the page and try again."
+msgstr "请求出现问题。请重新加载页面，然后重试。"
+
+#: core/class-configs.php:744 core/class-settings.php:1404
+msgid "WebP"
+msgstr "WebP"
+
+#: core/bulk/class-ajax-bulk-smush-controller.php:47
+#: core/class-settings.php:946 core/media/class-media-item-controller.php:80
+msgid "You don't have permission to do this."
+msgstr "您无权执行此操作。"
+
+#: app/views/deactivation-survey.php:39
+msgid "Close this dialog window"
+msgstr "关闭此对话框窗口"
+
+#: app/class-admin.php:337
+msgid " and "
+msgstr " 和 "
+
+#. translators: 1. opening strong tag, 2: re-smush images count,3. closing
+#. strong tag.
+#: app/class-admin.php:325
+msgid "%1$s%2$d attachment%3$s that needs re-smushing"
+msgid_plural "%1$s%2$d attachments%3$s that need re-smushing"
+msgstr[0] "%1$s%2$d个附件%3$s需要重新压缩"
+
+#. translators: 1. opening strong tag, 2: unsmushed images count,3. closing
+#. strong tag.
+#: app/class-admin.php:314
+msgid "%1$s%2$d attachment%3$s that needs smushing"
+msgid_plural "%1$s%2$d attachments%3$s that need smushing"
+msgstr[0] "%1$s%2$d个附件%3$s需要压缩"
+
+#: core/class-core.php:290
+msgid "Dismiss notice"
+msgstr "驳回通知"
+
+#: core/class-configs.php:757
+msgid "Native lazy load"
+msgstr "本机延迟加载"
+
+#: core/class-configs.php:767
+msgid "REST API"
+msgstr "REST API"
+
+#: core/backups/class-backups-controller.php:170
+msgid "Error getting file name"
+msgstr "获取文件名时出错"
+
+#: core/external/plugin-notice/notice.php:325
+msgid "Generate leads with pop-ups, slide-ins and email opt-ins."
+msgstr "通过弹出窗口、幻灯片和电子邮件选择加入潜在客户。"
+
+#: core/external/plugin-notice/notice.php:317
+msgid "Create dynamic forms easily and quickly with our form builder."
+msgstr "使用我们的表单生成器轻松快速地创建动态表单。"
+
+#: core/external/plugin-notice/notice.php:309
+msgid "Configure your markup for optimal page and social ranking."
+msgstr "配置您的标记以获得最佳页面和社交排名。"
+
+#: core/external/plugin-notice/notice.php:301
+msgid "Secure and protect your site from malicious hackers and bots."
+msgstr "保护您的网站免受恶意黑客和僵尸程序的攻击。"
+
+#: core/external/plugin-notice/notice.php:293
+msgid "Add powerful caching and optimize your assets."
+msgstr "增添了强有力的缓存和资料优化。"
+
+#: core/external/plugin-notice/notice.php:285
+msgid "Resize, optimize and compress all of your images to the max."
+msgstr "重新调整大小，优化，并压缩您的所有图像到极致。"
+
+#. translators: %s - plugin name
+#: core/external/plugin-notice/notice.php:193
+msgid "Enjoying %s? Try out a few of our other popular free plugins..."
+msgstr "觉得 %s 很好用? 来尝试一些其它由我们出品的免费 plugins 吧..."
+
+#: core/lazy-load/class-lazy-load-video-embed.php:317
+msgid "Play"
+msgstr "播放"
+
+#. translators: %1$s: bytes savings, %2$s: percentage savings
+#: core/media-library/class-media-library-row.php:591
+msgid "Reduced by %1$s (%2$s)"
+msgstr "%3$d个图像减少了%1$s（%2$s）"
+
+#: app/class-media-library.php:531
+#: core/frontend/class-frontend-controller.php:591
+msgid "Smush: Not processed"
+msgstr "Smush: 未处理"
+
+#: app/class-admin.php:287
+msgid "Manage Plugins"
+msgstr "管理插件"
+
+#: core/frontend/class-frontend-controller.php:1480
+msgid "Premium Support"
+msgstr "高级支持"
+
+#: core/frontend/class-frontend-controller.php:1476
+msgid "View details"
+msgstr "查看详情"
+
+#: app/class-admin.php:530 app/class-admin.php:573 app/class-admin.php:606
+#: core/frontend/class-frontend-controller.php:1470
+msgid "Rate Smush"
+msgstr "评价 Smush"
+
+#: core/frontend/class-frontend-controller.php:1445
+msgid "Go to Smush Dashboard"
+msgstr "转到Smush仪表板"
+
+#: core/frontend/class-frontend-controller.php:1440
+msgid "View Smush Documentation"
+msgstr "查看SMUSH文档"
+
+#: core/frontend/class-frontend-controller.php:1425
+#: core/frontend/class-frontend-controller.php:1426
+msgid "Renew Membership"
+msgstr "续费会员"
+
+#: core/modules/class-dir.php:308
+msgid "Potential Phar PHP Object Injection detected"
+msgstr "检测到潜在的Phar PHP对象注入"
+
+#: app/class-media-library.php:527
+msgid "Filter by Smush status"
+msgstr "按Smush状态过滤"
+
+#: core/integrations/class-composer.php:74
+msgid "To use this feature you need be using WPBakery Page Builder."
+msgstr "要使用此功能，您需要使用 WPBakery 页面生成器。"
+
+#: app/class-media-library.php:852 core/class-core.php:278
+#: core/media-library/class-media-library-row.php:217
+msgid "Ignore"
+msgstr "忽略"
+
+#: core/class-helper.php:348
+msgid "Couldn't process image due to bad headers. Try re-saving the image in an image editor, then upload it again."
+msgstr "由于标题错误，无法处理图片。尝试在图像编辑器中重新保存图像，然后再次上传。"
+
+#: core/frontend/class-frontend-controller.php:790
+#: core/frontend/class-frontend-controller.php:1445
+msgid "Dashboard"
+msgstr "仪表盘"
+
+#: core/class-hub-connector.php:505
+msgid "Subsite Controls"
+msgstr "子站点控件"
+
+#: core/class-configs.php:764
+msgid "Background Images"
+msgstr "背景图像"
+
+#: core/class-settings.php:404
+msgid "Allow smushing images resized in WPBakery Page Builder editor."
+msgstr "允许在WPBakery页面构建器编辑器中调整大小的图像."
+
+#: core/class-configs.php:784 core/class-settings.php:403
+msgid "WPBakery Page Builder"
+msgstr "可视化编辑器"
+
+#: core/class-settings.php:402
+msgid "Enable WPBakery Page Builder integration"
+msgstr "启用 WPBakery 页面生成器集成"
+
+#: core/class-configs.php:770 core/class-settings.php:321
+msgid "Automatic compression"
+msgstr "自动压缩"
+
+#: core/class-settings.php:316
+msgid "Image Sizes"
+msgstr "图像大小"
+
+#: core/class-configs.php:631 core/class-configs.php:882
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:2343
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:1571
+msgid "Active"
+msgstr "已启用"
+
+#: core/api/class-smush-api.php:95
+msgid "[WPMUDEV API] Skipped sync due to API error exponential backoff."
+msgstr "[WPMUDEV API]由于 API 错误指数回退而跳过同步。"
+
+#: core/class-configs.php:1023
+msgid "All"
+msgstr "所有"
+
+#: core/class-configs.php:893
+msgid "Lazy Load"
+msgstr "延迟加载"
+
+#: core/class-core.php:284
+msgid "Ignore this image from bulk smushing"
+msgstr "从批量压缩中忽略此图像"
+
+#: core/class-error-handler.php:256
+msgid "No attachment ID was received."
+msgstr "未收到附件 ID。"
+
+#: core/class-configs.php:756
+msgid "Scripts"
+msgstr "脚本"
+
+#: core/class-configs.php:1023 core/class-settings.php:1403
+msgid "None"
+msgstr "无"
+
+#: core/class-configs.php:918
+msgid "Output Locations"
+msgstr "输出位置"
+
+#: core/class-configs.php:917 core/class-configs.php:984
+msgid "Media Types"
+msgstr "媒体类型"
+
+#: core/class-settings.php:372
+msgid "Help make Smush better by letting our designers learn how you’re using the plugin."
+msgstr "让我们的设计师了解您是如何使用该插件的, 从而帮助您让 Smush 变得更好。"
+
+#: core/class-settings.php:371
+msgid "Usage Tracking"
+msgstr "使用跟踪"
+
+#: core/class-settings.php:367
+msgid "Increase the visibility and accessibility of elements and components to meet WCAG AAA requirements."
+msgstr "提高元件和组件的可见性和可访问性,以满足 WCAG AAA 要求。"
+
+#: core/class-settings.php:366
+msgid "Color Accessibility"
+msgstr "颜色可访问性"
+
+#: core/class-settings.php:365
+msgid "Enable high contrast mode"
+msgstr "启用高对比度模式"
+
+#: core/cli/class-cli-optimizer.php:55
+msgid "No images available to restore"
+msgstr "没有可用于还原的图像"
+
+#: core/cli/class-cli.php:129
+msgid "Smushing all images"
+msgstr "扫描所有图像"
+
+#. translators: %d - number of images
+#: core/cli/class-cli.php:124
+msgid "Smushing first %d images"
+msgstr "正在压缩第 %d 张图像"
+
+#. translators: %s Smush image Id(s)
+#: core/cli/class-cli.php:112
+msgid "Smushing image ID: %d"
+msgid_plural "Smushing images %s"
+msgstr[0] "模糊图像ID：%d"
+
+#: core/frontend/class-frontend-controller.php:1563
+msgid "Upgrade"
+msgstr "升级"
+
+#: core/frontend/class-frontend-controller.php:1422
+#: core/frontend/class-frontend-controller.php:1560
+msgid "Upgrade to Smush Pro"
+msgstr "升级到 Smush 专业版"
+
+#: core/frontend/class-frontend-controller.php:596
+msgid "Select an image to view Smush stats."
+msgstr "选择图像以查看 Smush 统计信息。"
+
+#: core/api/class-request.php:82
+msgid "Invalid API service."
+msgstr "无效的 API 服务。"
+
+#: core/frontend/class-frontend-controller.php:1440
+msgid "Docs"
+msgstr "文档"
+
+#: core/frontend/class-frontend-controller.php:1471
+msgid "Support"
+msgstr "支持中心"
+
+#: core/frontend/class-frontend-controller.php:1494
+msgid "Roadmap"
+msgstr "路线图"
+
+#: core/frontend/class-frontend-controller.php:316
+#: core/frontend/class-frontend-controller.php:1564
+msgid "Pro"
+msgstr "专业版"
+
+#: app/class-media-library.php:532
+#: core/frontend/class-frontend-controller.php:592
+msgid "Smush: Bulk ignored"
+msgstr "Smush:批量被忽略"
+
+#: app/class-media-library.php:530
+#: core/frontend/class-frontend-controller.php:590
+msgid "Smush: All images"
+msgstr "Smush:所有图像"
+
+#: core/class-error-handler.php:261
+msgid "Skipped with wp_smush_image filter"
+msgstr "使用 wp_smush_image 筛选跳过"
+
+#: core/class-settings.php:351
+msgid "Original Images"
+msgstr "原始图像"
+
+#: core/class-core.php:297
+msgid "Cancel"
+msgstr "取消"
+
+#: core/integrations/class-gutenberg.php:81
+msgid "To use this feature you need to install and activate the Gutenberg plugin."
+msgstr "要使用此功能,您需要安装并激活古腾堡插件。"
+
+#: core/class-configs.php:783 core/class-settings.php:408
+msgid "Gutenberg Support"
+msgstr "古腾堡支持"
+
+#: core/class-settings.php:407
+msgid "Show Smush stats in Gutenberg blocks"
+msgstr "在Gutenberg区块显示Smush统计数据"
+
+#. translators: %1$s - opening <a>, %2$s - closing </a>
+#: app/class-admin.php:152
+msgid "Smush uses the Stackpath Content Delivery Network (CDN). Stackpath may store web log information of site visitors, including IPs, UA, referrer, Location and ISP info of site visitors for 7 days. Files and images served by the CDN may be stored and served from countries other than your own. Stackpath's privacy policy can be found %1$shere%2$s."
+msgstr "Smush 使用堆栈路径内容交付网络 (CDN)。Stackpath 可能会将网站访问者的 Web 日志信息存储 7 天,包括网站访问者的 IP、UA、引用者、位置和 ISP 信息。CDN 提供的文件和图像可以从您自己以外的国家/地区存储和提供。Stackpath 的隐私政策可以找到 %1$shere%2$s。"
+
+#: core/modules/class-dir.php:954
+msgid "Empty Directory Path"
+msgstr "空目录路径"
+
+#: core/modules/class-dir.php:753
+msgid "There was a problem getting the selected directories"
+msgstr "获取所选目录时出现问题"
+
+#: app/class-media-library.php:765
+#: core/backups/class-backups-controller.php:147
+#: core/backups/class-backups-controller.php:187
+#: core/bulk/class-background-bulk-smush-controller.php:185
+#: core/cache/class-cache-controller.php:45 core/class-hub-connector.php:655
+#: core/class-hub-connector.php:692 core/class-settings.php:837
+#: core/frontend/class-frontend-controller.php:111
+#: core/frontend/class-frontend-controller.php:124
+#: core/frontend/class-frontend-controller.php:1275
+#: core/frontend/class-frontend-controller.php:1512
+#: core/frontend/class-frontend-controller.php:1538
+#: core/modules/class-dir.php:201 core/modules/class-dir.php:218
+#: core/modules/class-dir.php:243 core/modules/class-dir.php:274
+#: core/modules/class-dir.php:546 core/modules/class-dir.php:557
+#: core/modules/class-dir.php:566 core/modules/class-dir.php:573
+#: core/modules/class-dir.php:829 core/modules/class-dir.php:946
+#: core/modules/class-dir.php:1385
+#: core/rating-notification/class-rating-notification-controller.php:28
+#: core/rating-notification/class-rating-notification-controller.php:48
+#: core/rating-notification/class-rating-notification-controller.php:67
+#: core/rating-notification/class-rating-notification-controller.php:86
+msgid "Unauthorized"
+msgstr "未授权"
+
+#: core/media-library/class-media-library-row.php:759
+msgid "Resmush"
+msgstr "重新压缩"
+
+#: app/class-media-library.php:800
+msgid "PRO"
+msgstr "专业版"
+
+#: core/cli/class-cli.php:296
+msgid "Images Smushed"
+msgstr "已压缩图片"
+
+#: core/cli/class-cli.php:294
+msgid "Total Savings"
+msgstr "总计节省"
+
+#: core/frontend/class-frontend-controller.php:881
+msgid "Integrations"
+msgstr "集成"
+
+#: core/bulk/class-mail.php:95 core/class-hub-connector.php:501
+msgid "Bulk Smush"
+msgstr "批量压缩"
+
+#: core/class-rest.php:76
+msgid "Smushing in progress"
+msgstr "正在进行压缩处理"
+
+#: core/class-rest.php:52
+msgid "Smush data."
+msgstr "压缩数据。"
+
+#: core/media-library/class-media-library-row.php:329
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:1336
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:739
+msgid "Learn more"
+msgstr "了解更多"
+
+#: core/frontend/class-frontend-controller.php:869
+msgid "Directory Smush"
+msgstr "目录压缩"
+
+#: core/class-configs.php:838 core/frontend/class-frontend-controller.php:834
+#: core/frontend/class-frontend-controller.php:879
+msgid "CDN"
+msgstr "CDN"
+
+#: core/class-configs.php:771 core/class-settings.php:336
+msgid "Metadata"
+msgstr "元数据"
+
+#: core/modules/class-dir.php:1310
+msgid "Directory smushing requires custom tables and it seems there was an error creating tables. For help, please contact our team on the support forums."
+msgstr "目录压缩需要自定义表，并且似乎在创建表时出错。如需帮助，请在支持论坛上与我们的团队联系。"
+
+#. Plugin Name of the plugin
+#: wp-smush.php app/views/deactivation-survey.php:33
+#: core/bulk/class-mail.php:64 core/class-configs.php:128
+#: core/class-installer.php:341
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:24
+#: core/frontend/class-frontend-controller.php:311
+#: core/frontend/class-frontend-controller.php:315
+#: core/frontend/class-frontend-controller.php:318
+#: core/frontend/class-frontend-controller.php:589
+#: core/media-library/class-media-library-row.php:725
+#: core/smush/class-smush-optimization.php:102 wp-smush.php:516
+msgid "Smush"
+msgstr "Smush"
+
+#: core/bulk/class-mail.php:64
+#: core/external/plugins-cross-sell-page/core/plugins-list.php:191
+#: core/frontend/class-frontend-controller.php:311
+msgid "Smush Pro"
+msgstr "Smush 专业版"
+
+#: app/class-admin.php:160
+msgid "Smush uses a third-party email service (Drip) to send informational emails to the site administrator. The administrator's email address is sent to Drip and a cookie is set by the service. Only administrator information is collected by Drip."
+msgstr "Smush 使用第三方电子邮件服务 (滴水) 向网站管理员发送信息性电子邮件。管理员的电子邮件地址被发送到滴水和 cookie 设置的服务。仅通过滴水收集管理员信息。"
+
+#: app/class-admin.php:149
+msgid "Smush sends images to the WPMU DEV servers to optimize them for web use. This includes the transfer of EXIF data. The EXIF data will either be stripped or returned as it is. It is not stored on the WPMU DEV servers."
+msgstr "Smush 将图像发送到 WPMU 开发服务器, 以便为 web 使用优化它们。这包括传输 EXIF 数据。EXIF 数据将被剥离或返回, 因为它不会存储在 WPMU 开发服务器上。"
+
+#: app/class-admin.php:147
+msgid "Note: Smush does not interact with end users on your website. The only input option Smush has is to a newsletter subscription for site admins only. If you would like to notify your users of this in your privacy policy, you can use the information below."
+msgstr "注意: Smush 不与您的网站上的最终用户发生交互。唯一的输入选项只有网站管理员的新闻稿订阅。如果您想在您的隐私策略中通知您的用户, 您可以使用下面的信息。"
+
+#: app/class-admin.php:145
+msgid "Plugin: Smush"
+msgstr "插件: Smush"
+
+#: core/frontend/class-frontend-controller.php:595
+msgid "Smush Stats"
+msgstr "压缩统计"
+
+#: core/class-configs.php:786 core/class-configs.php:837
+#: core/class-settings.php:386
+msgid "Amazon S3"
+msgstr "Amazon S3"
+
+#: core/class-settings.php:385
+msgid "Enable Amazon S3 support"
+msgstr "启用 Amazon S3 支持"
+
+#: core/class-settings.php:381
+msgid "NextGen Gallery"
+msgstr "NextGen Gallery"
+
+#: core/class-settings.php:362
+msgid "When you compress a PNG, Smush will check if converting it to JPEG could further reduce its size."
+msgstr "压缩 PNG 时, 图像优化将检查是否将其转换为 JPEG 可以进一步减小其大小。"
+
+#: core/class-configs.php:779 core/class-settings.php:361
+msgid "PNG to JPEG Conversion"
+msgstr "PNG 到 JPEG 转换"
+
+#: core/class-settings.php:360
+msgid "Auto-convert PNGs to JPEGs (lossy)"
+msgstr "自动将 PNG 转换为 JPEG(损耗)"
+
+#: core/class-settings.php:322
+msgid "When you upload images to your site, we will automatically optimize and compress them for you."
+msgstr "当您将图像上传到您的网站时，我们将自动为您优化和压缩它们。"
+
+#: core/modules/class-dir.php:329
+msgid "Image couldn't be optimized"
+msgstr "图像无法优化"
+
+#: core/modules/class-dir.php:292
+msgid "Incorrect image id"
+msgstr "图像ID不正确"
+
+#: core/modules/class-dir.php:969
+msgid "We could not find any images in the selected directory."
+msgstr "我们在所选目录中找不到任何图像。"
+
+#: core/media-library/class-media-library-row.php:756
+msgid "Smush image including original file"
+msgstr "压缩包含原始文件图像"
+
+#: core/media-library/class-media-library-row.php:828
+msgid "Restore original image"
+msgstr "还原原始图像"
+
+#: app/class-media-library.php:793
+msgid "Image couldn't be smushed as it exceeded the 5Mb size limit, Pro users can smush images without any size restriction."
+msgstr "图片超出了5Mb的大小限制，因此无法被压缩，Pro用户可以不受任何大小限制地涂抹图像。"
+
+#. translators: %s: number of thumbnails
+#: app/class-media-library.php:787
+msgid "When you upload an image to WordPress it automatically creates %s thumbnail sizes that are commonly used in your pages. WordPress also stores the original full-size image, but because these are not usually embedded on your site we don’t Smush them. Pro users can override this."
+msgstr "当您将图像上传到WordPress时，它会自动创建页面中常用的%s缩略图尺寸。 WordPress还会存储原始的全尺寸图片，但是由于这些图片通常不会嵌入您的网站中，因此我们不会对其进行修饰。 专业版用户可以覆盖此设置。"
+
+#: core/media-library/class-media-library-row.php:845
+msgid "Detailed stats for all the image sizes"
+msgstr "所有图像尺寸的详细统计信息"
+
+#: core/backups/class-backups-controller.php:84
+msgid "Unable to restore image"
+msgstr "无法恢复图像"
+
+#: core/cli/class-cli.php:316
+msgid "Yay! All images are optimized as per your current settings."
+msgstr "好极了！ 所有图像都会根据您当前的设置进行优化。"
+
+#: app/class-media-library.php:590 core/class-core.php:276
+msgid "Restoring image..."
+msgstr "恢复图像.."
+
+#: core/class-core.php:274
+msgid "All images are fully optimized."
+msgstr "所有图像都经过完全优化。"
+
+#: core/class-settings.php:382
+msgid "Allow smushing images directly through NextGen Gallery settings."
+msgstr "允许通过NextGen Gallery设置直接清除图像。"
+
+#: core/class-settings.php:380
+msgid "Enable NextGen Gallery integration"
+msgstr "启用NextGen Gallery集成"
+
+#: core/class-settings.php:320
+msgid "Automatically compress my images on upload"
+msgstr "在上传时自动压缩图像"
+
+#: app/class-admin.php:293 app/class-admin.php:411 app/class-admin.php:455
+#: core/cache/class-cache-controller.php:67 core/class-core.php:289
+#: core/external/plugin-notice/notice.php:485
+msgid "Dismiss"
+msgstr "忽略"
+
+#. Author of the plugin
+#: wp-smush.php
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:1382
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:762
+msgid "WPMU DEV"
+msgstr "WPMU DEV"
+
+#. Description of the plugin
+#: wp-smush.php
+msgid "Reduce image file sizes, improve performance and boost your SEO using the free <a href=\"https://wpmudev.com/\">WPMU DEV</a> WordPress Smush API."
+msgstr "使用免费的<a href=\"https://wpmudev.com/\"> WPMU DEV </a> WordPress Smush API减小图像文件大小，提高性能并提高您的SEO。"
+
+#: core/frontend/class-frontend-controller.php:598
+msgid "Savings"
+msgstr "保存"
+
+#: core/frontend/class-frontend-controller.php:597
+#: core/media-library/class-media-library-row.php:666
+msgid "Image size"
+msgstr "图片大小"
+
+#: app/class-media-library.php:658
+msgid "Smush Now!"
+msgstr "立即压缩！"
+
+#: app/class-media-library.php:593 app/class-media-library.php:834
+#: core/class-core.php:287 core/class-error-handler.php:264
+#: core/class-rest.php:82 core/media-library/class-media-library-row.php:102
+#: core/media-library/class-media-library-row.php:368
+msgid "Not processed"
+msgstr "未处理"
+
+#: core/smush/class-smusher.php:653
+msgid "Image couldn't be smushed"
+msgstr "图像不能被压缩"
+
+#: core/smush/class-smusher.php:689
+msgid "Smush data corrupted, try again."
+msgstr "Smush数据损坏，再试一次。"
+
+#. translators: 1: Error code, 2: Error message.
+#: core/smush/class-smusher.php:635
+msgid "Error posting to API: %1$s %2$s"
+msgstr "发布到 API 时出错: %1$s %2$s"
+
+#. translators: %s: Error message.
+#: core/smush/class-smusher.php:602
+msgid "Error posting to API: %s"
+msgstr "发布到API的错误：%s"
+
+#: core/smush/class-smusher.php:665
+msgid "Unknown API error"
+msgstr "未知API错误"
+
+#. translators: %s: Directory path
+#. translators: %s: directory name
+#: core/class-error-handler.php:270 core/smush/class-smusher.php:281
+msgid "%s is not writable"
+msgstr "%s 不可写"
+
+#: core/class-error-handler.php:262 core/smush/class-smusher.php:262
+msgid "File path is empty"
+msgstr "文件路径为空"
+
+#: core/class-optimization-controller.php:74
+msgid "No attachment ID was provided."
+msgstr "没有提供附件ID。"
+
+#: core/backups/class-backups-controller.php:65
+#: core/class-optimization-controller.php:86
+#: core/media/class-media-item-controller.php:29
+#: core/media/class-media-item-controller.php:56
+msgid "You don't have permission to work with uploaded files."
+msgstr "您没有使用上传的文件的权限。"
+
+#: core/frontend/class-frontend-controller.php:952
+msgid "Settings"
+msgstr "设置"
+
+#: core/class-core.php:271
+msgid "Super-Smush"
+msgstr "超级压缩"
+
+#: app/class-media-library.php:657
+msgid "Smushing in progress..."
+msgstr "图像正在处理中.."
+
+#: app/class-admin.php:164
+msgid "WP Smush"
+msgstr "WP Smush"

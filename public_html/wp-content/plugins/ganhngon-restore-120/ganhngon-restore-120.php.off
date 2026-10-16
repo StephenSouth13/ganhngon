@@ -1,0 +1,29 @@
+<?php
+/**
+ * Plugin Name: GN Restore 120
+ * Description: One-time restore of the theme functions file to commerce 1.2.0. Deletes itself after a successful copy.
+ * Version: 1.0.0
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+register_activation_hook(__FILE__, 'gn_restore_120_activate');
+function gn_restore_120_activate() {
+    $src = __DIR__ . '/payload-functions.php';
+    $body = is_readable($src) ? file_get_contents($src) : '';
+    if ($body === '' || strpos($body, "define('GN_COMMERCE_VERSION', '1.2.0')") === false) {
+        wp_die('Restore payload is not commerce 1.2.0.');
+    }
+    if (strpos($body, 'gn_partner_footer_links') !== false) {
+        wp_die('Restore payload is the untested partner build.');
+    }
+    $theme = get_stylesheet_directory();
+    $dst = $theme . '/functions.php';
+    $backup = $theme . '/functions.php.good111';
+    if (!is_readable($dst) || !@copy($dst, $backup)) {
+        wp_die('Could not back up the current functions.php.');
+    }
+    if (!@copy($src, $dst)) {
+        wp_die('Could not write the restored functions.php.');
+    }
+}

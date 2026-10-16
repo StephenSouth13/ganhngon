@@ -1,0 +1,152 @@
+# Translation of Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release) in Arabic
+# This file is distributed under the same license as the Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-05-23 13:00:55+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n == 0) ? 0 : ((n == 1) ? 1 : ((n == 2) ? 2 : ((n % 100 >= 3 && n % 100 <= 10) ? 3 : ((n % 100 >= 11 && n % 100 <= 99) ? 4 : 5))));\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: ar\n"
+"Project-Id-Version: Plugins - Smush – Image Optimization, Compression, Lazy Load, WebP &amp; CDN - Stable (latest release)\n"
+
+#: core/frontend/class-frontend-controller.php:595
+msgid "Smush Stats"
+msgstr "إحصائيات Smush"
+
+#: core/class-configs.php:786 core/class-configs.php:837
+#: core/class-settings.php:386
+msgid "Amazon S3"
+msgstr "Amazon S3"
+
+#: core/class-settings.php:381
+msgid "NextGen Gallery"
+msgstr "معرض NextGen"
+
+#: core/class-settings.php:385
+msgid "Enable Amazon S3 support"
+msgstr "تفعيل دعم Amazon S3 "
+
+#: core/class-settings.php:360
+msgid "Auto-convert PNGs to JPEGs (lossy)"
+msgstr "التحويل التلقائي من PNG إلى JPEG "
+
+#: core/modules/class-dir.php:292
+msgid "Incorrect image id"
+msgstr "رقم تعريف الصورة خاطئ"
+
+#: core/modules/class-dir.php:969
+msgid "We could not find any images in the selected directory."
+msgstr "لا يوجد أي صور بالمجلد الذي اخترته."
+
+#: core/modules/class-dir.php:329
+msgid "Image couldn't be optimized"
+msgstr "الصورة  لا يمكن تحسينها "
+
+#: core/media-library/class-media-library-row.php:845
+msgid "Detailed stats for all the image sizes"
+msgstr "إحصائيات مفصلة لجميع مقاسات الصور"
+
+#: core/backups/class-backups-controller.php:84
+msgid "Unable to restore image"
+msgstr "لايمكن إسترجاع الصور"
+
+#: core/cli/class-cli.php:316
+msgid "Yay! All images are optimized as per your current settings."
+msgstr "رائع! جميع الصور تم تحسينها حسب الاعدادات الحالية."
+
+#: core/class-core.php:274
+msgid "All images are fully optimized."
+msgstr "جميع الصور محسنة كليا."
+
+#: core/class-settings.php:382
+msgid "Allow smushing images directly through NextGen Gallery settings."
+msgstr "السماح بضغط الصور مباشرة عن طريق إعدادات NextGeN Gallery."
+
+#: core/class-settings.php:380
+msgid "Enable NextGen Gallery integration"
+msgstr "تفعيل خاصية دمج NextGen Gallery"
+
+#: app/class-admin.php:293 app/class-admin.php:411 app/class-admin.php:455
+#: core/cache/class-cache-controller.php:67 core/class-core.php:289
+#: core/external/plugin-notice/notice.php:485
+msgid "Dismiss"
+msgstr "تجاهل"
+
+#. Author of the plugin
+#: wp-smush.php
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:1382
+#: core/external/plugins-cross-sell-page/assets/js/crosssellpage.js:762
+msgid "WPMU DEV"
+msgstr "WPMU DEV"
+
+#: core/frontend/class-frontend-controller.php:598
+msgid "Savings"
+msgstr "التوفيرات"
+
+#: core/frontend/class-frontend-controller.php:597
+#: core/media-library/class-media-library-row.php:666
+msgid "Image size"
+msgstr "حجم الصورة"
+
+#: app/class-media-library.php:658
+msgid "Smush Now!"
+msgstr "إضغط الأن!"
+
+#: app/class-media-library.php:593 app/class-media-library.php:834
+#: core/class-core.php:287 core/class-error-handler.php:264
+#: core/class-rest.php:82 core/media-library/class-media-library-row.php:102
+#: core/media-library/class-media-library-row.php:368
+msgid "Not processed"
+msgstr "غير معالجة"
+
+#: core/smush/class-smusher.php:653
+msgid "Image couldn't be smushed"
+msgstr "صورة لايمكن ضغطها"
+
+#: core/smush/class-smusher.php:689
+msgid "Smush data corrupted, try again."
+msgstr "بيانات الضغط تالفة. المرجو المحاولة مرة أخرى."
+
+#: core/smush/class-smusher.php:665
+msgid "Unknown API error"
+msgstr "خطأ API غير معروف"
+
+#. translators: %s: Directory path
+#. translators: %s: directory name
+#: core/class-error-handler.php:270 core/smush/class-smusher.php:281
+msgid "%s is not writable"
+msgstr "%s غير قابل للكتابة"
+
+#: core/class-optimization-controller.php:74
+msgid "No attachment ID was provided."
+msgstr "رقم تعريف المرفق غير موجود."
+
+#: core/backups/class-backups-controller.php:65
+#: core/class-optimization-controller.php:86
+#: core/media/class-media-item-controller.php:29
+#: core/media/class-media-item-controller.php:56
+msgid "You don't have permission to work with uploaded files."
+msgstr "لا يوجد لديك صلاحيات العمل على الملفات المرفوعة."
+
+#: core/frontend/class-frontend-controller.php:952
+msgid "Settings"
+msgstr "إعدادات"
+
+#: core/class-core.php:271
+msgid "Super-Smush"
+msgstr "Super Smush"
+
+#: app/class-admin.php:164
+msgid "WP Smush"
+msgstr "WP Smush"
+
+#. translators: %s: Error message.
+#: core/smush/class-smusher.php:602
+msgid "Error posting to API: %s"
+msgstr "خطأ في الإرسال لل-API: %s "
+
+#: core/class-error-handler.php:262 core/smush/class-smusher.php:262
+msgid "File path is empty"
+msgstr "مسار الملف فارغ "

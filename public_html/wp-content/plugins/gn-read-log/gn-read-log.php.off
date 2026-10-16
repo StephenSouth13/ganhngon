@@ -1,0 +1,17 @@
+<?php
+/**
+ * Plugin Name: GN Read Log
+ * Description: Shows the last lines of the WordPress debug log to an administrator.
+ * Version: 1.0.0
+ */
+if (!defined('ABSPATH')) exit;
+add_action('admin_notices', function () {
+    if (!current_user_can('manage_options')) return;
+    $path = WP_CONTENT_DIR . '/debug.log';
+    echo '<div class="notice notice-info" style="white-space:pre-wrap;max-height:420px;overflow:auto">';
+    if (!is_readable($path)) { echo 'no debug log'; echo '</div>'; return; }
+    $lines = file($path, FILE_IGNORE_NEW_LINES);
+    $tail = array_slice($lines, -40);
+    echo esc_html(implode("\n", $tail));
+    echo '</div>';
+});
