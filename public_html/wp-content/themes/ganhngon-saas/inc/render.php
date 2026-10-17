@@ -54,7 +54,14 @@ function gns_fill_main($html) {
 
     if (strpos($html, '{{BOOKING_FORM}}') !== false) {
         $form = function_exists('gn_dat_ban_form_html') ? gn_dat_ban_form_html() : '';
+        $form = gns_booking_form_with_guest_fields($form);
         $html = str_replace('{{BOOKING_FORM}}', $form, $html);
+    }
+    if (strpos($html, '{{GUEST_FIELDS}}') !== false) {
+        $html = str_replace('{{GUEST_FIELDS}}', gns_contact_guest_fields_html(), $html);
+    }
+    if (strpos($html, '{{KHU_B_GALLERY}}') !== false) {
+        $html = str_replace('{{KHU_B_GALLERY}}', gns_khu_b_gallery_html(), $html);
     }
     if (strpos($html, '{{PARTNER_FORM}}') !== false) {
         $html = str_replace('{{PARTNER_FORM}}', gns_partner_form_html(), $html);
@@ -272,7 +279,23 @@ function gns_ajax_send_note() {
     $message = sanitize_textarea_field(wp_unslash($_POST['message'] ?? ''));
     if ($name === '' || $phone === '') wp_send_json_error(['message' => 'Thiếu họ tên hoặc số điện thoại.']);
 
-    $skip = ['action', 'nonce', 'box', 'website', 'name', 'phone', 'email', 'message'];
+    // Guest group, party size and area (contact form). Fixed lists only.
+    $guest = gns_guest_fields_from_post();
+    if (!empty($_POST['guest_group']) && $guest['group'] === '') {
+        wp_send_json_error(['message' => 'Nhóm khách hàng không hợp lệ. Chọn lại giúp nhà hàng.']);
+    }
+    if ($box === 'contact' && isset($_POST['guest_group']) && $guest['group'] === '') {
+        wp_send_json_error(['message' => 'Chọn nhóm khách hàng giúp nhà hàng.']);
+    }
+    $guest_lines = '';
+    if ($guest['group_label'] !== '') {
+        $groups = gns_guest_groups();
+        $guest_lines .= 'Nhóm khách hàng: ' . $guest['group_label'] . ' (' . $groups[$guest['group']][1] . ")\n";
+    }
+    if ($guest['count'] > 0) $guest_lines .= 'Số lượng khách: ' . $guest['count'] . "\n";
+    if ($guest['area_label'] !== '') $guest_lines .= 'Khu vực: ' . $guest['area_label'] . "\n";
+
+    $skip = ['action', 'nonce', 'box', 'website', 'name', 'phone', 'email', 'message', 'guest_group', 'guest_count', 'area'];
     $extra = '';
     foreach ($_POST as $field => $value) {
         if (in_array($field, $skip, true)) continue;
@@ -289,8 +312,12 @@ function gns_ajax_send_note() {
         'sales' => 'Báo giá tiệc',
         'partner' => 'Xin link cổng đối tác',
     ];
-    $body = "Tên: $name\nĐiện thoại: $phone\nEmail: $email\n\n$message\n\n$extra";
-    $sent = wp_mail($boxes[$box], 'Gánh Ngon — ' . $subjects[$box] . ' — ' . $name, $body, ['Content-Type: text/plain; charset=UTF-8']);
+    $body = "Tên: $name\nĐiện thoại: $phone\nEmail: $email\n" . $guest_lines . "\n$message\n\n$extra";
+    $subject = 'Gánh Ngon — ' . $subjects[$box] . ' — ' . $name;
+    if ($guest['group_label'] !== '') {
+        $subject .= ' — ' . $guest['group_label'] . ($guest['count'] > 0 ? ' (' . $guest['count'] . ' khách)' : '');
+    }
+    $sent = wp_mail($boxes[$box], $subject, $body, ['Content-Type: text/plain; charset=UTF-8']);
     if (!$sent) wp_send_json_error(['message' => 'Không gửi được. Gọi 0979 232 233.']);
     wp_send_json_success(['message' => 'Đã nhận. Nhà hàng sẽ liên hệ lại.']);
 }

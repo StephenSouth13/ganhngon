@@ -26,7 +26,7 @@
       <div class="form booking-form">
         <?php
         if (function_exists('gn_dat_ban_form_html')) {
-            echo gn_dat_ban_form_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- form HTML from the parent theme
+            echo gns_booking_form_with_guest_fields(gn_dat_ban_form_html()); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- form HTML from the parent theme
         } else {
             echo do_shortcode('[sao_booking]');
         }

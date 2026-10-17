@@ -19,6 +19,19 @@
     return fallback;
   }
 
+  document.querySelectorAll("select[data-gns-group]").forEach(function (sel) {
+    var label = sel.closest("label");
+    var hint = label ? label.querySelector("[data-gns-hint]") : null;
+    if (!hint) return;
+    var update = function () {
+      var opt = sel.options[sel.selectedIndex];
+      hint.textContent = (opt && opt.getAttribute("data-hint")) || "";
+    };
+    sel.addEventListener("change", update);
+    var form = sel.form;
+    if (form) form.addEventListener("reset", function () { setTimeout(update, 0); });
+  });
+
   document.querySelectorAll("form[data-gns-mail]").forEach(function (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();

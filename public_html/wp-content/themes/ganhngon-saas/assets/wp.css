@@ -612,3 +612,15 @@ body.admin-bar .site-header { top: 32px; }
 .booking-card .gn-promise, .booking-card .gn-more-request { font-size: 0.86rem; color: #5b5048; }
 .voucher-tier { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid rgba(29,23,18,.16); border-radius: 14px; background: #fff; }
 .voucher-tier input { width: auto; min-height: 0; }
+
+/* 1.2.3 — guest group / party size / area fields and Khu B photos */
+.gns-guest-fields { margin: 0; }
+.gns-guest-fields .span-2 > label { display: grid; gap: 7px; }
+.gns-hint { display: block; font-size: 0.8rem; font-weight: 500; line-height: 1.45; color: var(--muted); min-height: 1.45em; }
+.booking-form .gns-hint { color: rgba(29, 23, 18, 0.62); }
+.gns-khu-b .gns-khu-b-lead { max-width: 62ch; margin-bottom: 28px; }
+.gns-khu-b-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.gns-khu-b-grid figure { margin: 0; position: relative; border-radius: var(--radius); overflow: hidden; background: #0f0b08; }
+.gns-khu-b-grid img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.gns-khu-b-grid figcaption { position: absolute; left: 14px; bottom: 14px; padding: 6px 12px; border-radius: 999px; background: rgba(22, 17, 13, 0.72); color: var(--ivory); font-size: 0.82rem; }
+@media (max-width: 760px) { .gns-khu-b-grid { grid-template-columns: 1fr; } }
