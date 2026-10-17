@@ -59,21 +59,18 @@ function gns_dish_photo_rules() {
         ['test' => 'sau rieng chien', 'image' => 'photos/sau-rieng-chien.webp', 'alt' => 'Sầu riêng chiên giòn tại Gánh Ngon Phú Quốc'],
         ['test' => 'bap nuong mo hanh|bap mo hanh', 'image' => 'photos/bap-mo-hanh.webp', 'alt' => 'Bắp nướng mỡ hành tại Gánh Ngon Phú Quốc'],
         ['test' => 'com nieu dap', 'image' => 'photos/com-nieu-tam.webp', 'alt' => 'Cơm niêu tại Gánh Ngon Phú Quốc'],
-        ['test' => 'com nieu', 'image' => 'photos/com-nieu.webp', 'alt' => 'Cơm niêu tại Gánh Ngon Phú Quốc'],
         ['test' => 'xien heo|heo xien|ba chi heo', 'image' => 'photos/heo-xien-rau-cu.webp', 'alt' => 'Heo xiên nướng rau củ tại Gánh Ngon'],
-        ['test' => 'bo luc lac', 'image' => 'photos/bo-luc-lac-sau-rieng.webp', 'alt' => 'Bò lúc lắc sầu riêng tại Gánh Ngon Phú Quốc'],
         ['test' => 'margarita', 'image' => 'photos/cocktail-margarita-doi.webp', 'alt' => 'Margarita tại quầy bar Gánh Ngon'],
     ];
 }
 
 /**
  * Group photos that depict the whole group, not one other dish.
- * The skewer platter is the xiên group. Cơm niêu is that one-dish group.
+ * The skewer platter is the xiên group. Cơm niêu Wikimedia file is not used.
  */
 function gns_menu_groups() {
     return [
         'xien-nuong-bbq' => ['photos/mam-xien-nuong.webp', 'Mâm xiên nướng tại Gánh Ngon'],
-        'com-nieu-trua' => ['photos/com-nieu.webp', 'Cơm niêu tại Gánh Ngon'],
     ];
 }
 
@@ -141,7 +138,7 @@ function gns_mark_html($icon) {
 function gns_resolve_dish_photo($name, $cat_slug) {
     $slug = gns_slug($name);
     $library = gns_media_photo_index();
-    if (isset($library[$slug])) {
+    if (isset($library[$slug]) && !(function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url($library[$slug]))) {
         return [
             'scope' => 'dish',
             'url' => $library[$slug],
@@ -151,9 +148,11 @@ function gns_resolve_dish_photo($name, $cat_slug) {
     $folded = gns_fold($name);
     foreach (gns_dish_photo_rules() as $rule) {
         if (preg_match('/' . $rule['test'] . '/i', $folded)) {
+            $url = gns_theme_photo_url($rule['image']);
+            if (function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url($url)) continue;
             return [
                 'scope' => 'dish',
-                'url' => gns_theme_photo_url($rule['image']),
+                'url' => $url,
                 'alt' => $rule['alt'],
             ];
         }
@@ -167,11 +166,14 @@ function gns_resolve_dish_photo($name, $cat_slug) {
     }
     $groups = gns_menu_groups();
     if (isset($groups[$cat_slug]) && $cat_slug !== 'com-nieu-trua') {
-        return [
-            'scope' => 'group',
-            'url' => gns_theme_photo_url($groups[$cat_slug][0]),
-            'alt' => $groups[$cat_slug][1],
-        ];
+        $url = gns_theme_photo_url($groups[$cat_slug][0]);
+        if (!(function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url($url))) {
+            return [
+                'scope' => 'group',
+                'url' => $url,
+                'alt' => $groups[$cat_slug][1],
+            ];
+        }
     }
     return [
         'scope' => 'mark',
@@ -192,13 +194,15 @@ function gns_menu_cats_html() {
         $groups = gns_menu_groups();
         $desc = trim((string) ($cat['description'] ?? ''));
         $html .= '<button type="button" class="cat-card" data-cat="' . esc_attr($slug) . '" data-kind="' . esc_attr($kind) . '">';
-        if (isset($groups[$slug])) {
-            $html .= '<span class="cat-media"><img src="' . esc_url(gns_theme_photo_url($groups[$slug][0])) . '" alt="' . esc_attr($groups[$slug][1]) . '" width="1600" height="914" loading="lazy" decoding="async">';
+        $group_photo = isset($groups[$slug]) ? gns_theme_photo_url($groups[$slug][0]) : '';
+        if ($group_photo !== '' && !(function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url($group_photo))) {
+            $html .= '<span class="cat-media"><img src="' . esc_url($group_photo) . '" alt="' . esc_attr($groups[$slug][1]) . '" width="1600" height="914" loading="lazy" decoding="async">';
         } else {
             $html .= '<span class="cat-media cat-media-mark">' . gns_mark_html(gns_mark_icon($slug));
         }
         $html .= '<span class="cat-count">' . (int) $count . ' món</span></span>';
-        $html .= '<span class="cat-body"><strong class="cat-name">' . esc_html($name) . '</strong><span class="cat-kind">' . ($kind === 'drink' ? 'Đồ uống' : 'Đồ ăn') . '</span>';
+        $kind_label = function_exists('gns_t') ? gns_t($kind === 'drink' ? 'drinks' : 'food', $kind === 'drink' ? 'Đồ uống' : 'Đồ ăn') : ($kind === 'drink' ? 'Đồ uống' : 'Đồ ăn');
+        $html .= '<span class="cat-body"><strong class="cat-name">' . esc_html($name) . '</strong><span class="cat-kind">' . esc_html($kind_label) . '</span>';
         $html .= '<span class="cat-desc">' . esc_html($desc) . '</span>';
         $html .= '</span></button>';
     }

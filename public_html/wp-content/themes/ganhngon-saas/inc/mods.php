@@ -175,7 +175,8 @@ function gns_slot_markup($class, $label, $icon = 'i-flame') {
     $classes = trim('gns-slot ' . (string) $class);
     $icon = preg_replace('/[^a-z0-9-]/', '', (string) $icon);
     if ($icon === '') $icon = 'i-flame';
-    $aria = $label !== '' ? ' role="img" aria-label="' . esc_attr($label) . '"' : ' aria-hidden="true"';
+    unset($label);
+    $aria = ' aria-hidden="true"';
     $mark = function_exists('gns_mark_html') ? gns_mark_html($icon) : '';
     return '<div class="' . esc_attr($classes) . '"' . $aria . '>' . $mark . '</div>';
 }
@@ -208,7 +209,7 @@ function gns_stock_image_slots() {
         ['pho-bo-ha-noi.webp', 'Phở bò', $flame, 'Ảnh minh họa phở từ site tháng 9/2026.'],
         ['cha-ca-la-vong.webp', 'Chả cá', $flame, 'Ảnh minh họa chả cá từ site tháng 9/2026.'],
         ['bun-bo-hue.webp', 'Bún bò Huế', $flame, 'Ảnh minh họa bún bò từ site tháng 9/2026.'],
-        ['com-nieu-dap.webp', 'Cơm niêu đập', $flame, 'Ảnh minh họa tháng 9/2026. Không thay bằng ảnh cơm niêu thật (photos/com-nieu.webp) vì đó là món khác.'],
+        ['com-nieu-dap.webp', 'Cơm niêu đập', $flame, 'Ảnh minh họa tháng 9/2026. photos/com-nieu.webp là ảnh Wikimedia, không dùng làm ảnh quán.'],
         ['nem-lui-hue.webp', 'Nem lụi', $flame, 'Ảnh minh họa nem lụi từ site tháng 9/2026.'],
         ['trai-cay-nhiet-doi.webp', 'Trái cây', $leaf, 'Ảnh minh họa đĩa trái cây từ site tháng 9/2026.'],
         ['su-kien-ban-tiec.webp', 'Bàn tiệc / phòng VIP', $flame, 'Ảnh Unsplash (photo-1759335514530), không phải phòng VIP của nhà hàng.'],
@@ -242,6 +243,11 @@ function gns_hide_stock_images($html) {
         $tag = $m[0];
         if (!preg_match('/\ssrc="([^"]+)"/', $tag, $src)) return $tag;
         $url = $src[1];
+        if (function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url($url)) {
+            $class = '';
+            if (preg_match('/\sclass="([^"]*)"/', $tag, $c)) $class = $c[1];
+            return gns_slot_markup($class, '', 'i-flame');
+        }
         if (strpos($url, '/img/photos/') !== false) return $tag;
         if (!preg_match('#/img/([a-z0-9-]+\.(?:webp|jpe?g|png))#i', $url, $file)) return $tag;
         $name = strtolower($file[1]);
@@ -342,7 +348,7 @@ function gns_apply_customizer($html, $page) {
 
     if ($page === 'thuc-don') {
         $html = gns_swap_img($html, 'gns-menu-signature-img', gns_mod_image_url('gns_menu_signature_image'));
-        $html = gns_swap_once($html, 'Nhà hàng phục vụ hơn 220 món Việt ba miền. Trang này liệt kê món đang mở trong thực đơn workspace — hải sản và bò nướng than hồng, lẩu gà sầu riêng, cơm niêu, món Âu và quầy bar. Giá không niêm yết trên web.', gns_saved_text('gns_menu_intro'));
+        $html = gns_swap_once($html, 'Nhà hàng phục vụ món Việt ba miền. Trang này liệt kê các món đang phục vụ — hải sản và bò nướng than hồng, lẩu gà sầu riêng, cơm niêu, món Âu và quầy bar. Giá không niêm yết trên web.', gns_saved_text('gns_menu_intro'));
         $html = gns_swap_once($html, 'Lẩu gà sầu riêng Phú Quốc', gns_saved_text('gns_menu_signature_title'));
         $html = gns_swap_once($html, 'Gà ta, sầu riêng chín cây đánh nhuyễn vào nước hầm xương, rau đảo theo mùa và bún tươi. Báo trước khoảng 1 tiếng để nồi nóng khi ngồi xuống. Giá báo tại nhà hàng.', gns_saved_text('gns_menu_signature_text'));
     }
@@ -353,6 +359,10 @@ function gns_apply_customizer($html, $page) {
 
     $html = gns_replace_saved_facts($html);
     $html = gns_hide_stock_images($html);
+    if ($page === 'hinh-anh-review' && function_exists('gns_drop_tile_gallery')) {
+        $html = gns_drop_tile_gallery($html);
+    }
+    if (function_exists('gns_isolate_phones')) $html = gns_isolate_phones($html);
     return $html;
 }
 
@@ -540,7 +550,7 @@ add_action('customize_register', function ($wp) {
         gns_customize_add_check($wp, $id, $label, 'gns_home');
     }
 
-    gns_customize_add_text($wp, 'gns_menu_intro', 'Đoạn mở đầu', 'gns_menu', 'Nhà hàng phục vụ hơn 220 món Việt ba miền. Trang này liệt kê món đang mở trong thực đơn workspace — hải sản và bò nướng than hồng, lẩu gà sầu riêng, cơm niêu, món Âu và quầy bar. Giá không niêm yết trên web.', true);
+    gns_customize_add_text($wp, 'gns_menu_intro', 'Đoạn mở đầu', 'gns_menu', 'Nhà hàng phục vụ món Việt ba miền. Trang này liệt kê các món đang phục vụ — hải sản và bò nướng than hồng, lẩu gà sầu riêng, cơm niêu, món Âu và quầy bar. Giá không niêm yết trên web.', true);
     gns_customize_add_text($wp, 'gns_menu_signature_title', 'Món mũi nhọn — tiêu đề', 'gns_menu', 'Lẩu gà sầu riêng Phú Quốc');
     gns_customize_add_text($wp, 'gns_menu_signature_text', 'Món mũi nhọn — đoạn', 'gns_menu', 'Gà ta, sầu riêng chín cây đánh nhuyễn vào nước hầm xương, rau đảo theo mùa và bún tươi. Báo trước khoảng 1 tiếng để nồi nóng khi ngồi xuống. Giá báo tại nhà hàng.', true);
     gns_customize_add_media($wp, 'gns_menu_signature_image', 'Món mũi nhọn — ảnh', 'gns_menu');

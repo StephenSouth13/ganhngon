@@ -14,6 +14,7 @@ require_once get_stylesheet_directory() . '/inc/mods.php';
 require_once get_stylesheet_directory() . '/inc/leads.php';
 require_once get_stylesheet_directory() . '/inc/request-form.php';
 require_once get_stylesheet_directory() . '/inc/news.php';
+require_once get_stylesheet_directory() . '/inc/public-fixes.php';
 
 add_action('wp_enqueue_scripts', function () {
     wp_dequeue_style('gn-fonts');
@@ -26,12 +27,12 @@ add_action('wp_enqueue_scripts', function () {
         [],
         null
     );
-    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.3.1');
-    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.3.1');
-    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.3.1', true);
-    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.3.1', true);
-    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.3.1', true);
-    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.3.1', true);
+    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.3.2');
+    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.3.2');
+    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.3.2', true);
+    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.3.2', true);
+    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.3.2', true);
+    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.3.2', true);
     wp_localize_script('gns-forms', 'GNS', [
         'ajax' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('gns_lead'),
@@ -154,6 +155,10 @@ function gns_hours() {
 }
 
 function gns_t($key, $fallback) {
+    if (function_exists('gns_ui_text')) {
+        $own = gns_ui_text($key);
+        if ($own !== null && $own !== '') return $own;
+    }
     if (function_exists('gn_cur_lang') && gn_cur_lang() !== 'vi' && function_exists('gn_t')) {
         $value = gn_t($key);
         if ($value !== $key) return $value;
@@ -166,7 +171,7 @@ function gns_nav_items() {
         '' => gns_t('nav_home', 'Trang chủ'),
         'thuc-don' => gns_t('nav_menu', 'Thực đơn'),
         'khach-doan-tiec-rieng' => gns_t('nav_groups', 'Tiệc & Sự kiện'),
-        'tin-tuc' => 'Tin tức',
+        'tin-tuc' => gns_t('nav_news', 'Tin tức'),
         've-ganh-ngon' => gns_t('nav_about', 'Về Gánh Ngon'),
         'lien-he' => gns_t('nav_contact', 'Liên hệ'),
     ];

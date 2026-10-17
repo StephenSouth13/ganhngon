@@ -1,4 +1,5 @@
 // Gánh Ngon theme behaviour: mobile drawer, reveal on scroll, the menu explorer
+document.documentElement.classList.add("js");
 // (search + filters over Workspace › Nhà hàng › Thực đơn),
 // the reservation form (Workspace › Biểu mẫu, page key "dat-ban") and a
 // custom dropdown. Other forms are plain HTML forms that the platform's site
@@ -321,9 +322,9 @@
       map: "113 Trần Hưng Đạo, Dương Đông, Phú Quốc. Mở Google Maps từ trang Liên hệ. Gọi 0979 232 233 nếu cần chỉ đường.",
       contact: "Điện thoại và Zalo: 0979 232 233. WhatsApp cùng số. Email: contact@ganhngon.com. WeChat ID: ganhngon.",
       book: "Bàn thường đặt và đến trong ngày được. Giữ bàn tại trang Đặt bàn hoặc gọi 0979 232 233. Nhà hàng không xác nhận còn bàn trước khi nhân viên gọi lại.",
-      vip: "Phòng VIP (10 phòng, 4–40 khách) nên báo trước khoảng 24 giờ. Cần ngồi hôm nay thì chọn bàn thường.",
-      group: "Đoàn từ 20 khách và tiệc riêng nên báo trước 48–72 giờ. Nhóm nhỏ vẫn nhận bàn thường trong ngày.",
-      menu: "Thực đơn công bố trên web là món đang mở trong workspace, cộng hơn 220 món Việt ba miền trong sổ bếp. Giá không hiện trên web.",
+      vip: "Nhà hàng có 10 phòng VIP. Nên báo trước khoảng 24 giờ. Cần ngồi hôm nay thì chọn bàn thường.",
+      group: "Đoàn đông và tiệc riêng nên báo trước 48–72 giờ. Nhóm nhỏ vẫn nhận bàn thường trong ngày.",
+      menu: "Trang thực đơn liệt kê các món đang phục vụ. Giá không hiện trên web.",
       fallback: "Em giúp được việc đến trong hôm nay: bàn thường, đường đến 113 Trần Hưng Đạo, và món lẩu gà sầu riêng. Gọi 0979 232 233. Giá báo tại nhà hàng.",
     },
     en: {
@@ -334,9 +335,9 @@
       map: "113 Tran Hung Dao, Duong Dong, Phu Quoc — central Duong Dong. Call 0979 232 233 if you need directions.",
       contact: "Phone and Zalo: 0979 232 233. WhatsApp: the same number. Email: contact@ganhngon.com. WeChat ID: ganhngon.",
       book: "A regular table can be reserved and used today. The restaurant does not confirm a free table until staff call you back.",
-      vip: "VIP rooms (10 rooms, 4–40 guests) are best requested about 24 hours ahead. If you need to sit today, book a regular table.",
-      group: "Groups of 20 or more, and private events, are best requested 48–72 hours ahead.",
-      menu: "The website lists dishes currently open in the restaurant workspace, plus the published names of a 220-dish Vietnamese menu. Prices are not shown.",
+      vip: "The restaurant has 10 VIP rooms. Ask about a day ahead. If you need to sit today, book a regular table.",
+      group: "Large groups and private events are best requested 48–72 hours ahead.",
+      menu: "The menu page lists the dishes currently served. Prices are not shown.",
       fallback: "I can help with today's regular table, directions to 113 Tran Hung Dao, and durian chicken hotpot. Call 0979 232 233.",
     },
   };

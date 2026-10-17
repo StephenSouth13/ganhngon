@@ -56,7 +56,7 @@ $groups = count($catalog);
       <?php foreach ($catalog as $group): ?>
         <button type="button" class="cat-card" data-cat="<?php echo esc_attr($group['id']); ?>" data-kind="<?php echo esc_attr($group['kind']); ?>">
           <span class="cat-media">
-            <?php if ($group['photo']): ?><img src="<?php echo esc_url(gns_photo($group['photo'])); ?>" alt="" width="1600" height="914" loading="lazy" decoding="async"><?php endif; ?>
+            <?php if ($group['photo'] && !(function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url(gns_photo($group['photo'])))): ?><img src="<?php echo esc_url(gns_photo($group['photo'])); ?>" alt="" width="1600" height="914" loading="lazy" decoding="async"><?php endif; ?>
             <span class="cat-count"><?php echo esc_html(count($group['dishes']) . ' món'); ?></span>
           </span>
           <span class="cat-body">
@@ -78,9 +78,10 @@ $groups = count($catalog);
       <div class="dish-grid" data-dish-grid>
         <?php foreach ($catalog as $group): ?>
           <?php foreach ($group['dishes'] as $dish): ?>
-            <article class="dish-card<?php echo $dish['photo'] ? ' has-img' : ' is-compact'; ?>" data-cat="<?php echo esc_attr($group['id']); ?>" data-kind="<?php echo esc_attr($group['kind']); ?>">
-              <?php if ($dish['photo']): ?>
-                <img class="dish-photo" src="<?php echo esc_url(gns_photo($dish['photo'])); ?>" alt="" loading="lazy" decoding="async">
+            <?php $gns_dish_photo = ($dish['photo'] && !(function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url(gns_photo($dish['photo'])))) ? gns_photo($dish['photo']) : ''; ?>
+            <article class="dish-card<?php echo $gns_dish_photo !== '' ? ' has-img' : ' is-compact'; ?>" data-cat="<?php echo esc_attr($group['id']); ?>" data-kind="<?php echo esc_attr($group['kind']); ?>">
+              <?php if ($gns_dish_photo !== ''): ?>
+                <img class="dish-photo" src="<?php echo esc_url($gns_dish_photo); ?>" alt="" loading="lazy" decoding="async">
               <?php endif; ?>
               <p class="dish-group"><?php echo esc_html($group['name']); ?></p>
               <h4 class="dish-name"><?php echo esc_html($dish['name']); ?></h4>

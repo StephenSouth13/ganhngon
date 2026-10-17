@@ -42,6 +42,10 @@ function gns_request_group_from_query() {
 function gns_request_default_group($context) {
     $from_query = gns_request_group_from_query();
     if ($from_query !== '') return $from_query;
+    if (function_exists('gns_legacy_request_spec')) {
+        $spec = gns_legacy_request_spec();
+        if (is_array($spec)) return $spec[1];
+    }
     if ($context === 'dat-ban') return 'khach-le';
     if ($context === 'tiec') return 'dat-tiec';
     return '';
@@ -70,64 +74,64 @@ function gns_request_form_html($context = 'lien-he') {
 
     ob_start(); ?>
 <div class="gn-request-wrap">
-  <form class="<?php echo esc_attr($class); ?>" id="gn-request-form" data-gn-request method="post" action="<?php echo $ajax; ?>" aria-label="Gửi yêu cầu đặt bàn">
+  <form class="<?php echo esc_attr($class); ?>" id="gn-request-form" data-gn-request method="post" action="<?php echo $ajax; ?>" aria-label="<?php echo esc_attr(gns_t('form_aria', 'Gửi yêu cầu đặt bàn')); ?>">
     <input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
     <input type="hidden" name="action" value="gns_submit_request">
     <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('gns_request')); ?>">
     <input type="hidden" name="form_context" value="<?php echo esc_attr($source); ?>">
     <?php if ($context === 'lien-he'): ?>
-      <h2 class="title title-sm">Gửi yêu cầu</h2>
+      <h2 class="title title-sm"><?php echo esc_html(gns_t('form_title', 'Gửi yêu cầu')); ?></h2>
     <?php endif; ?>
     <div class="form-grid">
-      <label>Họ tên *
+      <label><?php echo esc_html(gns_t('form_name', 'Họ tên')); ?> *
         <input type="text" name="customer_name" required autocomplete="name" maxlength="120">
       </label>
-      <label>SĐT / Zalo *
-        <input type="tel" name="customer_phone" required autocomplete="tel" inputmode="tel" maxlength="30">
+      <label><?php echo esc_html(gns_t('form_phone', 'SĐT / Zalo')); ?> *
+        <input type="tel" name="customer_phone" required autocomplete="tel" inputmode="tel" dir="ltr" pattern="[0-9 +().-]{8,}" maxlength="30">
       </label>
-      <label class="span-2">Email
-        <input type="email" name="customer_email" autocomplete="email" maxlength="120">
+      <label class="span-2"><?php echo esc_html(gns_t('form_email', 'Email')); ?>
+        <input type="email" name="customer_email" autocomplete="email" maxlength="120" dir="ltr">
       </label>
       <div class="span-2"><?php echo gns_guest_group_select(true, $selected); ?></div>
-      <label>Số lượng khách *
-        <input type="number" name="guests" required min="1" max="5000" step="1" inputmode="numeric" placeholder="Ví dụ: 4">
+      <label><?php echo esc_html(gns_t('form_guests', 'Số lượng khách')); ?> *
+        <input type="number" name="guests" required min="1" max="5000" step="1" inputmode="numeric" placeholder="<?php echo esc_attr(gns_t('form_guests_ph', 'Ví dụ: 4')); ?>">
       </label>
-      <label>Ngày *
+      <label><?php echo esc_html(gns_t('form_date', 'Ngày')); ?> *
         <input type="date" name="booking_date" required min="<?php echo esc_attr($today); ?>">
       </label>
-      <label>Giờ *
+      <label><?php echo esc_html(gns_t('form_time', 'Giờ')); ?> *
         <select name="booking_time" required>
-          <option value="">Chọn giờ</option>
+          <option value=""><?php echo esc_html(gns_t('form_time_ph', 'Chọn giờ')); ?></option>
           <?php echo $times; ?>
         </select>
       </label>
       <?php echo gns_guest_area_select(true); ?>
       <div class="span-2 gn-extra" data-gn-extra="dat-tiec"<?php echo $selected === 'dat-tiec' ? '' : ' hidden'; ?>>
-        <label>Loại tiệc
+        <label><?php echo esc_html(gns_t('form_party', 'Loại tiệc')); ?>
           <select name="party_type">
-            <option value="">Chọn loại tiệc</option>
+            <option value=""><?php echo esc_html(gns_t('form_party_ph', 'Chọn loại tiệc')); ?></option>
             <?php foreach ($parties as $key => $label): ?>
-              <option value="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></option>
+              <option value="<?php echo esc_attr($key); ?>"><?php echo esc_html(gns_t('party_' . $key, $label)); ?></option>
             <?php endforeach; ?>
           </select>
         </label>
       </div>
       <div class="span-2 gn-extra" data-gn-extra="doanh-nghiep"<?php echo $selected === 'doanh-nghiep' ? '' : ' hidden'; ?>>
-        <label>Tên công ty
+        <label><?php echo esc_html(gns_t('form_company', 'Tên công ty')); ?>
           <input type="text" name="company_biz" autocomplete="organization" maxlength="160">
         </label>
-        <label class="gn-check"><input type="checkbox" name="vat" value="1"> Cần hóa đơn VAT</label>
+        <label class="gn-check"><input type="checkbox" name="vat" value="1"> <?php echo esc_html(gns_t('form_vat', 'Cần hóa đơn VAT')); ?></label>
       </div>
       <div class="span-2 gn-extra" data-gn-extra="doi-tac-dua-khach"<?php echo $selected === 'doi-tac-dua-khach' ? '' : ' hidden'; ?>>
-        <label>Công ty / đơn vị
+        <label><?php echo esc_html(gns_t('form_unit', 'Công ty / đơn vị')); ?>
           <input type="text" name="company_partner" autocomplete="organization" maxlength="160">
         </label>
       </div>
-      <label class="span-2">Ghi chú / yêu cầu
+      <label class="span-2"><?php echo esc_html(gns_t('form_note', 'Ghi chú / yêu cầu')); ?>
         <textarea name="note" rows="4" maxlength="2000"></textarea>
       </label>
     </div>
-    <button class="btn btn-ember btn-block" type="submit">Gửi yêu cầu</button>
+    <button class="btn btn-ember btn-block" type="submit"><?php echo esc_html(gns_t('form_submit', 'Gửi yêu cầu')); ?></button>
     <p class="form-note" data-gn-error role="status"></p>
     <?php if ($context === 'lien-he' && $hint !== ''): ?>
       <p class="form-note"><?php echo esc_html($hint); ?></p>
@@ -135,8 +139,8 @@ function gns_request_form_html($context = 'lien-he') {
   </form>
   <div class="booking-done gn-request-done" data-gn-done hidden role="status" tabindex="-1">
     <span class="booking-done-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"></use></svg></span>
-    <h2 class="booking-card-title">Đã nhận yêu cầu</h2>
-    <p data-gn-done-message>Đã nhận. Nhà hàng sẽ gọi lại xác nhận trong giờ mở cửa.</p>
+    <h2 class="booking-card-title"><?php echo esc_html(gns_t('form_done_title', 'Đã nhận yêu cầu')); ?></h2>
+    <p data-gn-done-message><?php echo esc_html(gns_t('form_done_message', 'Đã nhận. Nhà hàng sẽ gọi lại xác nhận trong giờ mở cửa.')); ?></p>
   </div>
 </div>
     <?php

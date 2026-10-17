@@ -38,4 +38,11 @@ Không dùng ảnh một món (sầu riêng chiên, bò lúc lắc, cocktail, wh
 - `/dat-ban/`, `/lien-he/`, `/khach-doan-tiec-rieng/` dùng một form (`template-parts/gn-form.php`), gửi `gns_submit_request`. Handler ghi `wp_sao_bookings` (email, Telegram, Jetpack CRM của theme cha) và bài riêng `gn_lead`. `sao_create_booking` và `gns_send_note` vẫn nhận đơn cũ.
 - Lead bot: option `gns_lead_email`, `gns_lead_webhook`, `gns_lead_secret`. Để trống thì tắt kênh đó.
 - `/tin-tuc/` là danh sách bài WordPress (bài nổi bật, lưới, chuyên mục, `/tin-tuc/page/2/`). Trang bài dùng ngày `d/m/Y`, bài liên quan và nút tới form đặt bàn. Không còn 4 thẻ mẫu của giao diện SaaS.
-- Ảnh phòng, sảnh, VIP, sự kiện và ảnh minh họa món (file gốc tháng 9/2026 và `su-kien-*.webp` Unsplash) đổi thành họa tiết than–vàng cho đến khi chọn ảnh trong Tùy biến → Ảnh chờ thay. `photos/` (món thật, mâm xiên, cơm niêu) giữ nguyên. File `lau-ga-sau-rieng.webp` ở thư mục gốc được trỏ sang `photos/lau-ga-sau-rieng.webp`.
+- Ảnh phòng, sảnh, VIP, sự kiện và ảnh minh họa món (file gốc tháng 9/2026 và `su-kien-*.webp` Unsplash) đổi thành họa tiết than–vàng cho đến khi chọn ảnh trong Tùy biến → Ảnh chờ thay. `photos/` (món thật, mâm xiên) giữ nguyên. File `lau-ga-sau-rieng.webp` ở thư mục gốc được trỏ sang `photos/lau-ga-sau-rieng.webp`.
+
+## 1.3.2 — Audit công khai
+- Form cũ `sao_create_booking` / `.gn-kd-lead-form` bị gỡ khỏi nội dung trang. `/doi-tac/`, trang tiệc và 5 trang con dùng một form `gns_submit_request`.
+- Ảnh `uploads/2026/09/ganhngon-*.webp` và `photos/com-nieu.webp` (Wikimedia) thành họa tiết. Danh sách mẫu lọc qua `gns_hidden_media_patterns`. Trang `/hinh-anh-review/` bỏ ảnh đó thay vì lát họa tiết. og:image và JSON-LD dùng `photos/lau-ga-sau-rieng.webp`.
+- Chữ "workspace", "Hotline 24/7", "Đặt cọc 30%", "220+", chú thích nội bộ và quote chưa kiểm chứng không còn trong template. Địa chỉ chân trang và `addressRegion` dùng "113 Trần Hưng Đạo, Dương Đông, Phú Quốc".
+- 301 các đường 404 trong audit (Sao → saophuquoc.com, cẩm nang/thực đơn cũ, `/ve-combo/`, `/privacy-policy/`). `/tin-tuc/page/N` quá trang cuối trả 404.
+- UI (menu, form, nút, tiêu đề chân trang) theo ngôn ngữ hiện tại. Nội dung bài trong cơ sở dữ liệu không dịch.

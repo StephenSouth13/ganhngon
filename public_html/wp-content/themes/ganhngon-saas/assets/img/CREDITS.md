@@ -11,7 +11,7 @@
   matches the dish slug). From 1.3.0 these files, and the Unsplash `su-kien-*.webp` files, are not shown.
   The layout shows the menu's charcoal-and-gold tile until a real photo is chosen in the Customizer
   (Gánh Ngon → Ảnh chờ thay). The root `lau-ga-sau-rieng.webp` is rewritten to `photos/lau-ga-sau-rieng.webp`
-  (the October hotpot). `com-nieu-dap.webp` is not replaced with `photos/com-nieu.webp`.
+  (the October hotpot). `photos/com-nieu.webp` is a Wikimedia Commons file (Tuantq89, CC BY-SA) and is tiled from 1.3.2, not shown as a restaurant photo. `photos/com-nieu-tam.webp` stays for the named cơm niêu đập dish only.
 - `su-kien-*.webp`: Unsplash, free under the Unsplash License (https://unsplash.com/license):
   - su-kien-ban-nhac — https://images.unsplash.com/photo-1632054553195-bfd7034fee25
   - su-kien-dj — https://images.unsplash.com/photo-1470225620780-dba8ba36b745

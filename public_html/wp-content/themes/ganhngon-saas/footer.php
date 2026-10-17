@@ -9,8 +9,8 @@
       </a>
       <p><?php echo esc_html(gns_footer_about()); ?></p>
     </div>
-    <nav class="footer-col" aria-label="Khám phá">
-      <p class="footer-title">Khám phá</p>
+    <nav class="footer-col" aria-label="<?php echo esc_attr(gns_t('footer_explore', 'Khám phá')); ?>">
+      <p class="footer-title"><?php echo esc_html(gns_t('footer_explore', 'Khám phá')); ?></p>
       <?php
       $gns_footer_nav = function_exists('gns_nav_html') ? gns_nav_html('footer') : '';
       if (is_string($gns_footer_nav) && trim($gns_footer_nav) !== '') {
@@ -22,12 +22,12 @@
       ?>
       <a href="<?php echo esc_url(gns_url('dat-ban')); ?>"><?php echo esc_html(gns_t('nav_book', 'Đặt bàn')); ?></a>
       <a href="<?php echo esc_url(gns_url('lau-ga-sau-rieng')); ?>"><?php echo esc_html(function_exists('gn_t') ? gn_t('hero_h1') : 'Lẩu gà sầu riêng'); ?></a>
-      <a href="<?php echo esc_url(home_url('/thuc-don/do-uong/')); ?>">Đồ uống</a>
+      <a href="<?php echo esc_url(home_url('/thuc-don/do-uong/')); ?>"><?php echo esc_html(gns_t('drinks', 'Đồ uống')); ?></a>
       <?php } ?>
     </nav>
     <div class="footer-col">
-      <p class="footer-title">Liên hệ</p>
-      <a href="<?php echo esc_url(gns_phone_href()); ?>"><?php echo esc_html(gns_phone_label()); ?> · Gọi / Zalo</a>
+      <p class="footer-title"><?php echo esc_html(gns_t('footer_contact', 'Liên hệ')); ?></p>
+      <a href="<?php echo esc_url(gns_phone_href()); ?>"><bdi dir="ltr"><?php echo esc_html(gns_phone_label()); ?></bdi> · <?php echo esc_html(gns_t('action_call', 'Gọi')); ?> / Zalo</a>
       <a href="<?php echo esc_url(gns_zalo()); ?>" rel="noopener" target="_blank">Zalo</a>
       <a href="<?php echo esc_url(gns_wa()); ?>" rel="noopener" target="_blank">WhatsApp (khách quốc tế)</a>
       <?php if (function_exists('gn_telegram')): ?>
@@ -41,7 +41,7 @@
       <?php endforeach; ?>
     </div>
     <div class="footer-col">
-      <p class="footer-title">Ghé nhà hàng</p>
+      <p class="footer-title"><?php echo esc_html(gns_t('footer_visit', 'Ghé nhà hàng')); ?></p>
       <address><?php echo esc_html(gns_addr()); ?></address>
       <span><?php echo esc_html(gns_hours()); ?></span>
       <a href="<?php echo esc_url(gns_maps()); ?>" rel="noopener" target="_blank">Mở Google Maps →</a>
@@ -66,7 +66,7 @@
       || (function_exists('gn_cur_lang') && gn_cur_lang() === 'en');
   $gns_company = defined('GN_LEGAL_COMPANY') ? trim(GN_LEGAL_COMPANY) : 'CÔNG TY TNHH GÁNH NGON';
   $gns_tax = defined('GN_LEGAL_TAX_ID') ? trim(GN_LEGAL_TAX_ID) : '1702362299';
-  $gns_legal_addr = defined('GN_LEGAL_ADDRESS') ? GN_LEGAL_ADDRESS : '113 Trần Hưng Đạo, Khu phố 7, Phường Dương Đông, Thành phố Phú Quốc, Tỉnh Kiên Giang';
+  $gns_legal_addr = '113 Trần Hưng Đạo, Dương Đông, Phú Quốc';
   $gns_hotline = defined('GN_LEGAL_HOTLINE') ? GN_LEGAL_HOTLINE : gns_phone_label();
   $gns_tel = defined('GN_LEGAL_TEL') ? GN_LEGAL_TEL : '+84979232233';
   $gns_email = defined('GN_LEGAL_EMAIL') ? GN_LEGAL_EMAIL : 'contact@ganhngon.com';
@@ -82,17 +82,17 @@
     <p><?php echo esc_html($gns_en ? 'Address: ' : 'Địa chỉ: '); ?><?php echo esc_html($gns_legal_addr); ?></p>
     <p>
       <?php echo esc_html($gns_en ? 'Hotline / Zalo: ' : 'Hotline / Zalo: '); ?>
-      <a href="tel:<?php echo esc_attr($gns_tel); ?>"><?php echo esc_html($gns_hotline); ?></a>
+      <a href="tel:<?php echo esc_attr($gns_tel); ?>"><bdi dir="ltr"><?php echo esc_html($gns_hotline); ?></bdi></a>
       · <a href="mailto:<?php echo esc_attr($gns_email); ?>"><?php echo esc_html($gns_email); ?></a>
       · <?php echo esc_html($gns_en ? 'Open 6:30 – 02:00 daily' : 'Giờ mở cửa: ' . $gns_legal_hours); ?>
     </p>
     <p class="footer-legal-warn">
       <?php if ($gns_en): ?>
-        Every official link of ours lives on <strong>ganhngon.com</strong>. If a message uses the Gánh Ngon name but another domain, call <a href="tel:<?php echo esc_attr($gns_tel); ?>"><?php echo esc_html($gns_hotline); ?></a> before paying.
+        Every official link of ours lives on <strong>ganhngon.com</strong>. If a message uses the Gánh Ngon name but another domain, call <a href="tel:<?php echo esc_attr($gns_tel); ?>"><bdi dir="ltr"><?php echo esc_html($gns_hotline); ?></bdi></a> before paying.
         Check a voucher at <a href="<?php echo esc_url($gns_voucher); ?>">ganhngon.com/tra-cuu</a>
         · verify a partner at <a href="<?php echo esc_url($gns_partner); ?>">ganhngon.com/xac-minh</a>.
       <?php else: ?>
-        Mọi liên kết chính thức của chúng tôi đều nằm trên tên miền <strong>ganhngon.com</strong>. Nếu quý khách nhận được tin nhắn mang tên Gánh Ngon nhưng chứa tên miền khác, vui lòng gọi <a href="tel:<?php echo esc_attr($gns_tel); ?>"><?php echo esc_html($gns_hotline); ?></a> để xác minh trước khi thanh toán.
+        Mọi liên kết chính thức của chúng tôi đều nằm trên tên miền <strong>ganhngon.com</strong>. Nếu quý khách nhận được tin nhắn mang tên Gánh Ngon nhưng chứa tên miền khác, vui lòng gọi <a href="tel:<?php echo esc_attr($gns_tel); ?>"><bdi dir="ltr"><?php echo esc_html($gns_hotline); ?></bdi></a> để xác minh trước khi thanh toán.
         Tra cứu voucher tại <a href="<?php echo esc_url($gns_voucher); ?>">ganhngon.com/tra-cuu</a>
         · xác minh đối tác tại <a href="<?php echo esc_url($gns_partner); ?>">ganhngon.com/xac-minh</a>.
       <?php endif; ?>
@@ -105,10 +105,10 @@
   </div>
 </footer>
 <?php get_template_part('template-parts/contact-dock'); ?>
-<nav class="action-bar" aria-label="Liên hệ nhanh">
-  <a href="<?php echo esc_url(gns_phone_href()); ?>"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-phone"></use></svg><span>Gọi</span></a>
+<nav class="action-bar" aria-label="<?php echo esc_attr(gns_t('action_quick', 'Liên hệ nhanh')); ?>">
+  <a href="<?php echo esc_url(gns_phone_href()); ?>"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-phone"></use></svg><span><?php echo esc_html(gns_t('action_call', 'Gọi')); ?></span></a>
   <a href="<?php echo esc_url(gns_zalo()); ?>" rel="noopener" target="_blank"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-chat"></use></svg><span>Zalo</span></a>
-  <a href="<?php echo esc_url(gns_maps()); ?>" rel="noopener" target="_blank"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-pin"></use></svg><span>Chỉ đường</span></a>
+  <a href="<?php echo esc_url(gns_maps()); ?>" rel="noopener" target="_blank"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-pin"></use></svg><span><?php echo esc_html(gns_t('action_map', 'Chỉ đường')); ?></span></a>
   <a class="action-primary" href="<?php echo esc_url(gns_url('dat-ban')); ?>"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-flame"></use></svg><span><?php echo esc_html(gns_t('btn_book', 'Đặt bàn')); ?></span></a>
 </nav>
 <?php wp_footer(); ?>

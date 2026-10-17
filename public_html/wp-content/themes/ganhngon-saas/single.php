@@ -3,6 +3,7 @@ if (!defined('ABSPATH')) exit;
 get_header();
 while (have_posts()): the_post();
 $thumb = get_the_post_thumbnail_url(null, 'large');
+if ($thumb && function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url($thumb)) $thumb = '';
 ?>
 <section class="post-hero">
   <?php if ($thumb): ?>
@@ -25,7 +26,7 @@ $thumb = get_the_post_thumbnail_url(null, 'large');
     <aside class="post-aside">
       <div class="post-aside-card">
         <p class="post-aside-title">Đặt bàn</p>
-        <p>Giá báo tại nhà hàng. Gọi hoặc Zalo <?php echo esc_html(gns_phone_label()); ?>.</p>
+        <p>Giá báo tại nhà hàng. Gọi hoặc Zalo <bdi dir="ltr"><?php echo esc_html(gns_phone_label()); ?></bdi>.</p>
         <div class="actions">
           <a class="btn btn-ember" href="<?php echo esc_url(gns_url('dat-ban')); ?>">Đặt bàn</a>
         </div>

@@ -83,7 +83,8 @@ function gns_fill_main($html, $page = '') {
         $html = str_replace('{{KHU_B_GALLERY}}', gns_khu_b_gallery_html(), $html);
     }
     if (strpos($html, '{{PARTNER_FORM}}') !== false) {
-        $html = str_replace('{{PARTNER_FORM}}', gns_partner_form_html(), $html);
+        $partner = function_exists('gns_request_form_html') ? gns_request_form_html('lien-he') : gns_partner_form_html();
+        $html = str_replace('{{PARTNER_FORM}}', $partner, $html);
     }
     if (strpos($html, '{{VOUCHER_BLOCK}}') !== false) {
         $html = str_replace('{{VOUCHER_BLOCK}}', gns_voucher_block_html(), $html);
@@ -152,31 +153,8 @@ function gns_money_label($n) {
 }
 
 function gns_voucher_block_html() {
-    $tiers = function_exists('gn_voucher_tiers') ? gn_voucher_tiers() : [];
     ob_start();
-    echo '<ul class="ticks">';
-    foreach ($tiers as $face => $price) {
-        echo '<li><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"></use></svg> '
-            . esc_html(gns_money_label($face)) . ' — mua ' . esc_html(gns_money_label($price)) . '</li>';
-    }
-    echo '</ul>';
-    if ($tiers) {
-        echo '<form class="form" data-gns-voucher>';
-        echo '<p class="form-note">Chọn mệnh giá nhà hàng đang phát hành. Số tiền mua lấy từ bảng này, không lấy từ trình duyệt.</p>';
-        $i = 0;
-        foreach ($tiers as $face => $price) {
-            $i++;
-            echo '<label class="voucher-tier"><input type="radio" name="face_value" value="' . (int) $face . '"' . ($i === 2 ? ' checked' : '') . '> '
-                . '<strong>' . esc_html(gns_money_label($face)) . '</strong> <span>mua ' . esc_html(gns_money_label($price)) . '</span></label>';
-        }
-        echo '<label>Họ và tên *<input name="buyer_name" required autocomplete="name"></label>';
-        echo '<label>Email nhận voucher *<input name="buyer_email" type="email" required autocomplete="email"></label>';
-        echo '<label>Số điện thoại / Zalo<input name="buyer_phone" type="tel" autocomplete="tel"></label>';
-        echo '<button class="btn btn-dark" type="submit">Nhận voucher giữ chỗ</button>';
-        echo '<p class="form-note">Chưa mất tiền lúc này. Voucher gửi về email ở trạng thái chưa thanh toán. Đến nhà hàng trả tại quầy là dùng được.</p>';
-        echo '<p class="form-note" data-voucher-out role="status"></p>';
-        echo '</form>';
-    }
+    echo '<p>Mệnh giá và số tiền mua được báo tại nhà hàng. Gọi hoặc nhắn <bdi dir="ltr">0979 232 233</bdi>.</p>';
     $code = isset($_GET['c']) ? strtoupper(sanitize_text_field(wp_unslash($_GET['c']))) : '';
     if ($code !== '') {
         echo gns_voucher_lookup_html($code);

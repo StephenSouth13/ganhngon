@@ -12,13 +12,14 @@
 .skip {
   position: absolute;
   left: 12px;
-  top: -40px;
+  top: 0;
   z-index: 80;
+  transform: translateY(-150%);
   background: #fff;
   color: #16110d;
   padding: 8px 12px;
 }
-.skip:focus { top: 12px; }
+.skip:focus { top: 12px; transform: none; }
 
 body.admin-bar .site-header { top: 32px; }
 @media (max-width: 782px) {
@@ -716,3 +717,86 @@ form.gn-request[hidden],
 .news-pages .page-numbers .current { background: var(--char); color: var(--ivory); border-color: var(--char); }
 .post-related { margin-top: 64px; }
 .post-related .title { margin: 0 0 22px; }
+
+/* 1.3.2: overflow, contrast, RTL header, chat dock, phone direction. */
+html, body { overflow-x: clip; }
+.sr-only,
+.form input.sr-only,
+input.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+.form, .form-grid, .form-grid > *, .gn-request-wrap, .quote, .contact-grid, .header-inner, .site-header {
+  min-width: 0;
+  max-width: 100%;
+}
+bdi[dir="ltr"],
+a[href^="tel:"],
+a[href^="mailto:"] {
+  unicode-bidi: isolate;
+  direction: ltr;
+}
+.band-ivory .eyebrow:not(.eyebrow-light):not(.eyebrow-gold),
+.band-sand .eyebrow:not(.eyebrow-light):not(.eyebrow-gold),
+.page-hero-plain .eyebrow,
+.band-ivory .kicker,
+.band-sand .kicker {
+  color: #a8431f;
+}
+.band-ivory a:not(.btn):not(.contact-card),
+.band-sand a:not(.btn),
+.prose a,
+.entry a,
+.post-body a,
+.gns-editor a,
+.faq a,
+.band-ivory a[href^="tel:"],
+.band-sand a[href^="tel:"] {
+  color: #8a6d12;
+}
+.gallery:empty { display: none; }
+@media (max-width: 768px) {
+  .gns-dock {
+    right: 10px;
+    bottom: 92px;
+    transform: scale(0.78);
+    transform-origin: bottom right;
+  }
+  .hero-inner { padding-bottom: 108px; }
+  [dir="rtl"] .gns-dock,
+  .rtl .gns-dock {
+    right: auto;
+    left: 10px;
+    transform-origin: bottom left;
+  }
+  [dir="rtl"] .site-header,
+  .rtl .site-header { height: auto; }
+  [dir="rtl"] .site-header .header-inner,
+  .rtl .site-header .header-inner {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 8px;
+    padding-block: 8px;
+  }
+  [dir="rtl"] .header-actions,
+  .rtl .header-actions {
+    margin-left: 0;
+    margin-right: auto;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  [dir="rtl"] .header-actions .btn,
+  .rtl .header-actions .btn { white-space: normal; }
+  .action-bar { max-width: 100%; }
+  .action-bar a { min-width: 0; }
+  .action-bar a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+}

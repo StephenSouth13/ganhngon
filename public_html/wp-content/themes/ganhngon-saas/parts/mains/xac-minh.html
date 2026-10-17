@@ -10,12 +10,12 @@
 <section class="band band-ivory">
   <div class="wrap advisor-grid">
     <div class="prose">
-      <p>Điền mã (ví dụ từ đường dẫn <span class="mono">/p/…</span>). Nhà hàng gọi lại xác nhận mã đó có thật hay không. Trang này cố ý không tự trả lời “hợp lệ” — dữ liệu đối tác không nằm trong giao diện công khai.</p>
+      <p>Điền mã trên thẻ hoặc đường dẫn <span class="mono">/p/…</span>. Nhà hàng gọi lại xác nhận mã đó có đang hoạt động hay không.</p>
       <p>Hotline <a href="tel:+84979232233">0979 232 233</a></p>
     </div>
     <form class="form" method="get" aria-label="Nhờ xác minh mã đối tác">
       <label>Mã đối tác *<input name="ma" required placeholder="GN-P…"></label>
-      <label>Số điện thoại của bạn *<input name="phone" type="tel" required autocomplete="tel"></label>
+      <label>Số điện thoại của bạn *<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" dir="ltr" pattern="[0-9 +().-]{8,}"></label>
       <label>Họ tên<input name="name" autocomplete="name"></label>
       <input type="hidden" name="message" data-verify-message value="">
       <button class="btn btn-dark" type="submit">Nhờ nhà hàng xác minh</button>

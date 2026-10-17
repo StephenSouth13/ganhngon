@@ -4,7 +4,7 @@
   <div class="wrap page-hero-inner">
     <p class="eyebrow eyebrow-light">Gánh Ngon Phú Quốc</p>
     <h1 id="page-title" class="display">Cổng<br><em>đối tác</em></h1>
-    <p class="hero-lead">Doanh thu, hoa hồng và kỳ đối soát nằm trong workspace của nhà hàng — không công khai trên website.</p>
+    <p class="hero-lead">Doanh thu và kỳ đối soát nhà hàng gửi riêng cho đối tác đã được cấp mã — không đăng công khai.</p>
   </div>
 </section>
 <section class="band band-ivory">
@@ -15,7 +15,7 @@
     </div>
     {{PORTAL_OR_FORM}}<form id="portal-request" class="form" data-gns-mail="partner" aria-label="Xin đường vào cổng đối tác"><input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
       <label>Mã đối tác *<input name="code" required placeholder="GN-P001" autocomplete="off"></label>
-      <label>Số điện thoại đã đăng ký *<input name="phone" type="tel" required autocomplete="tel"></label>
+      <label>Số điện thoại đã đăng ký *<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" dir="ltr" pattern="[0-9 +().-]{8,}"></label>
       <label>Ghi chú<textarea name="message" rows="3" placeholder="Cần xem kỳ nào, hoặc báo một khoản chưa khớp"></textarea></label>
       <button class="btn btn-dark" type="submit">Gửi yêu cầu</button>
     </form>

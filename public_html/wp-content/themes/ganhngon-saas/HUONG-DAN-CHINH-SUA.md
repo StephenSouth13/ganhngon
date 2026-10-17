@@ -32,7 +32,7 @@ Tiêu đề, mô tả và ảnh Khu A / Khu B, chọn từ Thư viện. Chưa c�
 
 Ảnh phòng, sảnh, VIP, sân khấu và ảnh minh họa món (không phải ảnh chụp quán) đang hiện họa tiết than và vàng, giống ô trống trên thực đơn. Mỗi tên file một ô ảnh trong mục này. Chọn ảnh từ Thư viện rồi Xuất bản thì ảnh đó thay họa tiết ở mọi chỗ từng dùng file đó. Để trống thì vẫn là họa tiết.
 
-Ảnh món thật trong `assets/img/photos/` (lẩu gà sầu riêng, cơm niêu, mâm xiên, bò lúc lắc, cocktail…) giữ nguyên. Ảnh hero và món mũi nhọn trên trang chủ / thực đơn vẫn ở mục Trang chủ và Thực đơn.
+Ảnh món thật trong `assets/img/photos/` (lẩu gà sầu riêng, mâm xiên, cocktail…) giữ nguyên. `photos/com-nieu.webp` là ảnh Wikimedia nên hiện họa tiết. Ảnh upload `2026/09/ganhngon-*.webp` cũng thành họa tiết; danh sách mẫu nằm ở filter `gns_hidden_media_patterns`. Trang Hình ảnh bỏ những ảnh đó thay vì lát cả trang bằng họa tiết. Ảnh hero và món mũi nhọn trên trang chủ / thực đơn vẫn ở mục Trang chủ và Thực đơn.
 
 ## Tin tức
 

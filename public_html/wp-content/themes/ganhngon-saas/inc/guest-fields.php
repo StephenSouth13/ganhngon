@@ -46,14 +46,22 @@ function gns_guest_fields_from_post() {
 function gns_guest_group_select($required = true, $selected = '') {
     $groups = gns_guest_groups();
     $selected = isset($groups[$selected]) ? $selected : '';
-    $hint = $selected !== '' ? $groups[$selected][1] : 'Chọn nhóm để nhà hàng chuẩn bị đúng nhu cầu.';
+    $hint_default = function_exists('gns_t') ? gns_t('form_group_hint', 'Chọn nhóm để nhà hàng chuẩn bị đúng nhu cầu.') : 'Chọn nhóm để nhà hàng chuẩn bị đúng nhu cầu.';
+    $hint = $selected !== '' ? $groups[$selected][1] : $hint_default;
+    if ($selected !== '' && function_exists('gns_t')) {
+        $translated = gns_ui_text('group_' . $selected . '_hint');
+        if ($translated === null) $translated = $groups[$selected][1];
+        $hint = $translated;
+    }
     $id = 'gns-group-' . wp_rand(100, 999999);
+    $group_label = function_exists('gns_t') ? gns_t('form_group', 'Nhóm khách hàng') : 'Nhóm khách hàng';
+    $group_ph = function_exists('gns_t') ? gns_t('form_group_ph', 'Chọn nhóm khách') : 'Chọn nhóm khách';
     ob_start(); ?>
-    <label class="gns-guest-group">Nhóm khách hàng<?php echo $required ? ' *' : ''; ?>
+    <label class="gns-guest-group"><?php echo esc_html($group_label); ?><?php echo $required ? ' *' : ''; ?>
       <select name="guest_group" data-gns-group aria-describedby="<?php echo esc_attr($id); ?>"<?php echo $required ? ' required' : ''; ?>>
-        <option value="" data-hint="Chọn nhóm để nhà hàng chuẩn bị đúng nhu cầu.">Chọn nhóm khách</option>
+        <option value="" data-hint="<?php echo esc_attr($hint_default); ?>"><?php echo esc_html($group_ph); ?></option>
         <?php foreach ($groups as $key => $g): ?>
-          <option value="<?php echo esc_attr($key); ?>" data-hint="<?php echo esc_attr($g[1]); ?>"<?php selected($selected, $key); ?>><?php echo esc_html($g[0]); ?></option>
+          <option value="<?php echo esc_attr($key); ?>" data-hint="<?php echo esc_attr($g[1]); ?>"<?php selected($selected, $key); ?>><?php echo esc_html(function_exists('gns_t') ? gns_t('group_' . $key, $g[0]) : $g[0]); ?></option>
         <?php endforeach; ?>
       </select>
       <small class="gns-hint" id="<?php echo esc_attr($id); ?>" data-gns-hint><?php echo esc_html($hint); ?></small>
@@ -66,10 +74,10 @@ function gns_guest_area_select($with_vip = true) {
     $areas = gns_guest_areas();
     if (!$with_vip) unset($areas['phong-vip']);
     ob_start(); ?>
-    <label class="gns-guest-area">Khu vực
+    <label class="gns-guest-area"><?php echo esc_html(function_exists('gns_t') ? gns_t('form_area', 'Khu vực') : 'Khu vực'); ?>
       <select name="area">
         <?php foreach ($areas as $key => $label): ?>
-          <option value="<?php echo esc_attr($key); ?>"<?php selected($key, 'khong-yeu-cau'); ?>><?php echo esc_html($label); ?></option>
+          <option value="<?php echo esc_attr($key); ?>"<?php selected($key, 'khong-yeu-cau'); ?>><?php echo esc_html(function_exists('gns_t') ? gns_t('area_' . $key, $label) : $label); ?></option>
         <?php endforeach; ?>
       </select>
     </label>

@@ -142,7 +142,7 @@ function gns_news_card_html($featured = false) {
         <?php $excerpt = wp_strip_all_tags(get_the_excerpt()); if ($excerpt !== ''): ?>
         <p class="news-excerpt"><?php echo esc_html($excerpt); ?></p>
         <?php endif; ?>
-        <a class="link news-more" href="<?php echo esc_url($url); ?>">Đọc tiếp <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow"></use></svg></a>
+        <a class="link news-more" href="<?php echo esc_url($url); ?>"><?php echo esc_html(function_exists('gns_t') ? gns_t('news_more', 'Đọc tiếp') : 'Đọc tiếp'); ?> <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow"></use></svg></a>
       </div>
     </article>
     <?php
@@ -164,8 +164,8 @@ function gns_news_filters_html($current) {
     }));
     if (!$terms && $current === '') return '';
     $base = gns_news_archive_url();
-    $html = '<nav class="news-filters" aria-label="Chuyên mục">';
-    $html .= '<a href="' . esc_url($base) . '"' . ($current === '' ? ' aria-current="true"' : '') . '>Tất cả</a>';
+    $html = '<nav class="news-filters" aria-label="' . esc_attr(function_exists('gns_t') ? gns_t('news_cats', 'Chuyên mục') : 'Chuyên mục') . '">';
+    $html .= '<a href="' . esc_url($base) . '"' . ($current === '' ? ' aria-current="true"' : '') . '>' . esc_html(function_exists('gns_t') ? gns_t('news_all', 'Tất cả') : 'Tất cả') . '</a>';
     foreach ($terms as $term) {
         $url = add_query_arg('cm', $term->slug, $base);
         $on = $current === $term->slug ? ' aria-current="true"' : '';
@@ -184,14 +184,14 @@ function gns_news_pagination_html($paged, $pages, $cat_slug) {
         'current' => max(1, (int) $paged),
         'total' => (int) $pages,
         'type' => 'list',
-        'prev_text' => 'Trước',
-        'next_text' => 'Sau',
+        'prev_text' => function_exists('gns_t') ? gns_t('news_prev', 'Trước') : 'Trước',
+        'next_text' => function_exists('gns_t') ? gns_t('news_next', 'Sau') : 'Sau',
         'mid_size' => 1,
         'end_size' => 1,
         'add_args' => $cat_slug !== '' ? ['cm' => $cat_slug] : false,
     ]);
     if (!is_string($links) || $links === '') return '';
-    return '<nav class="news-pages" aria-label="Phân trang">' . $links . '</nav>';
+    return '<nav class="news-pages" aria-label="' . esc_attr(function_exists('gns_t') ? gns_t('news_pages', 'Phân trang') : 'Phân trang') . '">' . $links . '</nav>';
 }
 
 function gns_news_archive_html() {
@@ -199,11 +199,6 @@ function gns_news_archive_html() {
     $cat = gns_news_category_slug();
     $q = gns_news_query($paged, $cat);
     $pages = gns_news_page_count($q->found_posts);
-    if ($paged > 1 && $pages > 0 && $paged > $pages) {
-        wp_reset_postdata();
-        $paged = $pages;
-        $q = gns_news_query($paged, $cat);
-    }
     ob_start();
     echo gns_news_filters_html($cat);
     echo '<div class="news-grid news-grid-list">';
