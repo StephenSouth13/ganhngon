@@ -25,7 +25,7 @@ $gns_items = gns_nav_items();
     </a>
     <nav class="main-nav" aria-label="Điều hướng chính">
       <?php
-      $gns_nav = gns_nav_html('primary');
+      $gns_nav = function_exists('gns_nav_html') ? gns_nav_html('primary') : '';
       if (is_string($gns_nav) && trim($gns_nav) !== '') {
           echo $gns_nav; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- walker escapes
       } else {

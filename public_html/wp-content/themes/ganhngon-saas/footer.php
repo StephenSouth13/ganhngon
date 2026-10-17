@@ -12,7 +12,7 @@
     <nav class="footer-col" aria-label="Khám phá">
       <p class="footer-title">Khám phá</p>
       <?php
-      $gns_footer_nav = gns_nav_html('footer');
+      $gns_footer_nav = function_exists('gns_nav_html') ? gns_nav_html('footer') : '';
       if (is_string($gns_footer_nav) && trim($gns_footer_nav) !== '') {
           echo $gns_footer_nav; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- walker escapes
       } else {
