@@ -1,0 +1,315 @@
+/* WordPress chrome on top of the SaaS stylesheet. */
+
+.gns-sample {
+  margin: 0;
+  padding: 8px 16px;
+  background: #f3d27a;
+  color: #16110d;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.skip {
+  position: absolute;
+  left: 12px;
+  top: -40px;
+  z-index: 80;
+  background: #fff;
+  color: #16110d;
+  padding: 8px 12px;
+}
+.skip:focus { top: 12px; }
+
+body.admin-bar .site-header { top: 32px; }
+@media (max-width: 782px) {
+  body.admin-bar .site-header { top: 46px; }
+}
+
+.icon { width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.15em; }
+
+/* Language switcher inherited from the parent theme, restyled for the dark bar. */
+.gn-lang-switch { position: relative; }
+.gn-lang-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 241, 230, 0.28);
+  background: transparent;
+  color: #f7f1e6;
+  font: 600 0.78rem/1 Montserrat, sans-serif;
+  cursor: pointer;
+}
+.gn-lang-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  background: #fff;
+  color: #16110d;
+  border-radius: 16px;
+  box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.6);
+  z-index: 70;
+}
+.gn-lang-switch.is-open .gn-lang-dropdown { display: block; }
+.gn-lang-dropdown a {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.88rem;
+}
+.gn-lang-dropdown a:hover,
+.gn-lang-dropdown a.active { background: #f6efe4; }
+
+.header-actions .header-phone span { display: none; }
+@media (min-width: 1180px) {
+  .header-actions .header-phone span { display: inline; }
+}
+
+/* Compact dish rows: photo cards stay in the grid; text dishes become rows. */
+.dish-grid { grid-template-columns: 1fr; }
+.dish-card.has-img {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 0 16px;
+  align-items: center;
+  padding: 0 18px 0 0;
+}
+.dish-card.has-img .dish-photo {
+  grid-row: 1 / span 3;
+  width: 168px;
+  height: 112px;
+  margin: 0;
+  aspect-ratio: auto;
+  object-fit: cover;
+}
+.dish-card.is-compact {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  padding: 14px 18px 14px 20px;
+}
+.dish-card.is-compact .dish-group { flex: 0 0 180px; }
+.dish-card.is-compact .dish-name { flex: 1 1 180px; }
+.dish-card.is-compact .dish-desc { flex: 1 1 100%; }
+@media (max-width: 720px) {
+  .dish-card.has-img { grid-template-columns: 1fr; padding: 0 0 14px; }
+  .dish-card.has-img .dish-photo { width: 100%; height: 180px; grid-row: auto; }
+  .dish-card.has-img .dish-group,
+  .dish-card.has-img .dish-name,
+  .dish-card.has-img .dish-desc { padding-left: 16px; padding-right: 16px; }
+  .dish-card.is-compact { flex-direction: column; align-items: stretch; }
+  .dish-card.is-compact .dish-group { flex-basis: auto; }
+}
+
+/* Booking form from the parent theme, inside the SaaS card. */
+.booking-form .gn-book-form,
+.booking-form form { display: grid; gap: 14px; }
+.booking-form .gn-form-row { display: grid; gap: 12px; }
+@media (min-width: 720px) {
+  .booking-form .gn-form-row { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+}
+.booking-form label,
+.booking-form .gn-check {
+  display: grid;
+  gap: 6px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #1d1712;
+}
+.booking-form input,
+.booking-form select,
+.booking-form textarea {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(29, 23, 18, 0.16);
+  background: #fff;
+  font: 500 1rem/1.4 Montserrat, sans-serif;
+  padding: 12px 16px;
+  color: #1d1712;
+}
+.booking-form textarea { min-height: 96px; }
+.booking-form .gn-check { grid-template-columns: auto 1fr; align-items: center; }
+.booking-form .gn-check input { width: 18px; min-height: 18px; }
+.booking-form .gn-cta-btn,
+.booking-form button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: #c4512b;
+  color: #fff;
+  font: 700 1rem/1 Montserrat, sans-serif;
+  cursor: pointer;
+}
+.booking-form .gn-book-out,
+.booking-form .gn-promise { margin: 0; color: #5c5148; font-size: 0.9rem; }
+.booking-form details summary { cursor: pointer; font-weight: 600; }
+
+/* Existing page HTML (about, events, contact, policies) inside the new shell. */
+.entry { max-width: 860px; }
+.entry img { max-width: 100%; height: auto; border-radius: 16px; }
+.entry a { color: #c4512b; }
+.entry h2, .entry h3 { font-family: Montserrat, sans-serif; letter-spacing: -0.03em; }
+.news-media img { width: 100%; height: 100%; object-fit: cover; }
+.news-card .news-media { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: #efe6d8; }
+
+.display-dark { color: #16110d; }
+.page-hero-plain { background: #fbf8f2; padding: 28px 0 8px; }
+.page-hero-plain .display { color: #16110d; }
+.page-hero-plain .display em { font-style: italic; color: #c4512b; }
+.page-hero-plain .page-hero-inner,
+.page-hero-inner.page-hero-plain { padding: 12px 0 20px; }
+
+/* Keep the mobile action bar above WP admin and away from content. */
+@media (max-width: 640px) {
+  body { padding-bottom: 72px; }
+}
+
+/* Parent theme still prints the advisor, channel stack, and WeChat modal.
+   Its stylesheet is dequeued, so these rules keep those controls usable.
+   The old bottom bar is hidden: the SaaS action bar already covers call, Zalo, maps, and booking. */
+.gn-sticky-mobile { display: none !important; }
+
+.gn-chat-stack {
+  position: fixed;
+  z-index: 60;
+  inset-inline-end: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+.gn-chat-stack__btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(22, 17, 13, 0.28);
+}
+.gn-chat-stack__btn svg { width: 24px; height: 24px; display: block; }
+.gn-chat-stack__zalo { background: #0068ff; }
+.gn-chat-stack__whatsapp { background: #25d366; }
+.gn-chat-stack__telegram { background: #0088cc; }
+.gn-chat-stack__wechat { background: #1aad19; }
+
+.gn-chat-fab {
+  position: fixed;
+  z-index: 61;
+  inset-inline-end: 12px;
+  bottom: calc(12px + var(--gn-chat-stack-h, 216px) + 10px);
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: #c9a227;
+  color: #16110d;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gn-chat-fab svg { width: 26px; height: 26px; display: block; }
+.gn-chat-fab .gn-chat-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e23b3b;
+  border: 2px solid #fff;
+}
+.gn-chat-panel {
+  display: none;
+  position: fixed;
+  z-index: 62;
+  inset-inline-end: 12px;
+  bottom: calc(12px + var(--gn-chat-stack-h, 216px) + 78px);
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  max-height: min(62vh, 520px);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  flex-direction: column;
+}
+.gn-chat-panel.open { display: flex; }
+.gn-chat-head { background: #16110d; color: #f7f1e6; padding: 14px 16px; }
+.gn-chat-head strong { display: block; color: #e4c56a; }
+.gn-chat-head span { font-size: 0.78rem; opacity: 0.8; }
+.gn-chat-log {
+  padding: 14px;
+  min-height: 140px;
+  max-height: 42vh;
+  overflow-y: auto;
+  background: #f7f3ec;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gn-msg { padding: 10px 12px; border-radius: 12px; font-size: 0.9rem; }
+.gn-msg-bot { background: #fff; }
+.gn-msg-user { background: #16110d; color: #f7f1e6; align-self: flex-end; }
+.gn-chat-input { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #eee; }
+.gn-chat-input input { flex: 1; min-height: 44px; border: 1px solid #ddd; border-radius: 999px; padding: 0 14px; font: inherit; }
+.gn-chat-input button { width: 44px; height: 44px; border: 0; border-radius: 50%; background: #c4512b; color: #fff; }
+
+.gn-wechat-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(22, 17, 13, 0.85);
+}
+.gn-wechat-modal[hidden] { display: none !important; }
+.gn-wechat-content {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  padding: 32px 24px;
+  background: #fff;
+  border-radius: 16px;
+  text-align: center;
+}
+.gn-wechat-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: 0;
+  background: none;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .gn-chat-stack { bottom: 84px !important; }
+  .gn-chat-fab { bottom: calc(84px + var(--gn-chat-stack-h, 216px) + 8px) !important; }
+  .gn-chat-panel { bottom: calc(84px + var(--gn-chat-stack-h, 216px) + 76px) !important; }
+}
