@@ -11,6 +11,7 @@ require_once get_stylesheet_directory() . '/inc/routes.php';
 require_once get_stylesheet_directory() . '/inc/render.php';
 require_once get_stylesheet_directory() . '/inc/guest-fields.php';
 require_once get_stylesheet_directory() . '/inc/mods.php';
+require_once get_stylesheet_directory() . '/inc/services.php';
 require_once get_stylesheet_directory() . '/inc/leads.php';
 require_once get_stylesheet_directory() . '/inc/request-form.php';
 require_once get_stylesheet_directory() . '/inc/news.php';
@@ -27,12 +28,12 @@ add_action('wp_enqueue_scripts', function () {
         [],
         null
     );
-    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.3.2');
-    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.3.2');
-    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.3.2', true);
-    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.3.2', true);
-    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.3.2', true);
-    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.3.2', true);
+    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.4.0');
+    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.4.0');
+    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.4.0', true);
+    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.4.0', true);
+    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.4.0', true);
+    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.4.0', true);
     wp_localize_script('gns-forms', 'GNS', [
         'ajax' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('gns_lead'),

@@ -53,6 +53,37 @@ function gns_fill_main($html, $page = '') {
     if (strpos($html, '{{MENU_CATS}}') !== false) {
         $html = str_replace('{{MENU_CATS}}', gns_menu_cats_html(), $html);
         $html = str_replace('{{MENU_CARDS}}', gns_menu_cards_html(), $html);
+        if (function_exists('gns_menu_public_counts')) {
+            $counts = gns_menu_public_counts();
+            $html = preg_replace(
+                '/(<[^>]*data-menu-stats[^>]*>)[^<]*/',
+                '${1}' . (int) $counts['dishes'] . ' món · ' . (int) $counts['cats'] . ' nhóm',
+                $html,
+                1
+            );
+            $html = preg_replace(
+                '/(<[^>]*data-results-count[^>]*>)[^<]*/',
+                '${1}' . (int) $counts['dishes'] . ' món',
+                $html,
+                1
+            );
+            $keep = $counts['slugs'];
+            $html = preg_replace_callback(
+                '/(<select name="cat">)(.*?)(<\/select>)/s',
+                function ($m) use ($keep) {
+                    $inner = preg_replace_callback(
+                        '/<option value="([a-z0-9-]+)">.*?<\/option>/',
+                        function ($opt) use ($keep) {
+                            return isset($keep[$opt[1]]) ? $opt[0] : '';
+                        },
+                        $m[2]
+                    );
+                    return $m[1] . $inner . $m[3];
+                },
+                $html,
+                1
+            );
+        }
     }
 
     if (strpos($html, '{{NEWS_ARCHIVE}}') !== false && function_exists('gns_news_archive_html')) {
@@ -67,6 +98,12 @@ function gns_fill_main($html, $page = '') {
             get_template_part('template-parts/gn-form', null, ['context' => $m[1]]);
             return ob_get_clean();
         }, $html);
+    }
+    if (strpos($html, '{{SERVICES}}') !== false && function_exists('gns_services_html')) {
+        $html = str_replace('{{SERVICES}}', gns_services_html(), $html);
+    }
+    if (strpos($html, '{{SIG_RAIL}}') !== false && function_exists('gns_signature_rail_html')) {
+        $html = str_replace('{{SIG_RAIL}}', gns_signature_rail_html(), $html);
     }
     if (strpos($html, '{{KHU_A_GALLERY}}') !== false) {
         $html = str_replace('{{KHU_A_GALLERY}}', gns_khu_a_gallery_html(), $html);

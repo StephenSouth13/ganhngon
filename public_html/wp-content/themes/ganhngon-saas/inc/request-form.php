@@ -105,7 +105,7 @@ function gns_request_form_html($context = 'lien-he') {
           <?php echo $times; ?>
         </select>
       </label>
-      <?php echo gns_guest_area_select(true); ?>
+      <?php echo gns_guest_area_select(true, function_exists('gns_request_area_from_query') ? gns_request_area_from_query() : ''); ?>
       <div class="span-2 gn-extra" data-gn-extra="dat-tiec"<?php echo $selected === 'dat-tiec' ? '' : ' hidden'; ?>>
         <label><?php echo esc_html(gns_t('form_party', 'Loại tiệc')); ?>
           <select name="party_type">

@@ -70,14 +70,25 @@ function gns_guest_group_select($required = true, $selected = '') {
     return ob_get_clean();
 }
 
-function gns_guest_area_select($with_vip = true) {
+function gns_request_area_from_query() {
+    if (!isset($_GET['khu'])) return '';
+    $raw = sanitize_key(wp_unslash($_GET['khu']));
+    $areas = gns_guest_areas();
+    return isset($areas[$raw]) ? $raw : '';
+}
+
+function gns_guest_area_select($with_vip = true, $selected = '') {
     $areas = gns_guest_areas();
     if (!$with_vip) unset($areas['phong-vip']);
+    if ($selected === '' && function_exists('gns_request_area_from_query')) {
+        $selected = gns_request_area_from_query();
+    }
+    if (!isset($areas[$selected])) $selected = 'khong-yeu-cau';
     ob_start(); ?>
     <label class="gns-guest-area"><?php echo esc_html(function_exists('gns_t') ? gns_t('form_area', 'Khu vực') : 'Khu vực'); ?>
       <select name="area">
         <?php foreach ($areas as $key => $label): ?>
-          <option value="<?php echo esc_attr($key); ?>"<?php selected($key, 'khong-yeu-cau'); ?>><?php echo esc_html(function_exists('gns_t') ? gns_t('area_' . $key, $label) : $label); ?></option>
+          <option value="<?php echo esc_attr($key); ?>"<?php selected($selected, $key); ?>><?php echo esc_html(function_exists('gns_t') ? gns_t('area_' . $key, $label) : $label); ?></option>
         <?php endforeach; ?>
       </select>
     </label>

@@ -2,6 +2,25 @@
 
 Vào **Giao diện → Tùy biến → Gánh Ngon**, sửa, rồi bấm **Xuất bản**. Chưa xuất bản thì trang giữ nguyên như đang chạy.
 
+Trang trong giao diện không sửa bằng ô nội dung của trang. Khi mở trang đó trong wp-admin, phía trên có dòng chỉ đúng mục Tùy biến.
+
+## Sửa cái gì ở đâu
+
+1. **Chữ và ảnh trên trang chủ, thực đơn, liên hệ, chân trang, thẻ dịch vụ** — Giao diện → Tùy biến → Gánh Ngon. Xuất bản.
+2. **Bài viết /tin-tuc/** — Bài viết. Ảnh đại diện là ảnh của bài. Trang Tin tức chỉ liệt kê bài.
+3. **Trang WordPress không có file trong giao diện** — Trang → sửa nội dung trang đó.
+4. **Lead khách** — mục Lead cho bot trong Tùy biến (email, webhook). Đơn đã gửi nằm ở bài `gn_lead` và đơn đặt bàn của theme cha. Không sửa đơn bằng cách sửa trang Đặt bàn.
+
+## Dịch vụ & Không gian
+
+Mục này sửa năm thẻ: Quầy bar, Bếp ngoài, Khu A, Khu B, 9 phòng VIP. Mỗi thẻ có tiêu đề, đoạn ngắn, ảnh, chữ nút, và ô hiện/ẩn.
+
+Ảnh để trống: Quầy bar và Bếp ngoài giữ ảnh nhà hàng trong `assets/img/real/`. Khu A, Khu B và phòng VIP hiện họa tiết than–vàng (chưa có ảnh không gian). Nút của thẻ mở form đặt bàn và chọn sẵn nhóm khách cùng khu vực.
+
+Trên trang chủ, ô **Hiện không gian** (mục Trang chủ) tắt cả khối dịch vụ. Hero (ảnh, tiêu đề, mô tả) và ba món mũi nhọn (tên + ảnh) nằm ở mục **Trang chủ**.
+
+Dưới thẻ Bếp ngoài có mục **Món tại bếp**: năm ảnh chưa rõ tên, tên để trống. Mỗi ô có **tên món** và **ảnh**. Điền tên thì tên hiện dưới ảnh. Đổi ảnh từng ô để sắp lại. Không điền tên thì ảnh vẫn hiện, không có tên món. Mực Vườn Xanh là ảnh đã có tên, đứng cạnh mục này, không nằm trong thực đơn.
+
 ## Thông tin chung
 
 Hotline, Zalo, WhatsApp, email, địa chỉ, giờ mở cửa, link Google Maps. Facebook, Instagram, TikTok, YouTube chỉ hiện ở chân trang khi có link.
@@ -14,7 +33,16 @@ Link nút để trống thì giữ link đang dùng (Đặt bàn, Thực đơn).
 
 ## Thực đơn
 
-Đoạn mở đầu và khối món mũi nhọn (tiêu đề, đoạn, ảnh). Danh sách món vẫn lấy từ thực đơn WordPress. Ảnh món: xem `HUONG-DAN-FTP.md`, mục 6.
+Đoạn mở đầu và khối món mũi nhọn (tiêu đề, đoạn, ảnh).
+
+Trang thực đơn chỉ hiện món đã có ảnh riêng. Món chưa có ảnh vẫn nằm trong dữ liệu, không bị xoá, và không hiện ra. Ô **Hiện cả món chưa có ảnh** mặc định tắt. Bật ô đó rồi Xuất bản thì mọi món hiện lại; món chưa có ảnh dùng họa tiết.
+
+Gán ảnh để một món đang ẩn hiện lại:
+
+1. Thư viện: tên file, slug hoặc tiêu đề đúng slug món. Ví dụ món “Tôm nướng” dùng file `tom-nuong.jpg`.
+2. Ô **Gán ảnh cho món**, mỗi dòng một món: `slug | file hoặc URL`. Ví dụ `tom-nuong | photos/tom-nuong.webp`.
+
+Nhóm không còn món nào hiện thì mất khỏi lưới nhóm và khỏi ô chọn nhóm. Không còn tiêu đề trống.
 
 ## Liên hệ
 

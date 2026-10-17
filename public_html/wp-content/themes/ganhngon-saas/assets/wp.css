@@ -766,6 +766,46 @@ a[href^="mailto:"] {
 .kitchen-card { color: var(--ivory); }
 .kitchen-body .kicker { color: var(--gold-soft); }
 .gallery:empty { display: none; }
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.svc-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.svc-media { position: relative; aspect-ratio: 4/3; background: var(--char); }
+.svc-media img,
+.svc-media .gns-slot { width: 100%; height: 100%; object-fit: cover; display: block; }
+.svc-media .gns-slot { position: absolute; inset: 0; }
+.svc-body { display: flex; flex-direction: column; gap: 8px; padding: 16px 16px 18px; flex: 1; }
+.svc-body h3 { margin: 0; font-size: 1.35rem; }
+.svc-body p { margin: 0; color: var(--muted); }
+.svc-body .btn { align-self: flex-start; margin-top: 8px; }
+.svc-strip {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+.svc-strip img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; }
+.svc-bep { margin-top: 28px; display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.svc-named { margin: 0; min-width: 0; }
+.svc-named img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 12px; display: block; }
+.svc-named figcaption { margin-top: 8px; font-weight: 700; }
+.svc-unnamed { min-width: 0; }
+.svc-unnamed-label { margin: 0 0 8px; font-weight: 700; }
+.svc-unnamed .svc-strip { margin-top: 0; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.svc-unnamed figure { margin: 0; }
+.svc-unnamed figcaption { margin-top: 6px; font-weight: 700; font-size: 0.85rem; }
 @media (max-width: 768px) {
   .gns-dock {
     right: 10px;
@@ -798,6 +838,8 @@ a[href^="mailto:"] {
   }
   [dir="rtl"] .header-actions .btn,
   .rtl .header-actions .btn { white-space: normal; }
+  .svc-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .svc-bep { grid-template-columns: 1fr; }
   .action-bar { max-width: 100%; }
   .action-bar a { min-width: 0; }
   .action-bar a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }

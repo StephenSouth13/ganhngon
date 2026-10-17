@@ -179,6 +179,7 @@ function gns_scrub_public_copy($text) {
         'Hotline (6:30–2:00)',
         $text
     );
+    $text = str_replace('10 phòng VIP', '9 phòng VIP', $text);
     $text = preg_replace('/\bhơn\s+220\s+món\b/iu', 'các món', $text);
     $text = preg_replace('/\b220\+\s*món\b/u', 'các món', $text);
     $text = preg_replace('/\b220-dish\b/i', '', $text);
