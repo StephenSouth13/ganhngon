@@ -103,10 +103,14 @@ function gns_bar_strip_html() {
     $base = get_stylesheet_directory_uri() . '/assets/img/';
     $html = '<ul class="svc-strip" aria-label="Quầy bar">';
     foreach ($shots as $shot) {
-        $html .= '<li><img src="' . esc_url($base . $shot[0]) . '" alt="' . esc_attr($shot[1]) . '" width="' . (int) $shot[2] . '" height="' . (int) $shot[3] . '" loading="lazy" decoding="async"></li>';
+        $html .= '<li>' . gns_frame_img($base . $shot[0], $shot[1], $shot[2], $shot[3]) . '</li>';
     }
     $html .= '</ul>';
     return $html;
+}
+
+function gns_frame_img($src, $alt, $w, $h) {
+    return '<span class="svc-frame"><img src="' . esc_url($src) . '" alt="' . esc_attr($alt) . '" width="' . (int) $w . '" height="' . (int) $h . '" loading="lazy" decoding="async"></span>';
 }
 
 /** Unnamed kitchen photos. Names stay blank until the owner fills a slot. */
@@ -123,19 +127,20 @@ function gns_bep_slot_defs() {
 function gns_bep_strip_html() {
     $base = get_stylesheet_directory_uri() . '/assets/img/';
     $html = '<div class="svc-bep">';
-    $html .= '<figure class="svc-named"><img src="' . esc_url($base . 'real/muc-vuon-xanh.webp') . '" alt="Mực Vườn Xanh tại Gánh Ngon" width="900" height="1200" loading="lazy" decoding="async"><figcaption>Mực Vườn Xanh</figcaption></figure>';
-    $html .= '<div class="svc-unnamed"><p class="svc-unnamed-label">Món tại bếp</p><ul class="svc-strip" aria-label="Món tại bếp">';
+    $html .= '<p class="svc-unnamed-label">Món tại bếp</p>';
+    $html .= '<ul class="svc-strip svc-bep-grid" aria-label="Món tại bếp">';
+    $html .= '<li><figure class="svc-named">' . gns_frame_img($base . 'real/muc-vuon-xanh.webp', 'Mực Vườn Xanh tại Gánh Ngon', 900, 1200) . '<figcaption>Mực Vườn Xanh</figcaption></figure></li>';
     foreach (gns_bep_slot_defs() as $i => $slot) {
         $name = function_exists('gns_saved_text') ? trim(gns_saved_text('gns_bep_slot_' . $i . '_name')) : '';
         $custom = function_exists('gns_mod_image_url') ? gns_mod_image_url('gns_bep_slot_' . $i . '_image') : '';
         $src = $custom !== '' ? $custom : $base . $slot['file'];
         $alt = $name !== '' ? $name . ' tại Gánh Ngon' : 'Món tại bếp Gánh Ngon';
         $html .= '<li><figure>';
-        $html .= '<img src="' . esc_url($src) . '" alt="' . esc_attr($alt) . '" width="' . (int) $slot['w'] . '" height="' . (int) $slot['h'] . '" loading="lazy" decoding="async">';
+        $html .= gns_frame_img($src, $alt, $slot['w'], $slot['h']);
         if ($name !== '') $html .= '<figcaption>' . esc_html($name) . '</figcaption>';
         $html .= '</figure></li>';
     }
-    $html .= '</ul></div></div>';
+    $html .= '</ul></div>';
     return $html;
 }
 
