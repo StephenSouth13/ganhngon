@@ -748,21 +748,23 @@ a[href^="mailto:"] {
 .band-ivory .eyebrow:not(.eyebrow-light):not(.eyebrow-gold),
 .band-sand .eyebrow:not(.eyebrow-light):not(.eyebrow-gold),
 .page-hero-plain .eyebrow,
-.band-ivory .kicker,
-.band-sand .kicker {
+.band-ivory .section-head .kicker,
+.band-sand .section-head .kicker {
   color: #a8431f;
 }
-.band-ivory a:not(.btn):not(.contact-card),
-.band-sand a:not(.btn),
-.prose a,
-.entry a,
-.post-body a,
-.gns-editor a,
-.faq a,
-.band-ivory a[href^="tel:"],
-.band-sand a[href^="tel:"] {
+.band-ivory a:not(.btn):not(.contact-card):not(.kitchen-card):not(.sig-card):not(.link-light),
+.band-sand a:not(.btn):not(.kitchen-card):not(.sig-card):not(.link-light),
+.prose a:not(.btn),
+.entry a:not(.btn),
+.post-body a:not(.btn),
+.gns-editor a:not(.btn),
+.faq a:not(.btn),
+.band-ivory a[href^="tel:"]:not(.btn):not(.contact-card),
+.band-sand a[href^="tel:"]:not(.btn):not(.contact-card) {
   color: #8a6d12;
 }
+.kitchen-card { color: var(--ivory); }
+.kitchen-body .kicker { color: var(--gold-soft); }
 .gallery:empty { display: none; }
 @media (max-width: 768px) {
   .gns-dock {
