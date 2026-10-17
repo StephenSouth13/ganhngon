@@ -24,9 +24,16 @@ $gns_items = gns_nav_items();
       <span class="brand-text"><span class="brand-name">Gánh Ngon</span><span class="brand-sub">Phú Quốc</span></span>
     </a>
     <nav class="main-nav" aria-label="Điều hướng chính">
-      <?php foreach ($gns_items as $slug => $label): ?>
-        <a href="<?php echo esc_url(gns_url($slug)); ?>"<?php echo gns_nav_current($slug) ? ' aria-current="page"' : ''; ?>><?php echo esc_html($label); ?></a>
-      <?php endforeach; ?>
+      <?php
+      $gns_nav = gns_nav_html('primary');
+      if (is_string($gns_nav) && trim($gns_nav) !== '') {
+          echo $gns_nav; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- walker escapes
+      } else {
+          foreach ($gns_items as $slug => $label) {
+              echo '<a href="' . esc_url(gns_url($slug)) . '"' . (gns_nav_current($slug) ? ' aria-current="page"' : '') . '>' . esc_html($label) . '</a>';
+          }
+      }
+      ?>
     </nav>
     <div class="header-actions">
       <?php if (function_exists('gn_lang_switcher')) gn_lang_switcher(); ?>
@@ -49,9 +56,15 @@ $gns_items = gns_nav_items();
       <span class="sr-only">Đóng menu</span>
     </button>
     <nav aria-label="Điều hướng trên điện thoại">
-      <?php foreach ($gns_items as $slug => $label): ?>
-        <a href="<?php echo esc_url(gns_url($slug)); ?>"<?php echo gns_nav_current($slug) ? ' aria-current="page"' : ''; ?>><?php echo esc_html($label); ?></a>
-      <?php endforeach; ?>
+      <?php
+      if (is_string($gns_nav) && trim($gns_nav) !== '') {
+          echo $gns_nav; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- walker escapes
+      } else {
+          foreach ($gns_items as $slug => $label) {
+              echo '<a href="' . esc_url(gns_url($slug)) . '"' . (gns_nav_current($slug) ? ' aria-current="page"' : '') . '>' . esc_html($label) . '</a>';
+          }
+      }
+      ?>
     </nav>
     <div class="drawer-foot">
       <a class="btn btn-ember" href="<?php echo esc_url(gns_url('dat-ban')); ?>"><?php echo esc_html(gns_t('btn_book', 'Đặt bàn')); ?></a>

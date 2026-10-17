@@ -43,18 +43,20 @@ function gns_guest_fields_from_post() {
     ];
 }
 
-function gns_guest_group_select($required = true) {
+function gns_guest_group_select($required = true, $selected = '') {
     $groups = gns_guest_groups();
+    $selected = isset($groups[$selected]) ? $selected : '';
+    $hint = $selected !== '' ? $groups[$selected][1] : 'Chọn nhóm để nhà hàng chuẩn bị đúng nhu cầu.';
     $id = 'gns-group-' . wp_rand(100, 999999);
     ob_start(); ?>
     <label class="gns-guest-group">Nhóm khách hàng<?php echo $required ? ' *' : ''; ?>
       <select name="guest_group" data-gns-group aria-describedby="<?php echo esc_attr($id); ?>"<?php echo $required ? ' required' : ''; ?>>
         <option value="" data-hint="Chọn nhóm để nhà hàng chuẩn bị đúng nhu cầu.">Chọn nhóm khách</option>
         <?php foreach ($groups as $key => $g): ?>
-          <option value="<?php echo esc_attr($key); ?>" data-hint="<?php echo esc_attr($g[1]); ?>"><?php echo esc_html($g[0]); ?></option>
+          <option value="<?php echo esc_attr($key); ?>" data-hint="<?php echo esc_attr($g[1]); ?>"<?php selected($selected, $key); ?>><?php echo esc_html($g[0]); ?></option>
         <?php endforeach; ?>
       </select>
-      <small class="gns-hint" id="<?php echo esc_attr($id); ?>" data-gns-hint>Chọn nhóm để nhà hàng chuẩn bị đúng nhu cầu.</small>
+      <small class="gns-hint" id="<?php echo esc_attr($id); ?>" data-gns-hint><?php echo esc_html($hint); ?></small>
     </label>
     <?php
     return ob_get_clean();
@@ -130,6 +132,7 @@ add_action('wp_ajax_nopriv_sao_create_booking', 'gns_booking_prefill_post', 1);
 
 /** Khu B photos bundled in assets/img. Prints nothing until the files exist. */
 function gns_khu_b_photos() {
+    $extra = function_exists('gns_mod_gallery') ? gns_mod_gallery('gns_khu_b_', 3, 'Khu B') : [];
     $dir = get_stylesheet_directory() . '/assets/img/';
     $uri = get_stylesheet_directory_uri() . '/assets/img/';
     $all = [
@@ -148,18 +151,87 @@ function gns_khu_b_photos() {
             'h' => $size ? (int) $size[1] : 900,
         ];
     }
-    return $out;
+    return array_merge($extra, $out);
+}
+
+function gns_space_copy($title_key, $text_key, $title, $text) {
+    $custom_title = function_exists('gns_saved_text') ? gns_saved_text($title_key) : '';
+    $custom_text = function_exists('gns_saved_text') ? gns_saved_text($text_key) : '';
+    return [
+        $custom_title !== '' ? $custom_title : $title,
+        $custom_text !== '' ? $custom_text : $text,
+    ];
+}
+
+function gns_khu_a_photos() {
+    $extra = function_exists('gns_mod_gallery') ? gns_mod_gallery('gns_khu_a_', 3, 'Khu A') : [];
+    $dir = get_stylesheet_directory() . '/assets/img/';
+    $uri = get_stylesheet_directory_uri() . '/assets/img/';
+    $out = [];
+    $files = [];
+    foreach (['jpg', 'jpeg', 'png', 'webp'] as $ext) {
+        $found = glob($dir . 'khu-a-*.' . $ext);
+        if (is_array($found)) $files = array_merge($files, $found);
+    }
+    foreach ($files as $file) {
+        if (!is_readable($file)) continue;
+        $base = basename($file);
+        $size = @getimagesize($file);
+        $out[] = [
+            'src' => $uri . $base . '?v=' . (int) @filemtime($file),
+            'caption' => 'Khu A',
+            'alt' => 'Khu A của Gánh Ngon',
+            'w' => $size ? (int) $size[0] : 1600,
+            'h' => $size ? (int) $size[1] : 900,
+        ];
+    }
+    return array_merge($extra, $out);
+}
+
+function gns_khu_a_gallery_html() {
+    $photos = gns_khu_a_photos();
+    if (!$photos) return '';
+    list($title, $lead) = gns_space_copy(
+        'gns_khu_a_title',
+        'gns_khu_a_text',
+        'Khu A – sảnh chính',
+        'Bàn thường giữa nhà. Nhận trong ngày.'
+    );
+    ob_start(); ?>
+<section class="band band-ivory gns-khu-b" id="khu-a" aria-labelledby="khu-a-title">
+  <div class="wrap">
+    <p class="eyebrow">Khu A</p>
+    <h2 id="khu-a-title" class="title"><?php echo esc_html($title); ?></h2>
+    <p class="section-lead gns-khu-b-lead"><?php echo esc_html($lead); ?></p>
+    <div class="gns-khu-b-grid">
+      <?php foreach ($photos as $p): ?>
+      <figure>
+        <img src="<?php echo esc_url($p['src']); ?>" alt="<?php echo esc_attr($p['alt']); ?>" width="<?php echo (int) $p['w']; ?>" height="<?php echo (int) $p['h']; ?>" loading="lazy" decoding="async">
+        <figcaption><?php echo esc_html($p['caption']); ?></figcaption>
+      </figure>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+    <?php
+    return ob_get_clean();
 }
 
 function gns_khu_b_gallery_html() {
     $photos = gns_khu_b_photos();
     if (!$photos) return '';
+    list($title, $lead) = gns_space_copy(
+        'gns_khu_b_title',
+        'gns_khu_b_text',
+        'Khu B – không gian tiệc',
+        'Bàn gỗ dài, đèn mây, có khu sân khấu. Nhà hàng trang trí theo từng buổi tiệc: thôi nôi, sinh nhật, họp mặt. Chọn “Khu B” trong form để nhà hàng giữ chỗ và tư vấn.'
+    );
     ob_start(); ?>
 <section class="band band-night gns-khu-b" id="khu-b" aria-labelledby="khu-b-title">
   <div class="wrap">
     <p class="eyebrow eyebrow-gold">Khu B</p>
-    <h2 id="khu-b-title" class="title title-light">Khu B – không gian tiệc</h2>
-    <p class="section-lead section-lead-light gns-khu-b-lead">Bàn gỗ dài, đèn mây, có khu sân khấu. Nhà hàng trang trí theo từng buổi tiệc: thôi nôi, sinh nhật, họp mặt. Chọn “Khu B” trong form để nhà hàng giữ chỗ và tư vấn.</p>
+    <h2 id="khu-b-title" class="title title-light"><?php echo esc_html($title); ?></h2>
+    <p class="section-lead section-lead-light gns-khu-b-lead"><?php echo esc_html($lead); ?></p>
     <div class="gns-khu-b-grid">
       <?php foreach ($photos as $p): ?>
       <figure>

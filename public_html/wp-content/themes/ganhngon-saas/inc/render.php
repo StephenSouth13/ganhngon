@@ -33,11 +33,14 @@ function gns_render_main($key) {
     if (!$file) return false;
     $html = file_get_contents($file);
     if ($html === false) return false;
-    echo gns_fill_main($html);
+    echo gns_fill_main($html, $key);
     return true;
 }
 
-function gns_fill_main($html) {
+function gns_fill_main($html, $page = '') {
+    if (function_exists('gns_apply_customizer')) {
+        $html = gns_apply_customizer($html, $page);
+    }
     $assets = esc_url(get_stylesheet_directory_uri() . '/assets');
     $html = preg_replace_callback('/\{\{U:([a-z0-9\-]+)\}\}/', function ($m) {
         return esc_url(gns_url($m[1]));
@@ -52,6 +55,22 @@ function gns_fill_main($html) {
         $html = str_replace('{{MENU_CARDS}}', gns_menu_cards_html(), $html);
     }
 
+    if (strpos($html, '{{NEWS_ARCHIVE}}') !== false && function_exists('gns_news_archive_html')) {
+        $html = str_replace('{{NEWS_ARCHIVE}}', gns_news_archive_html(), $html);
+    }
+    if (strpos($html, '{{NEWS_HOME}}') !== false && function_exists('gns_news_home_html')) {
+        $html = str_replace('{{NEWS_HOME}}', gns_news_home_html(), $html);
+    }
+    if (strpos($html, '{{GN_FORM:') !== false) {
+        $html = preg_replace_callback('/\{\{GN_FORM:(dat-ban|lien-he|tiec)\}\}/', function ($m) {
+            ob_start();
+            get_template_part('template-parts/gn-form', null, ['context' => $m[1]]);
+            return ob_get_clean();
+        }, $html);
+    }
+    if (strpos($html, '{{KHU_A_GALLERY}}') !== false) {
+        $html = str_replace('{{KHU_A_GALLERY}}', gns_khu_a_gallery_html(), $html);
+    }
     if (strpos($html, '{{BOOKING_FORM}}') !== false) {
         $form = function_exists('gn_dat_ban_form_html') ? gn_dat_ban_form_html() : '';
         $form = gns_booking_form_with_guest_fields($form);
@@ -312,6 +331,19 @@ function gns_ajax_send_note() {
         'sales' => 'Báo giá tiệc',
         'partner' => 'Xin link cổng đối tác',
     ];
+    if (function_exists('gns_store_lead_safe')) {
+        gns_store_lead_safe([
+            'source' => $box,
+            'name' => $name,
+            'phone' => $phone,
+            'email' => $email,
+            'guest_group' => $guest['group'],
+            'guest_count' => $guest['count'],
+            'area' => $guest['area'],
+            'when' => '',
+            'message' => trim($message . ($extra !== '' ? "\n" . $extra : '')),
+        ]);
+    }
     $body = "Tên: $name\nĐiện thoại: $phone\nEmail: $email\n" . $guest_lines . "\n$message\n\n$extra";
     $subject = 'Gánh Ngon — ' . $subjects[$box] . ' — ' . $name;
     if ($guest['group_label'] !== '') {

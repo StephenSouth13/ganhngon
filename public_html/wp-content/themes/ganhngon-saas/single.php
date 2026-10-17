@@ -2,15 +2,19 @@
 if (!defined('ABSPATH')) exit;
 get_header();
 while (have_posts()): the_post();
-$cover = has_post_thumbnail() ? get_the_post_thumbnail_url(null, 'large') : gns_photo('2026/09/ganhngon-khong-gian-quan.webp');
+$thumb = get_the_post_thumbnail_url(null, 'large');
 ?>
 <section class="post-hero">
-  <div class="post-cover" style="background-image:url('<?php echo esc_url($cover); ?>')"></div>
+  <?php if ($thumb): ?>
+  <div class="post-cover" style="background-image:url('<?php echo esc_url($thumb); ?>')"></div>
+  <?php else: ?>
+  <?php echo gns_slot_markup('post-cover', get_the_title(), 'i-flame'); ?>
+  <?php endif; ?>
   <div class="hero-shade" aria-hidden="true"></div>
   <div class="wrap post-hero-inner">
     <a class="post-back" href="<?php echo esc_url(gns_url('tin-tuc')); ?>">← Tin tức</a>
     <h1 class="display post-title"><?php the_title(); ?></h1>
-    <p class="post-meta"><?php echo esc_html(get_the_date()); ?></p>
+    <p class="post-meta"><?php echo gns_post_date_html(); ?></p>
   </div>
 </section>
 <section class="band band-ivory">
@@ -28,5 +32,9 @@ $cover = has_post_thumbnail() ? get_the_post_thumbnail_url(null, 'large') : gns_
       </div>
     </aside>
   </div>
+  <div class="wrap">
+    <?php echo gns_related_posts_html(get_the_ID()); ?>
+  </div>
 </section>
+<?php echo gns_post_cta_html(); ?>
 <?php endwhile; get_footer(); ?>

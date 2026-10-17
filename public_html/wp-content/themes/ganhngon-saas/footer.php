@@ -7,16 +7,23 @@
         <img class="brand-mark" src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/img/logo-mark.svg'); ?>" alt="" width="36" height="42">
         <span class="brand-text"><span class="brand-name">Gánh Ngon</span><span class="brand-sub">Phú Quốc</span></span>
       </a>
-      <p>Nhà hàng Việt giữa trung tâm Dương Đông: hải sản và bò Úc nướng than hồng, lẩu gà sầu riêng, cơm niêu trưa và quầy bar ngoài trời mở đến 2 giờ sáng.</p>
+      <p><?php echo esc_html(gns_footer_about()); ?></p>
     </div>
     <nav class="footer-col" aria-label="Khám phá">
       <p class="footer-title">Khám phá</p>
-      <?php foreach (gns_nav_items() as $slug => $label): ?>
-        <a href="<?php echo esc_url(gns_url($slug)); ?>"><?php echo esc_html($label); ?></a>
-      <?php endforeach; ?>
+      <?php
+      $gns_footer_nav = gns_nav_html('footer');
+      if (is_string($gns_footer_nav) && trim($gns_footer_nav) !== '') {
+          echo $gns_footer_nav; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- walker escapes
+      } else {
+          foreach (gns_nav_items() as $slug => $label) {
+              echo '<a href="' . esc_url(gns_url($slug)) . '">' . esc_html($label) . '</a>';
+          }
+      ?>
       <a href="<?php echo esc_url(gns_url('dat-ban')); ?>"><?php echo esc_html(gns_t('nav_book', 'Đặt bàn')); ?></a>
       <a href="<?php echo esc_url(gns_url('lau-ga-sau-rieng')); ?>"><?php echo esc_html(function_exists('gn_t') ? gn_t('hero_h1') : 'Lẩu gà sầu riêng'); ?></a>
       <a href="<?php echo esc_url(home_url('/thuc-don/do-uong/')); ?>">Đồ uống</a>
+      <?php } ?>
     </nav>
     <div class="footer-col">
       <p class="footer-title">Liên hệ</p>
@@ -26,9 +33,12 @@
       <?php if (function_exists('gn_telegram')): ?>
         <a href="<?php echo esc_url(gn_telegram()); ?>" rel="noopener" target="_blank">Telegram</a>
       <?php endif; ?>
-      <a href="mailto:contact@ganhngon.com">contact@ganhngon.com</a>
+      <a href="mailto:<?php echo esc_attr(gns_public_email()); ?>"><?php echo esc_html(gns_public_email()); ?></a>
       <a href="mailto:sales@ganhngon.com">sales@ganhngon.com · Đoàn &amp; tiệc</a>
       <span>WeChat ID: <?php echo esc_html(function_exists('gn_wechat_id') ? gn_wechat_id() : 'ganhngon'); ?></span>
+      <?php foreach (gns_social_links() as $gns_social): ?>
+        <a href="<?php echo esc_url($gns_social['url']); ?>" rel="noopener" target="_blank"><?php echo esc_html($gns_social['label']); ?></a>
+      <?php endforeach; ?>
     </div>
     <div class="footer-col">
       <p class="footer-title">Ghé nhà hàng</p>
@@ -91,7 +101,7 @@
   </div>
   <div class="wrap footer-base">
     <span>© <?php echo esc_html(gmdate('Y')); ?> Gánh Ngon Phú Quốc</span>
-    <span>Giá món, combo và phòng VIP được báo trực tiếp khi đặt bàn.</span>
+    <span><?php echo esc_html(gns_footer_legal_line()); ?></span>
   </div>
 </footer>
 <?php get_template_part('template-parts/contact-dock'); ?>

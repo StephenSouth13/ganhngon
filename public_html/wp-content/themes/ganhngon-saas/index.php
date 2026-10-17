@@ -19,7 +19,7 @@ get_header();
           <article class="news-card">
             <a class="news-media" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
               <?php if (has_post_thumbnail()) the_post_thumbnail('medium_large', ['alt' => '', 'loading' => 'lazy']);
-              else echo '<img src="' . esc_url(gns_photo('2026/09/ganhngon-khong-gian-quan.webp')) . '" alt="" loading="lazy">'; ?>
+              else echo gns_slot_markup('', get_the_title(), 'i-flame'); ?>
             </a>
             <div class="news-body">
               <p class="news-meta"><span><?php echo esc_html(get_the_date()); ?></span></p>

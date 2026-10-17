@@ -1,6 +1,6 @@
 # Parity với theme SaaS Gánh Ngon
 
-Theme WordPress `ganhngon-saas` (1.2.3) bám giao diện SaaS trong gói `docs/theme/ganh-ngon` (commit c674493a). WordPress vẫn là backend. Không gọi `/api/public/fnb/menu`, `/api/public/forms/*`, `/api/public/tickets/lookup`, `/api/public/leads/contact-form`. Không in giá món.
+Theme WordPress `ganhngon-saas` (1.3.0) bám giao diện SaaS trong gói `docs/theme/ganh-ngon` (commit c674493a). WordPress vẫn là backend. Không gọi `/api/public/fnb/menu`, `/api/public/forms/*`, `/api/public/tickets/lookup`, `/api/public/leads/contact-form`. Không in giá món.
 
 ## Trang
 
@@ -32,3 +32,10 @@ Không dùng ảnh một món (sầu riêng chiên, bò lúc lắc, cocktail, wh
 - `/lien-he/` thêm 3 ô: **Nhóm khách hàng** (bắt buộc, 6 nhóm, hiện mô tả nhu cầu dưới ô chọn), **Số lượng khách** (số, từ 1), **Khu vực** (Khu A, Khu B, Phòng VIP, Không yêu cầu). Gửi qua `gns_send_note` như cũ; email tới contact@ganhngon.com có thêm 3 dòng ở đầu nội dung và tiêu đề có nhóm khách + số khách. Giá trị ngoài danh sách bị server từ chối/bỏ.
 - `/dat-ban/` (form theme cha, `sao_create_booking`) thêm Nhóm khách hàng và Khu vực trong "Thêm yêu cầu" (không bắt buộc). Số khách dùng ô có sẵn. Trước khi handler cha chạy, theme con ghép nhóm khách vào `need` (lưu "Nhu cầu: …" trong `wp_sao_bookings.notes`, email sale/cskh, Telegram, Jetpack CRM) và khu vực vào `note` ("Khu vực: Khu B."). Không đổi bảng hay cột.
 - Ảnh Khu B: đặt `assets/img/khu-b-tiec-thoi-noi.jpg` và `assets/img/khu-b-tiec-sinh-nhat.jpg`; mục "Khu B – không gian tiệc" tự hiện trên `/lien-he/` và `/khach-doan-tiec-rieng/`. Chưa có file thì mục này ẩn.
+
+## 1.3.0 — Tùy biến, lead, một form
+- Giao diện → Tùy biến → **Gánh Ngon**. Chưa bấm Xuất bản thì trang giữ đúng chữ và ảnh đang có. Cách sửa: `HUONG-DAN-CHINH-SUA.md`.
+- `/dat-ban/`, `/lien-he/`, `/khach-doan-tiec-rieng/` dùng một form (`template-parts/gn-form.php`), gửi `gns_submit_request`. Handler ghi `wp_sao_bookings` (email, Telegram, Jetpack CRM của theme cha) và bài riêng `gn_lead`. `sao_create_booking` và `gns_send_note` vẫn nhận đơn cũ.
+- Lead bot: option `gns_lead_email`, `gns_lead_webhook`, `gns_lead_secret`. Để trống thì tắt kênh đó.
+- `/tin-tuc/` là danh sách bài WordPress (bài nổi bật, lưới, chuyên mục, `/tin-tuc/page/2/`). Trang bài dùng ngày `d/m/Y`, bài liên quan và nút tới form đặt bàn. Không còn 4 thẻ mẫu của giao diện SaaS.
+- Ảnh phòng, sảnh, VIP, sự kiện và ảnh minh họa món (file gốc tháng 9/2026 và `su-kien-*.webp` Unsplash) đổi thành họa tiết than–vàng cho đến khi chọn ảnh trong Tùy biến → Ảnh chờ thay. `photos/` (món thật, mâm xiên, cơm niêu) giữ nguyên. File `lau-ga-sau-rieng.webp` ở thư mục gốc được trỏ sang `photos/lau-ga-sau-rieng.webp`.

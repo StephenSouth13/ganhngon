@@ -23,13 +23,7 @@
         <h2 class="booking-card-title" data-form-title>Gửi yêu cầu đặt bàn</h2>
         <p class="booking-card-sub" data-form-desc>Nhà hàng gọi lại xác nhận trong vài phút.</p>
       </div>
-      {{BOOKING_FORM}}
-      <div class="booking-done" data-form-done hidden role="status" tabindex="-1">
-        <span class="booking-done-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"></use></svg></span>
-        <h2 class="booking-card-title" data-done-title>Đã nhận yêu cầu</h2>
-        <p data-done-message>Nhà hàng sẽ gọi lại xác nhận trong giờ mở cửa.</p>
-        <a class="btn btn-ghost-dark" href="{{U:thuc-don}}">Xem thực đơn trong lúc chờ</a>
-      </div>
+      {{GN_FORM:dat-ban}}
     </div>
   </div>
 </section>

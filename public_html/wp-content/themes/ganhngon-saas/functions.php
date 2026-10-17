@@ -10,6 +10,10 @@ require_once get_stylesheet_directory() . '/inc/menu-photos.php';
 require_once get_stylesheet_directory() . '/inc/routes.php';
 require_once get_stylesheet_directory() . '/inc/render.php';
 require_once get_stylesheet_directory() . '/inc/guest-fields.php';
+require_once get_stylesheet_directory() . '/inc/mods.php';
+require_once get_stylesheet_directory() . '/inc/leads.php';
+require_once get_stylesheet_directory() . '/inc/request-form.php';
+require_once get_stylesheet_directory() . '/inc/news.php';
 
 add_action('wp_enqueue_scripts', function () {
     wp_dequeue_style('gn-fonts');
@@ -22,15 +26,16 @@ add_action('wp_enqueue_scripts', function () {
         [],
         null
     );
-    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.2.3');
-    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.2.3');
-    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.2.3', true);
-    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.2.3', true);
-    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.2.3', true);
-    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.2.3', true);
+    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.3.0');
+    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.3.0');
+    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.3.0', true);
+    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.3.0', true);
+    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.3.0', true);
+    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.3.0', true);
     wp_localize_script('gns-forms', 'GNS', [
         'ajax' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('gns_lead'),
+        'requestNonce' => wp_create_nonce('gns_request'),
     ]);
 }, 30);
 
@@ -99,35 +104,52 @@ function gns_url($slug = '') {
     return home_url('/' . trim($slug, '/') . '/');
 }
 
-function gns_phone_href() {
-    $raw = function_exists('gn_phone_raw') ? gn_phone_raw() : '+84979232233';
-    return 'tel:' . preg_replace('/\s+/', '', $raw);
-}
-
 function gns_phone_label() {
+    $custom = function_exists('gns_saved_text') ? gns_saved_text('gns_hotline') : '';
+    if ($custom !== '') return $custom;
     return function_exists('gn_phone_display') ? gn_phone_display() : '0979 232 233';
 }
 
+function gns_phone_href() {
+    $label = gns_phone_label();
+    if ($label === '0979 232 233') {
+        $raw = function_exists('gn_phone_raw') ? gn_phone_raw() : '+84979232233';
+        return 'tel:' . preg_replace('/\s+/', '', $raw);
+    }
+    $tel = preg_replace('/[^\d+]/', '', $label);
+    return 'tel:' . $tel;
+}
+
 function gns_zalo() {
-    $id = function_exists('gn_zalo_raw') ? gn_zalo_raw() : '0979232233';
-    return 'https://zalo.me/' . rawurlencode($id);
+    $custom = function_exists('gns_saved_text') ? esc_url(gns_saved_text('gns_zalo_url')) : '';
+    $fallback = 'https://zalo.me/' . rawurlencode(function_exists('gn_zalo_raw') ? gn_zalo_raw() : '2216004914337654583');
+    if ($custom !== '' && $custom !== $fallback) return $custom;
+    return $fallback;
 }
 
 function gns_wa() {
-    $id = function_exists('gn_whatsapp_raw') ? gn_whatsapp_raw() : '84979232233';
-    return 'https://wa.me/' . rawurlencode($id);
+    $custom = function_exists('gns_saved_text') ? esc_url(gns_saved_text('gns_wa_url')) : '';
+    $fallback = 'https://wa.me/' . rawurlencode(function_exists('gn_whatsapp_raw') ? gn_whatsapp_raw() : '84979232233');
+    if ($custom !== '' && $custom !== $fallback) return $custom;
+    return $fallback;
 }
 
 function gns_maps() {
-    if (function_exists('gn_maps_url')) return gn_maps_url();
-    return 'https://maps.google.com/?q=113+Tran+Hung+Dao+Duong+Dong+Phu+Quoc';
+    $parent = function_exists('gn_maps_url') ? gn_maps_url() : 'https://maps.google.com/?q=113+Tran+Hung+Dao+Duong+Dong+Phu+Quoc';
+    $custom = function_exists('gns_saved_text') ? esc_url(gns_saved_text('gns_maps')) : '';
+    if ($custom !== '' && $custom !== $parent) return $custom;
+    return $parent;
 }
 
 function gns_addr() {
+    $custom = function_exists('gns_saved_text') ? gns_saved_text('gns_address') : '';
+    if ($custom !== '') return $custom;
     return function_exists('gn_address') ? gn_address() : '113 Trần Hưng Đạo, Dương Đông, Phú Quốc';
 }
 
 function gns_hours() {
+    $custom = function_exists('gns_saved_text') ? gns_saved_text('gns_hours') : '';
+    if ($custom !== '') return $custom;
     return function_exists('gn_t') ? gn_t('hours_clock') : 'Mở cửa hằng ngày 6:30–2:00';
 }
 

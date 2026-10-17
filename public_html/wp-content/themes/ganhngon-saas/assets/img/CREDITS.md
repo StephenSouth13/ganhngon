@@ -8,7 +8,10 @@
 - Other dish and space images (`*.webp` without the `su-kien-` or `photos/` prefix): taken from the restaurant's previous
   website (ganhngon.com, uploaded 2026-09). They appear to be AI-generated illustrations. They are not used as a
   photo of a dish on `/thuc-don/`. The menu uses only `photos/` (and a later WordPress upload whose file name
-  matches the dish slug).
+  matches the dish slug). From 1.3.0 these files, and the Unsplash `su-kien-*.webp` files, are not shown.
+  The layout shows the menu's charcoal-and-gold tile until a real photo is chosen in the Customizer
+  (Gánh Ngon → Ảnh chờ thay). The root `lau-ga-sau-rieng.webp` is rewritten to `photos/lau-ga-sau-rieng.webp`
+  (the October hotpot). `com-nieu-dap.webp` is not replaced with `photos/com-nieu.webp`.
 - `su-kien-*.webp`: Unsplash, free under the Unsplash License (https://unsplash.com/license):
   - su-kien-ban-nhac — https://images.unsplash.com/photo-1632054553195-bfd7034fee25
   - su-kien-dj — https://images.unsplash.com/photo-1470225620780-dba8ba36b745

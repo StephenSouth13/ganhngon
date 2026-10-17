@@ -1,6 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <section class="booking" aria-labelledby="booking-title">
-  <img src="<?php echo esc_url(gns_photo('2026/09/ganhngon-khong-gian-quan.webp')); ?>" alt="Sảnh nhà hàng Gánh Ngon" width="1600" height="1066" loading="eager" decoding="async" class="booking-bg">
+  <?php echo gns_slot_or_img('gns_img_khong_gian_quan', 'booking-bg', 'Sảnh nhà hàng Gánh Ngon'); ?>
   <div class="booking-shade" aria-hidden="true"></div>
   <div class="wrap booking-inner">
     <div class="booking-copy">
@@ -23,15 +23,7 @@
         <h2 class="booking-card-title">Gửi yêu cầu đặt bàn</h2>
         <p class="booking-card-sub">Nhà hàng gọi lại xác nhận trong giờ mở cửa. Form này gửi về hệ thống đặt bàn hiện tại.</p>
       </div>
-      <div class="form booking-form">
-        <?php
-        if (function_exists('gn_dat_ban_form_html')) {
-            echo gns_booking_form_with_guest_fields(gn_dat_ban_form_html()); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- form HTML from the parent theme
-        } else {
-            echo do_shortcode('[sao_booking]');
-        }
-        ?>
-      </div>
+      <?php get_template_part('template-parts/gn-form', null, ['context' => 'dat-ban']); ?>
     </div>
   </div>
 </section>

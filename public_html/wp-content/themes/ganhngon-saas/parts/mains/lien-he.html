@@ -16,21 +16,11 @@
       <div class="contact-card"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-globe"></use></svg><span><strong>WeChat</strong>ID: ganhngon</span></div>
       <a class="contact-card" href="https://www.google.com/maps/search/?api=1&query=G%C3%A1nh+Ngon+113+Tr%E1%BA%A7n+H%C6%B0ng+%C4%90%E1%BA%A1o+D%C6%B0%C6%A1ng+%C4%90%C3%B4ng+Ph%C3%BA+Qu%E1%BB%91c" rel="noopener" target="_blank"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-pin"></use></svg><span><strong>Địa chỉ</strong>113 Trần Hưng Đạo, Dương Đông, Phú Quốc</span></a>
     </div>
-    <form class="form card contact-form" id="lien-he-form" data-gns-mail="contact" aria-label="Gửi lời nhắn cho Gánh Ngon"><input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <h2 class="title title-sm">Gửi lời nhắn</h2>
-      <div class="form-grid">
-        <label>Họ tên *<input name="name" required autocomplete="name"></label>
-        <label>Điện thoại / Zalo *<input name="phone" type="tel" required autocomplete="tel"></label>
-        <label class="span-2">Email<input name="email" type="email" autocomplete="email"></label>
-      </div>
-      {{GUEST_FIELDS}}
-      <label>Lời nhắn *<textarea name="message" rows="5" required placeholder="Hỏi món, hỏi đường, đặt nồi lẩu…"></textarea></label>
-      <button class="btn btn-ember btn-block" type="submit">Gửi lời nhắn</button>
-      <p class="form-note">Muốn giữ bàn ngay? <a href="{{U:dat-ban}}">Đặt bàn trực tuyến</a>.</p>
-    </form>
+    {{GN_FORM:lien-he}}
   </div>
 </section>
 
+{{KHU_A_GALLERY}}
 {{KHU_B_GALLERY}}
 
 <section class="band band-sand" aria-labelledby="map-title">

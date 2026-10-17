@@ -624,3 +624,95 @@ body.admin-bar .site-header { top: 32px; }
 .gns-khu-b-grid img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
 .gns-khu-b-grid figcaption { position: absolute; left: 14px; bottom: 14px; padding: 6px 12px; border-radius: 999px; background: rgba(22, 17, 13, 0.72); color: var(--ivory); font-size: 0.82rem; }
 @media (max-width: 760px) { .gns-khu-b-grid { grid-template-columns: 1fr; } }
+
+/* 1.3.0 — one request form, optional editor text */
+.gn-request-wrap { display: block; }
+.gn-extra { display: grid; gap: 12px; }
+.gn-extra[hidden],
+form.gn-request[hidden],
+.gn-request-done[hidden] { display: none !important; }
+.form label.gn-check { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.form label.gn-check input { width: 18px; height: 18px; min-height: 0; accent-color: var(--ember); }
+.form-grid .span-2 > label { display: grid; gap: 7px; }
+.gn-request .form-note:empty { display: none; }
+.gns-editor-body { max-width: 760px; }
+.gns-editor-body > *:first-child { margin-top: 0; }
+.gns-editor-body > *:last-child { margin-bottom: 0; }
+
+/* 1.3.0 — charcoal and gold tile where an AI or stock photo used to sit */
+.gns-slot {
+  background-color: #221c17;
+  background-image:
+    radial-gradient(circle at 18% 16%, rgba(217, 164, 65, 0.28), transparent 46%),
+    radial-gradient(circle at 88% 84%, rgba(196, 81, 43, 0.28), transparent 44%),
+    repeating-linear-gradient(-32deg, rgba(233, 199, 127, 0.14) 0 1px, transparent 1px 13px);
+}
+.gns-slot .mark-tile { position: absolute; inset: 0; display: grid; place-items: center; }
+.gns-slot .mark-tile .icon { width: 44px; height: 44px; color: #e9c77f; }
+.kitchen-card .gns-slot { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.space .gns-slot { position: absolute; inset: 0; width: 100%; height: 100%; }
+.split-media > .gns-slot {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  aspect-ratio: 4 / 3;
+}
+.ent-gallery .gns-slot { position: relative; width: 100%; height: 280px; border-radius: var(--radius); }
+.gallery .gns-slot { position: relative; width: 100%; aspect-ratio: 4 / 3; }
+.news-media .gns-slot { position: relative; display: block; width: 100%; height: 100%; }
+.media-stack .gns-slot.stack-a {
+  position: relative;
+  width: 82%;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius);
+}
+.media-stack .gns-slot.stack-b { aspect-ratio: 3 / 2; border-radius: var(--radius); }
+@media (max-width: 900px) {
+  .ent-gallery .gns-slot:first-child { grid-column: span 2; }
+}
+@media (max-width: 640px) {
+  .ent-gallery .gns-slot { height: 220px; }
+  .ent-gallery .gns-slot:first-child { grid-column: auto; }
+  .media-stack .gns-slot.stack-a { width: 100%; }
+  .media-stack .gns-slot.stack-b { display: none; }
+}
+
+.news-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; }
+.news-filters a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(29, 23, 18, 0.16);
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+.news-filters a[aria-current="true"] { background: var(--char); color: var(--ivory); border-color: var(--char); }
+.news-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.news-cat { color: inherit; text-decoration: none; }
+.news-cat:hover { color: var(--ember); }
+.news-pages { margin-top: 36px; }
+.news-pages .page-numbers { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.news-pages .page-numbers a,
+.news-pages .page-numbers span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(29, 23, 18, 0.16);
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+}
+.news-pages .page-numbers .current { background: var(--char); color: var(--ivory); border-color: var(--char); }
+.post-related { margin-top: 64px; }
+.post-related .title { margin: 0 0 22px; }

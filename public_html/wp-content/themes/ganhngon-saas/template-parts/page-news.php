@@ -44,7 +44,10 @@ $spots = [
     <div class="news-grid news-grid-3">
       <?php foreach ($spots as $spot): ?>
         <article class="news-card">
-          <a class="news-media" href="<?php echo esc_url($spot['url']); ?>" tabindex="-1" aria-hidden="true"><img src="<?php echo esc_url(gns_photo($spot['img'])); ?>" alt="" loading="lazy" decoding="async"></a>
+          <a class="news-media" href="<?php echo esc_url($spot['url']); ?>" tabindex="-1" aria-hidden="true"><?php
+            if (strpos($spot['img'], '2026/09/') === 0) echo gns_slot_markup('', $spot['title'], 'i-flame');
+            else echo '<img src="' . esc_url(gns_photo($spot['img'])) . '" alt="" loading="lazy" decoding="async">';
+          ?></a>
           <div class="news-body">
             <h3 class="news-title"><a href="<?php echo esc_url($spot['url']); ?>"><?php echo esc_html($spot['title']); ?></a></h3>
             <p class="news-excerpt"><?php echo esc_html($spot['excerpt']); ?></p>
@@ -70,7 +73,7 @@ $spots = [
               <?php if (has_post_thumbnail()) {
                   the_post_thumbnail('medium_large', ['loading' => 'lazy', 'alt' => '']);
               } else {
-                  echo '<img src="' . esc_url(gns_photo('2026/09/ganhngon-khong-gian-quan.webp')) . '" alt="" loading="lazy">';
+                  echo gns_slot_markup('', get_the_title(), 'i-flame');
               } ?>
             </a>
             <div class="news-body">

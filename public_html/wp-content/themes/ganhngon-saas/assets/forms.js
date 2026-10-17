@@ -30,6 +30,49 @@
     sel.addEventListener("change", update);
     var form = sel.form;
     if (form) form.addEventListener("reset", function () { setTimeout(update, 0); });
+    update();
+  });
+
+  document.querySelectorAll("form[data-gn-request]").forEach(function (form) {
+    var group = form.querySelector("select[data-gns-group]");
+    var sync = function () {
+      var value = group ? group.value : "";
+      Array.prototype.forEach.call(form.querySelectorAll("[data-gn-extra]"), function (el) {
+        el.hidden = el.getAttribute("data-gn-extra") !== value;
+      });
+    };
+    if (group) group.addEventListener("change", sync);
+    sync();
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = form.querySelector('[type="submit"]');
+      var err = note(form, "[data-gn-error]");
+      var wrap = form.closest(".gn-request-wrap") || form.parentNode;
+      var done = wrap.querySelector("[data-gn-done]");
+      if (btn) btn.disabled = true;
+      err.textContent = "";
+      fetch(form.action, { method: "POST", body: new FormData(form), credentials: "same-origin" })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.success) {
+            var msg = done ? done.querySelector("[data-gn-done-message]") : null;
+            var text = messageOf(data, "Đã nhận. Nhà hàng sẽ gọi lại xác nhận trong giờ mở cửa.");
+            if (msg) msg.textContent = text;
+            form.hidden = true;
+            if (done) {
+              done.hidden = false;
+              if (done.focus) done.focus();
+            }
+            return;
+          }
+          if (btn) btn.disabled = false;
+          err.textContent = messageOf(data, "Không gửi được. Gọi 0979 232 233.");
+        })
+        .catch(function () {
+          if (btn) btn.disabled = false;
+          err.textContent = "Không gửi được. Gọi 0979 232 233.";
+        });
+    });
   });
 
   document.querySelectorAll("form[data-gns-mail]").forEach(function (form) {

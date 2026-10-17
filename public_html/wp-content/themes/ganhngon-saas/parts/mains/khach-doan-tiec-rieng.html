@@ -56,6 +56,7 @@
   </div>
 </section>
 
+{{KHU_A_GALLERY}}
 {{KHU_B_GALLERY}}
 
 <section class="band band-ivory" aria-labelledby="process-title">
@@ -86,28 +87,6 @@
       </ul>
       <p class="small small-light">Hoặc gọi <a href="tel:+84979232233">0979 232 233</a> · email <a href="mailto:sales@ganhngon.com">sales@ganhngon.com</a></p>
     </div>
-    <form class="form card" id="event-quote" data-gns-mail="sales" aria-label="Form xin báo giá tiệc và sự kiện"><input type="text" name="website" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="form-grid">
-        <label>Họ tên người liên hệ *<input name="name" required autocomplete="name"></label>
-        <label>Điện thoại / Zalo / WhatsApp *<input name="phone" type="tel" required autocomplete="tel"></label>
-        <label>Email<input name="email" type="email" autocomplete="email"></label>
-        <label>Công ty / đoàn<input name="company" autocomplete="organization"></label>
-        <label>Ngày dự kiến *<input name="event_date" type="date" required></label>
-        <label>Số khách *<input name="guests" type="number" min="1" max="500" required inputmode="numeric"></label>
-        <label class="span-2">Loại tiệc
-          <select name="event_type">
-            <option>Tiệc sinh nhật</option><option>Tiệc công ty / Year-end</option><option>Gala dinner</option>
-            <option>Họp mặt gia đình</option><option>Tiếp khách đối tác</option><option>Đoàn du lịch</option><option>Khác</option>
-          </select>
-        </label>
-      </div>
-      <fieldset class="checks">
-        <legend>Dịch vụ cần thêm</legend>
-        <label><input type="checkbox" name="services" value="Ca nhạc / ban nhạc"> Ca nhạc / ban nhạc</label><label><input type="checkbox" name="services" value="DJ"> DJ</label><label><input type="checkbox" name="services" value="MC"> MC</label><label><input type="checkbox" name="services" value="Âm thanh & ánh sáng"> Âm thanh & ánh sáng</label><label><input type="checkbox" name="services" value="Màn hình & backdrop"> Màn hình & backdrop</label><label><input type="checkbox" name="services" value="Chụp ảnh / quay phim"> Chụp ảnh / quay phim</label><label><input type="checkbox" name="services" value="Trang trí"> Trang trí</label><label><input type="checkbox" name="services" value="Hoá đơn VAT"> Hoá đơn VAT</label>
-      </fieldset>
-      <label>Ghi chú (món ưu tiên, ngân sách, yêu cầu riêng)<textarea name="message" rows="4"></textarea></label>
-      <button class="btn btn-ember btn-block" type="submit">Gửi yêu cầu báo giá</button>
-      <p class="form-note">Thông tin chỉ dùng để nhà hàng liên hệ báo giá.</p>
-    </form>
+    {{GN_FORM:tiec}}
   </div>
 </section>
