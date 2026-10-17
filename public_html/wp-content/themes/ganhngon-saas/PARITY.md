@@ -1,6 +1,6 @@
 # Parity với theme SaaS Gánh Ngon
 
-Theme WordPress `ganhngon-saas` (1.2.1) bám giao diện SaaS trong gói `docs/theme/ganh-ngon` (commit c674493a). WordPress vẫn là backend. Không gọi `/api/public/fnb/menu`, `/api/public/forms/*`, `/api/public/tickets/lookup`, `/api/public/leads/contact-form`. Không in giá món.
+Theme WordPress `ganhngon-saas` (1.2.2) bám giao diện SaaS trong gói `docs/theme/ganh-ngon` (commit c674493a). WordPress vẫn là backend. Không gọi `/api/public/fnb/menu`, `/api/public/forms/*`, `/api/public/tickets/lookup`, `/api/public/leads/contact-form`. Không in giá món.
 
 ## Trang
 
@@ -22,7 +22,8 @@ Mỗi file HTML của theme SaaS được đưa vào `parts/mains/`. `header.php
 `/thuc-don/` không còn dòng món trống. Ảnh món lấy theo thứ tự:
 
 1. Media WordPress có slug, tên file hoặc tiêu đề trùng slug món (`tom-nuong.jpg` cho «Tôm nướng»).
-2. Ảnh nhà hàng tháng 10/2026 trong `assets/img/photos/` khi tên món khớp.
-3. Ảnh nhóm thật của nhóm đó, nhãn nhỏ «Ảnh nhóm».
+2. Ảnh nhà hàng tháng 10/2026 trong `assets/img/photos/` khi tên món khớp đúng món đó.
+3. Ảnh nhóm chỉ khi ảnh thật sự là nhóm đó: mâm xiên cho xiên, cơm niêu cho nhóm cơm niêu. Nhãn nhỏ «Ảnh nhóm» trên món xiên chưa có ảnh riêng.
+4. Nhóm và món còn lại dùng ô hoạ tiết than / vàng (icon vẽ), không phải ảnh.
 
-Không dùng ảnh minh hoạ tháng 9 và không dùng ảnh Unsplash làm ảnh món. Cách thêm ảnh: `HUONG-DAN-FTP.md`, mục 6.
+Không dùng ảnh một món (sầu riêng chiên, bò lúc lắc, cocktail, whisky, cơm niêu) làm ảnh của món khác hoặc của cả nhóm. Không dùng ảnh minh hoạ tháng 9 và không dùng ảnh Unsplash làm ảnh món. Cách thêm ảnh: `HUONG-DAN-FTP.md`, mục 6.

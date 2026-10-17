@@ -3,7 +3,8 @@
 - `photos/*.webp`: photographs the restaurant published on ganhngon.com in October 2026
   (`wp-content/uploads/2026/10/*.jpg`), converted to WebP. These are the only images used as photos of a
   specific dish. `lau-ga-sau-rieng.webp` in this folder is the same October hotpot photo (the September file
-  was replaced).
+  was replaced). `bo-luc-lac-sau-rieng.webp` is the October shaking-beef photo from the SaaS theme.
+  The upload `ganh-ngon-bo-luc-lac-sau-rieng-chien.jpg` is fried durian and is not used as beef or as a group image.
 - Other dish and space images (`*.webp` without the `su-kien-` or `photos/` prefix): taken from the restaurant's previous
   website (ganhngon.com, uploaded 2026-09). They appear to be AI-generated illustrations. They are not used as a
   photo of a dish on `/thuc-don/`. The menu uses only `photos/` (and a later WordPress upload whose file name
