@@ -6,6 +6,9 @@
 if (!defined('ABSPATH')) exit;
 
 require_once get_stylesheet_directory() . '/inc/menu-data.php';
+require_once get_stylesheet_directory() . '/inc/menu-photos.php';
+require_once get_stylesheet_directory() . '/inc/routes.php';
+require_once get_stylesheet_directory() . '/inc/render.php';
 
 add_action('wp_enqueue_scripts', function () {
     wp_dequeue_style('gn-fonts');
@@ -18,11 +21,47 @@ add_action('wp_enqueue_scripts', function () {
         [],
         null
     );
-    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.0.7');
-    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.0.2');
-    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.0.7', true);
-    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.0.0', true);
+    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.2.1');
+    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.2.1');
+    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.2.1', true);
+    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.2.1', true);
+    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.2.1', true);
+    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.2.1', true);
+    wp_localize_script('gns-forms', 'GNS', [
+        'ajax' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('gns_lead'),
+    ]);
 }, 30);
+
+/**
+ * Parent theme and mu-plugins print a second footer and a stack of chat
+ * buttons. Detach those callbacks; this theme prints the same facts once.
+ */
+function gns_detach_parent_chrome() {
+    remove_action('wp_footer', 'gn_sticky_bar', 5);
+    remove_action('wp_footer', 'gn_chat_widget', 6);
+    remove_action('wp_footer', 'gn_public_chat_stack', 7);
+
+    global $wp_filter;
+    if (empty($wp_filter['wp_footer']) || !isset($wp_filter['wp_footer']->callbacks)) return;
+    foreach ($wp_filter['wp_footer']->callbacks as $priority => $callbacks) {
+        foreach ($callbacks as $cb) {
+            $fn = $cb['function'] ?? null;
+            if (!$fn instanceof Closure) continue;
+            try {
+                $file = (new ReflectionFunction($fn))->getFileName();
+            } catch (ReflectionException $e) {
+                continue;
+            }
+            $base = $file ? basename($file) : '';
+            if ($base === 'gn-footer-legal.php' || $base === 'achau-eco-pq.php') {
+                remove_action('wp_footer', $fn, (int) $priority);
+            }
+        }
+    }
+}
+add_action('wp', 'gns_detach_parent_chrome', 1);
+add_action('wp_footer', 'gns_detach_parent_chrome', 1);
 
 add_action('wp_head', function () {
     echo '<link rel="icon" href="' . esc_url(get_stylesheet_directory_uri() . '/assets/favicon.svg') . '" type="image/svg+xml">' . "\n";
@@ -148,16 +187,4 @@ add_action('template_redirect', function () {
     exit;
 }, 0);
 
-add_action('after_switch_theme', function () {
-    if (get_page_by_path('tin-tuc')) return;
-    $id = wp_insert_post([
-        'post_title'   => 'Tin tức',
-        'post_name'    => 'tin-tuc',
-        'post_status'  => 'publish',
-        'post_type'    => 'page',
-        'post_content' => '',
-    ]);
-    if ($id && !is_wp_error($id) && function_exists('pll_set_post_language')) {
-        pll_set_post_language($id, 'vi');
-    }
-});
+add_action('after_switch_theme', 'gns_seed_pages');

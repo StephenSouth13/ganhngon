@@ -302,9 +302,120 @@
       form.cat.value = pre;
       apply(false);
     }
+    return;
   }
 
   var explorer = document.querySelector("[data-menu-explorer]");
   if (explorer) initMenuExplorer(explorer);
+
+  // Local advisor — same intents as the live site. Answers are restaurant
+  // facts only. It does not call an outside model and does not claim a table
+  // is free. The platform's own chat widget, when the restaurant turns it on,
+  // is a separate channel.
+  var ADVISOR = {
+    vi: {
+      hello: "Gánh Ngon ở 113 Trần Hưng Đạo, Dương Đông, Phú Quốc. Món đặc trưng là lẩu gà sầu riêng. Bàn thường nhận trong ngày, mở cửa 6:30–2:00. Gọi hoặc Zalo 0979 232 233. Giá báo tại nhà hàng.",
+      dish: "Món đặc trưng là lẩu gà sầu riêng: sầu riêng Phú Quốc hoà vào nước hầm gà, không phải món tráng miệng. Nên báo trước khoảng 1 tiếng. Bàn thường vẫn nhận trong ngày. Giá không niêm yết trên web.",
+      price: "Nhà hàng không niêm yết giá trên web. Gọi 0979 232 233, cho biết ngày, giờ, số khách và có muốn lẩu gà sầu riêng hay không.",
+      hours: "Mở cửa hằng ngày 6:30 sáng đến 2:00 sáng hôm sau, kể cả lễ. Bàn thường nhận trong ngày.",
+      map: "113 Trần Hưng Đạo, Dương Đông, Phú Quốc. Mở Google Maps từ trang Liên hệ. Gọi 0979 232 233 nếu cần chỉ đường.",
+      contact: "Điện thoại và Zalo: 0979 232 233. WhatsApp cùng số. Email: contact@ganhngon.com. WeChat ID: ganhngon.",
+      book: "Bàn thường đặt và đến trong ngày được. Giữ bàn tại trang Đặt bàn hoặc gọi 0979 232 233. Nhà hàng không xác nhận còn bàn trước khi nhân viên gọi lại.",
+      vip: "Phòng VIP (10 phòng, 4–40 khách) nên báo trước khoảng 24 giờ. Cần ngồi hôm nay thì chọn bàn thường.",
+      group: "Đoàn từ 20 khách và tiệc riêng nên báo trước 48–72 giờ. Nhóm nhỏ vẫn nhận bàn thường trong ngày.",
+      menu: "Thực đơn công bố trên web là món đang mở trong workspace, cộng hơn 220 món Việt ba miền trong sổ bếp. Giá không hiện trên web.",
+      fallback: "Em giúp được việc đến trong hôm nay: bàn thường, đường đến 113 Trần Hưng Đạo, và món lẩu gà sầu riêng. Gọi 0979 232 233. Giá báo tại nhà hàng.",
+    },
+    en: {
+      hello: "Gánh Ngon is at 113 Tran Hung Dao, Duong Dong, Phu Quoc. The signature dish is durian chicken hotpot. A regular table can be booked today. Open daily 6:30–2:00. Call 0979 232 233. Prices are quoted at the restaurant.",
+      dish: "The signature dish is durian chicken hotpot: Phu Quoc durian blended into chicken broth, not a dessert. Tell the kitchen about an hour ahead. A regular table can still be requested the same day. The price is not listed on the website.",
+      price: "Prices are not listed on the website. Call or WhatsApp 0979 232 233 with the date, time, party size, and whether you want durian chicken hotpot.",
+      hours: "Open every day from 6:30 to 2:00 the next morning, including holidays.",
+      map: "113 Tran Hung Dao, Duong Dong, Phu Quoc — central Duong Dong. Call 0979 232 233 if you need directions.",
+      contact: "Phone and Zalo: 0979 232 233. WhatsApp: the same number. Email: contact@ganhngon.com. WeChat ID: ganhngon.",
+      book: "A regular table can be reserved and used today. The restaurant does not confirm a free table until staff call you back.",
+      vip: "VIP rooms (10 rooms, 4–40 guests) are best requested about 24 hours ahead. If you need to sit today, book a regular table.",
+      group: "Groups of 20 or more, and private events, are best requested 48–72 hours ahead.",
+      menu: "The website lists dishes currently open in the restaurant workspace, plus the published names of a 220-dish Vietnamese menu. Prices are not shown.",
+      fallback: "I can help with today's regular table, directions to 113 Tran Hung Dao, and durian chicken hotpot. Call 0979 232 233.",
+    },
+  };
+  function fold(text) {
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d");
+  }
+  function advisorIntent(message) {
+    var t = fold(message);
+    var has = function (words) {
+      return words.some(function (w) {
+        return w && t.indexOf(w) >= 0;
+      });
+    };
+    if (has(["gia", "price", "cost", "how much", "bao nhieu"])) return "price";
+    if (has(["sau rieng", "durian", "hotpot", "lau ga"])) return "dish";
+    if (has(["gio mo", "opening", "open", "hours", "may gio"])) return "hours";
+    if (has(["map", "dia chi", "address", "where", "o dau", "chi duong"])) return "map";
+    if (has(["zalo", "whatsapp", "phone", "hotline", "goi", "call", "wechat"])) return "contact";
+    if (has(["vip", "phong rieng", "private room"])) return "vip";
+    if (has(["doan", "group", "tiec", "20 khach"])) return "group";
+    if (has(["dat ban", "book", "reserv", "hom nay", "today", "ban thuong"])) return "book";
+    if (has(["menu", "thuc don", "mon an"])) return "menu";
+    if (has(["hello", "hi", "chao", "xin chao"])) return "hello";
+    return "fallback";
+  }
+  var advisorRoot = document.querySelector("[data-advisor]");
+  if (advisorRoot) {
+    var logEl = advisorRoot.querySelector("[data-advisor-log]");
+    var form = advisorRoot.querySelector("[data-advisor-form]");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var input = form.querySelector("input");
+      var text = input.value.trim();
+      if (!text) return;
+      var lang = document.documentElement.lang === "en" ? "en" : "vi";
+      var pack = ADVISOR[lang] || ADVISOR.vi;
+      logEl.insertAdjacentHTML(
+        "beforeend",
+        '<p class="advisor-bubble is-user">' + esc(text) + "</p>" +
+          '<p class="advisor-bubble">' + esc(pack[advisorIntent(text)] || pack.fallback) + "</p>",
+      );
+      input.value = "";
+      logEl.scrollTop = logEl.scrollHeight;
+    });
+  }
+
+  document.querySelectorAll("[data-wechat-copy]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var id = "ganhngon";
+      var pop = document.querySelector("[data-wechat-pop]");
+      var done = function () {
+        if (pop) pop.hidden = false;
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(id).then(done, done);
+      else done();
+    });
+  });
+  var wechatPop = document.querySelector("[data-wechat-pop]");
+  if (wechatPop) {
+    wechatPop.querySelector("[data-wechat-close]").addEventListener("click", function () {
+      wechatPop.hidden = true;
+    });
+  }
+
+  var verify = document.querySelector("[data-verify-form]");
+  if (verify) {
+    var preset = new URLSearchParams(location.search).get("ma") || "";
+    var codeInput = verify.querySelector("[data-verify-code]");
+    var message = verify.querySelector("[data-verify-message]");
+    if (preset && codeInput) codeInput.value = preset;
+    var sync = function () {
+      if (message && codeInput) message.value = "Xin xác minh mã đối tác: " + codeInput.value;
+    };
+    if (codeInput) codeInput.addEventListener("input", sync);
+    sync();
+  }
 
 })();

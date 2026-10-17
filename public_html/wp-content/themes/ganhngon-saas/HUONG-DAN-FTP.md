@@ -33,17 +33,27 @@ wp-content/themes/ganhngon-saas/assets/styles.css
 wp-content/themes/ganhngon-saas/assets/wp.css
 wp-content/themes/ganhngon-saas/assets/script.js
 wp-content/themes/ganhngon-saas/assets/booking.js
+wp-content/themes/ganhngon-saas/assets/contact.js
 wp-content/themes/ganhngon-saas/assets/favicon.svg
 wp-content/themes/ganhngon-saas/assets/img/logo-mark.svg
 wp-content/themes/ganhngon-saas/inc/menu-data.php
+wp-content/themes/ganhngon-saas/inc/routes.php
+wp-content/themes/ganhngon-saas/PARITY.md
 wp-content/themes/ganhngon-saas/template-parts/icons.php
 wp-content/themes/ganhngon-saas/template-parts/page-menu.php
 wp-content/themes/ganhngon-saas/template-parts/page-booking.php
 wp-content/themes/ganhngon-saas/template-parts/page-news.php
 wp-content/themes/ganhngon-saas/template-parts/page-content.php
+wp-content/themes/ganhngon-saas/template-parts/contact-dock.php
+wp-content/themes/ganhngon-saas/assets/forms.js
+wp-content/themes/ganhngon-saas/assets/img/photos/
+wp-content/themes/ganhngon-saas/inc/menu-photos.php
+wp-content/themes/ganhngon-saas/inc/menu-snapshot.json
+wp-content/themes/ganhngon-saas/inc/render.php
+wp-content/themes/ganhngon-saas/parts/mains/
 ```
 
-Ảnh món và không gian **không** nằm trong theme. Theme đọc ảnh đã có trong `wp-content/uploads/2026/`. Không upload lại uploads, không xoá ảnh cũ.
+Ảnh món tháng 10/2026 nằm trong `assets/img/photos/` (ảnh nhà hàng đã đăng). Upload cả thư mục đó cùng theme. Không xoá `wp-content/uploads/`.
 
 Không upload đè:
 
@@ -65,8 +75,10 @@ Permalink giữ nguyên (`/thuc-don/`, `/dat-ban/`, `/ve-ganh-ngon/`, `/lien-he/
 - `wp_head()` / `wp_footer()`: Yoast SEO, Polylang và plugin khác vẫn in ra như cũ.
 - Form `/dat-ban/` vẫn là form của theme cha, gửi `admin-ajax.php?action=sao_create_booking` (bảng đặt bàn, CRM, Zalo/hotline không đổi).
 - Trang không có mẫu riêng (giới thiệu, liên hệ, tiệc, đồ uống, chính sách, đối tác, tư vấn) in `the_content()` — nội dung trong database giữ nguyên, chỉ đổi khung header/footer và chữ.
-- Thực đơn `/thuc-don/` dùng bố cục mới (ảnh nhóm món, dòng món không ảnh, khối lẩu gà sầu riêng). Danh sách món lấy từ thực đơn đã đăng trên site và theme SaaS v1.0.7. **Không có giá.**
+- Thực đơn `/thuc-don/` liệt kê món từ `inc/menu-snapshot.json`. Món nào có ảnh thật thì hiện ảnh món đó. Món chưa có ảnh riêng hiện ảnh nhóm (mâm nướng, cơm niêu, quầy bar) với nhãn nhỏ «Ảnh nhóm». Không dùng ảnh minh hoạ tháng 9 và không dùng ảnh stock làm ảnh món. **Không có giá.**
 - Zalo, điện thoại, WhatsApp, WeChat, bản đồ dùng đúng hàm/số của theme cũ.
+- Khối pháp nhân (CÔNG TY TNHH GÁNH NGON, MST, địa chỉ, cảnh báo giả mạo) và dòng Sao Phú Quốc được gom vào chân trang tối. Theme gỡ hook `wp_footer` của `gn-footer-legal.php` và `achau-eco-pq.php` để không in thêm một khối sáng bên dưới.
+- Năm nút chat nổi gộp thành một nút Liên hệ (chat nhà hàng, Zalo, WhatsApp, Telegram, WeChat).
 
 ## 4. Hoàn tác ngay
 
@@ -82,3 +94,16 @@ Không cần xoá file. Trang Tin tức nếu mới tạo có thể để nguyê
 - Đổi ngôn ngữ Polylang trên một trang đã dịch.
 - Nguồn trang: title/description của Yoast vẫn có.
 - Không thấy số tiền trên thực đơn.
+- `/thuc-don/`: mỗi món có ảnh, không còn dòng trống. Nhãn «Ảnh nhóm» chỉ nằm trên món chưa có ảnh riêng.
+
+## 6. Thêm ảnh cho một món
+
+Vào **wp-admin → Media → Thêm mới**, tải một file ảnh nhà hàng chụp.
+
+Tên file (không đuôi), hoặc slug của media, hoặc tiêu đề media, phải đúng **slug món**:
+
+- bỏ dấu, chữ thường, khoảng trắng thành gạch ngang
+- ví dụ món «Tôm nướng» → file `tom-nuong.jpg`
+- ví dụ «Lẩu gà sầu riêng Phú Quốc» → `lau-ga-sau-rieng-phu-quoc.jpg`
+
+Tải xong, mở lại `/thuc-don/`. Ảnh mới thay ảnh nhóm của đúng món đó, không cần sửa theme. Ảnh không đúng slug sẽ không gắn vào món nào.

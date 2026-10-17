@@ -1,0 +1,17 @@
+# Image credits
+
+- `photos/*.webp`: photographs the restaurant published on ganhngon.com in October 2026
+  (`wp-content/uploads/2026/10/*.jpg`), converted to WebP. These are the only images used as photos of a
+  specific dish. `lau-ga-sau-rieng.webp` in this folder is the same October hotpot photo (the September file
+  was replaced).
+- Other dish and space images (`*.webp` without the `su-kien-` or `photos/` prefix): taken from the restaurant's previous
+  website (ganhngon.com, uploaded 2026-09). They appear to be AI-generated illustrations. They are not used as a
+  photo of a dish on `/thuc-don/`. The menu uses only `photos/` (and a later WordPress upload whose file name
+  matches the dish slug).
+- `su-kien-*.webp`: Unsplash, free under the Unsplash License (https://unsplash.com/license):
+  - su-kien-ban-nhac — https://images.unsplash.com/photo-1632054553195-bfd7034fee25
+  - su-kien-dj — https://images.unsplash.com/photo-1470225620780-dba8ba36b745
+  - su-kien-sinh-nhat — https://images.unsplash.com/photo-1674076442296-2e2f3fcb0897
+  - su-kien-ban-tiec — https://images.unsplash.com/photo-1759335514530-43ac3c515a72
+  - su-kien-tiec-dai — https://images.unsplash.com/photo-1767070805821-60c701885151
+  - su-kien-san-khau — https://images.unsplash.com/photo-1553819282-f334e59ec713

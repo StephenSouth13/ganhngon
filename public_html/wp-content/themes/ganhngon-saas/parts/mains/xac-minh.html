@@ -1,0 +1,25 @@
+<section class="page-hero page-hero-img" aria-labelledby="page-title">
+  <img src="{{ASSETS}}/img/khong-gian-quan.webp" alt="Gánh Ngon" width="1600" height="914" loading="eager" decoding="async" class="page-hero-bg">
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="wrap page-hero-inner">
+    <p class="eyebrow eyebrow-light">Gánh Ngon Phú Quốc</p>
+    <h1 id="page-title" class="display">Xác minh<br><em>đối tác</em></h1>
+    <p class="hero-lead">Mã in trên thẻ QR chỉ có giá trị khi nhà hàng xác nhận. Đừng chuyển tiền vào tài khoản lạ.</p>
+  </div>
+</section>
+<section class="band band-ivory">
+  <div class="wrap advisor-grid">
+    <div class="prose">
+      <p>Điền mã (ví dụ từ đường dẫn <span class="mono">/p/…</span>). Nhà hàng gọi lại xác nhận mã đó có thật hay không. Trang này cố ý không tự trả lời “hợp lệ” — dữ liệu đối tác không nằm trong giao diện công khai.</p>
+      <p>Hotline <a href="tel:+84979232233">0979 232 233</a></p>
+    </div>
+    <form class="form" method="get" aria-label="Nhờ xác minh mã đối tác">
+      <label>Mã đối tác *<input name="ma" required placeholder="GN-P…"></label>
+      <label>Số điện thoại của bạn *<input name="phone" type="tel" required autocomplete="tel"></label>
+      <label>Họ tên<input name="name" autocomplete="name"></label>
+      <input type="hidden" name="message" data-verify-message value="">
+      <button class="btn btn-dark" type="submit">Nhờ nhà hàng xác minh</button>
+    </form>
+{{VERIFY_RESULT}}
+  </div>
+</section>
