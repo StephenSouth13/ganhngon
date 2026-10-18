@@ -1,0 +1,702 @@
+[
+  {
+    "name": "Món đặc trưng sầu riêng",
+    "description": "Sầu riêng Phú Quốc chín cây trong nồi lẩu và món chiên.",
+    "dishes": [
+      {
+        "name": "Lẩu gà sầu riêng Phú Quốc",
+        "description": "Gà ta, sầu riêng chín cây đánh nhuyễn vào nước hầm xương, rau đảo theo mùa và bún tươi. Báo trước khoảng 1 tiếng."
+      },
+      {
+        "name": "Sầu riêng chiên",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Hải sản nướng than hồng",
+    "description": "Nướng mọi, muối ớt, muối Hong Kong, mỡ hành, phô mai hoặc sốt tiêu xanh Phú Quốc.",
+    "dishes": [
+      {
+        "name": "Tôm nướng",
+        "description": null
+      },
+      {
+        "name": "Mực ống nướng",
+        "description": null
+      },
+      {
+        "name": "Mực lá nướng",
+        "description": null
+      },
+      {
+        "name": "Bạch tuộc nướng",
+        "description": null
+      },
+      {
+        "name": "Hàu nướng",
+        "description": null
+      },
+      {
+        "name": "Nhum nướng",
+        "description": null
+      },
+      {
+        "name": "Cá chim nướng",
+        "description": null
+      },
+      {
+        "name": "Cá ngừ nướng",
+        "description": null
+      },
+      {
+        "name": "Cua nướng",
+        "description": null
+      },
+      {
+        "name": "Ghẹ Hàm Ninh nướng",
+        "description": null
+      },
+      {
+        "name": "Tôm càng xanh nướng",
+        "description": null
+      },
+      {
+        "name": "Tôm hùm baby nướng",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Bò nướng",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Thăn bò Úc nướng tảng",
+        "description": "Thăn bò Úc nướng tảng trên than hồng."
+      },
+      {
+        "name": "Dẻ sườn bò Úc nướng",
+        "description": null
+      },
+      {
+        "name": "Bò xiên nướng rau củ",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Heo & gà nướng",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Sườn heo nướng tảng BBQ",
+        "description": null
+      },
+      {
+        "name": "Gà nướng nguyên con",
+        "description": null
+      },
+      {
+        "name": "Cánh gà nướng",
+        "description": null
+      },
+      {
+        "name": "Ức gà xiên rau củ",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Xiên nướng BBQ",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Xiên heo",
+        "description": null
+      },
+      {
+        "name": "Xiên bò",
+        "description": null
+      },
+      {
+        "name": "Xiên ức gà",
+        "description": null
+      },
+      {
+        "name": "Xiên tôm",
+        "description": null
+      },
+      {
+        "name": "Xiên bạch tuộc",
+        "description": null
+      },
+      {
+        "name": "Ba chỉ heo xiên rau củ",
+        "description": null
+      },
+      {
+        "name": "Rau củ xiên nướng",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Rau củ nướng",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Bắp nướng mỡ hành",
+        "description": null
+      },
+      {
+        "name": "Khoai lang mật nướng",
+        "description": null
+      },
+      {
+        "name": "Khoai tây nướng",
+        "description": null
+      },
+      {
+        "name": "Thơm nướng",
+        "description": null
+      },
+      {
+        "name": "Nấm nướng",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Combo nướng",
+    "description": "Kèm salad nhiệt đới hoặc kim chi, khoai tây chiên hoặc xôi nếp nướng.",
+    "dishes": [
+      {
+        "name": "Combo chọn 3 xiên bất kỳ",
+        "description": null
+      },
+      {
+        "name": "Combo nướng 1 (2–3 khách)",
+        "description": null
+      },
+      {
+        "name": "Combo nướng 2 (2–3 khách)",
+        "description": null
+      },
+      {
+        "name": "Combo nướng 3 (2–3 khách)",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Salad & gỏi cuốn",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Salad trái cây rong biển hải sản",
+        "description": null
+      },
+      {
+        "name": "Salad nhiệt đới sốt bò",
+        "description": null
+      },
+      {
+        "name": "Salad gà",
+        "description": null
+      },
+      {
+        "name": "Gỏi cuốn tôm thịt",
+        "description": null
+      },
+      {
+        "name": "Gỏi cuốn hải sản",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Bánh xèo",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Bánh xèo tôm thịt",
+        "description": null
+      },
+      {
+        "name": "Bánh xèo gà xé",
+        "description": null
+      },
+      {
+        "name": "Bánh xèo nhân thịt vịt",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Món nhanh & bánh mì",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Khoai tây chiên",
+        "description": null
+      },
+      {
+        "name": "Bánh mì bơ tỏi",
+        "description": null
+      },
+      {
+        "name": "Bánh mì sốt bò hầm",
+        "description": null
+      },
+      {
+        "name": "Bánh mì xá xíu",
+        "description": null
+      },
+      {
+        "name": "Bánh mì tôm nướng sốt phô mai",
+        "description": null
+      },
+      {
+        "name": "Bánh mì gà xiên rau củ",
+        "description": null
+      },
+      {
+        "name": "Tôm chiên xù",
+        "description": null
+      },
+      {
+        "name": "Mực chiên xù",
+        "description": null
+      },
+      {
+        "name": "Gà chiên xù",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Món Âu",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Pizza Hawaii",
+        "description": null
+      },
+      {
+        "name": "Pizza hải sản",
+        "description": null
+      },
+      {
+        "name": "Pizza four cheese",
+        "description": null
+      },
+      {
+        "name": "Hamburger bò",
+        "description": null
+      },
+      {
+        "name": "Hamburger gà",
+        "description": null
+      },
+      {
+        "name": "Mỳ Ý sốt bò bằm",
+        "description": null
+      },
+      {
+        "name": "Mỳ Ý kem nấm hải sản",
+        "description": null
+      },
+      {
+        "name": "Mỳ Ý sốt cua",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Cơm niêu trưa",
+    "description": "Cơm niêu nóng, món mặn theo ngày, canh và rau.",
+    "dishes": [
+      {
+        "name": "Cơm niêu trưa",
+        "description": "Món mặn đổi hằng ngày — gọi hoặc Zalo 0979 232 233 để hỏi món hôm nay."
+      }
+    ]
+  },
+  {
+    "name": "Gánh Ngon Signature",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Gánh Ngon Passion Tea",
+        "description": "Ô long, chanh dây, cam."
+      },
+      {
+        "name": "Phú Quốc Tropical Tea",
+        "description": "Ô long, thơm, chanh dây."
+      },
+      {
+        "name": "Gánh Ngon Sunset",
+        "description": "Hibiscus, chanh dây, cam."
+      },
+      {
+        "name": "Tropical Cooler",
+        "description": "Thơm, chanh dây, soda."
+      }
+    ]
+  },
+  {
+    "name": "Cocktail",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Mojito",
+        "description": null
+      },
+      {
+        "name": "Passion Mojito",
+        "description": null
+      },
+      {
+        "name": "Margarita",
+        "description": null
+      },
+      {
+        "name": "Tequila Sunrise",
+        "description": null
+      },
+      {
+        "name": "Gin & Tonic",
+        "description": null
+      },
+      {
+        "name": "Cuba Libre",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Cà phê & trà",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Espresso",
+        "description": null
+      },
+      {
+        "name": "Americano",
+        "description": null
+      },
+      {
+        "name": "Cappuccino",
+        "description": null
+      },
+      {
+        "name": "Caffè Latte",
+        "description": null
+      },
+      {
+        "name": "Mocha",
+        "description": null
+      },
+      {
+        "name": "Cà phê đen",
+        "description": null
+      },
+      {
+        "name": "Cà phê sữa",
+        "description": null
+      },
+      {
+        "name": "Bạc xỉu",
+        "description": null
+      },
+      {
+        "name": "Cà phê sữa tươi",
+        "description": null
+      },
+      {
+        "name": "Cà phê muối",
+        "description": null
+      },
+      {
+        "name": "Ô long mật ong",
+        "description": null
+      },
+      {
+        "name": "Ô long chanh",
+        "description": null
+      },
+      {
+        "name": "Trà đào",
+        "description": null
+      },
+      {
+        "name": "Trà vải",
+        "description": null
+      },
+      {
+        "name": "Trà chanh dây",
+        "description": null
+      },
+      {
+        "name": "Hibiscus chanh dây",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Sinh tố, nước ép & soda",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Sinh tố xoài",
+        "description": null
+      },
+      {
+        "name": "Sinh tố dâu",
+        "description": null
+      },
+      {
+        "name": "Sinh tố bơ",
+        "description": null
+      },
+      {
+        "name": "Sinh tố chuối",
+        "description": null
+      },
+      {
+        "name": "Nước cam",
+        "description": null
+      },
+      {
+        "name": "Nước thơm",
+        "description": null
+      },
+      {
+        "name": "Nước dưa hấu",
+        "description": null
+      },
+      {
+        "name": "Nước ổi",
+        "description": null
+      },
+      {
+        "name": "Nước ép hỗn hợp",
+        "description": null
+      },
+      {
+        "name": "Soda chanh",
+        "description": null
+      },
+      {
+        "name": "Soda chanh dây",
+        "description": null
+      },
+      {
+        "name": "Soda dâu",
+        "description": null
+      },
+      {
+        "name": "Soda xoài chanh dây",
+        "description": null
+      },
+      {
+        "name": "Soda thơm chanh dây",
+        "description": null
+      },
+      {
+        "name": "Coca-Cola",
+        "description": null
+      },
+      {
+        "name": "Coca-Cola Zero",
+        "description": null
+      },
+      {
+        "name": "Sprite",
+        "description": null
+      },
+      {
+        "name": "Soda",
+        "description": null
+      },
+      {
+        "name": "Nước suối",
+        "description": null
+      }
+    ]
+  },
+  {
+    "name": "Bia, rượu & combo",
+    "description": "",
+    "dishes": [
+      {
+        "name": "Tiger Crystal",
+        "description": null
+      },
+      {
+        "name": "Tiger",
+        "description": null
+      },
+      {
+        "name": "Heineken",
+        "description": null
+      },
+      {
+        "name": "1664 Blanc",
+        "description": null
+      },
+      {
+        "name": "Combo bia 5 chai",
+        "description": null
+      },
+      {
+        "name": "Combo bia 10 chai",
+        "description": null
+      },
+      {
+        "name": "Combo rượu (1 chai + 5 mixer)",
+        "description": null
+      },
+      {
+        "name": "Combo 4 cocktail",
+        "description": "Mojito, Margarita, Passion Mojito, Gin & Tonic."
+      }
+    ]
+  },
+  {
+    "name": "Đặc sản ba miền",
+    "description": "Phở, bún, bánh và món hấp nhà hàng đã công bố tên. Giá báo tại quán.",
+    "dishes": [
+      {
+        "name": "Cơm niêu đập",
+        "description": "Cơm niêu đất cháy giòn."
+      },
+      {
+        "name": "Phở bò Hà Nội",
+        "description": "Phở bò kiểu Hà Nội."
+      },
+      {
+        "name": "Bún bò Huế",
+        "description": "Bún bò cay Huế."
+      },
+      {
+        "name": "Bún chả Hà Nội",
+        "description": "Bún chả nướng than."
+      },
+      {
+        "name": "Chả cá Lã Vọng",
+        "description": "Chả cá nghệ ăn kèm bún và thì là."
+      },
+      {
+        "name": "Bánh cuốn Thanh Trì chả quế",
+        "description": "Bánh cuốn thanh, chả quế."
+      },
+      {
+        "name": "Chả giò",
+        "description": "Chả giò rán."
+      },
+      {
+        "name": "Nem cua bể Hải Phòng",
+        "description": "Nem cua bể."
+      },
+      {
+        "name": "Bánh hỏi nem nướng Nha Trang",
+        "description": "Bánh hỏi với nem nướng."
+      },
+      {
+        "name": "Bánh xèo Nam Bộ",
+        "description": "Bánh xèo giòn, rau sống."
+      },
+      {
+        "name": "Bánh khọt Vũng Tàu",
+        "description": "Bánh khọt tôm."
+      },
+      {
+        "name": "Bánh bèo chén Huế",
+        "description": "Bánh bèo chén."
+      },
+      {
+        "name": "Bánh căn trứng cút",
+        "description": "Bánh căn với trứng cút."
+      },
+      {
+        "name": "Bánh bò thốt nốt",
+        "description": "Bánh bò đường thốt nốt."
+      },
+      {
+        "name": "Nem lụi Huế",
+        "description": "Nem lụi sả nướng."
+      },
+      {
+        "name": "Mì Quảng gà",
+        "description": "Mì Quảng gà."
+      },
+      {
+        "name": "Hủ tiếu Nam Vang",
+        "description": "Hủ tiếu kiểu Nam Vang."
+      },
+      {
+        "name": "Cơm tấm sườn bì chả",
+        "description": "Cơm tấm sườn, bì, chả."
+      },
+      {
+        "name": "Thịt kho tàu nước dừa",
+        "description": "Thịt kho nước dừa."
+      },
+      {
+        "name": "Canh chua cá lóc Nam Bộ",
+        "description": "Canh chua cá."
+      },
+      {
+        "name": "Bò nướng tảng Nha Trang",
+        "description": "Bò nướng tảng."
+      },
+      {
+        "name": "Vịt cỏ Vân Đình hấp",
+        "description": "Vịt cỏ hấp."
+      },
+      {
+        "name": "Tôm sốt hoàng kim trứng muối",
+        "description": "Tôm sốt trứng muối."
+      },
+      {
+        "name": "Ốc hương hấp sả",
+        "description": "Ốc hương hấp sả."
+      },
+      {
+        "name": "Mực trứng hấp hành gừng",
+        "description": "Mực trứng hấp gừng."
+      },
+      {
+        "name": "Đậu hũ sốt nấm",
+        "description": "Đậu hũ sốt nấm."
+      },
+      {
+        "name": "Chè và bánh ngọt tráng miệng",
+        "description": "Chè và bánh ngọt."
+      },
+      {
+        "name": "Đĩa trái cây nhiệt đới",
+        "description": "Trái cây theo mùa đảo."
+      },
+      {
+        "name": "Nộm hoa chuối",
+        "description": "Nộm hoa chuối."
+      },
+      {
+        "name": "Rau đặc sản luộc chấm kho quẹt",
+        "description": "Rau luộc, kho quẹt."
+      },
+      {
+        "name": "Rượu sim Phú Quốc",
+        "description": "Rượu sim đảo."
+      },
+      {
+        "name": "Bánh mì Việt Nam",
+        "description": "Bánh mì."
+      }
+    ]
+  }
+]
