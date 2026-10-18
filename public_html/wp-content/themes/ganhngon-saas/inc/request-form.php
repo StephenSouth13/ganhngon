@@ -57,14 +57,165 @@ function gns_request_source($context) {
     return 'lien-he';
 }
 
+function gns_booking_tz() {
+    return new DateTimeZone('Asia/Ho_Chi_Minh');
+}
+
+/** 06:30–23:45 and 00:00–01:30, every 15 minutes. 00:00–01:30 belong to the next calendar day. */
+function gns_booking_slots() {
+    $slots = [];
+    for ($t = (6 * 60) + 30; $t <= (23 * 60) + 45; $t += 15) {
+        $slots[] = sprintf('%02d:%02d', intdiv($t, 60), $t % 60);
+    }
+    for ($t = 0; $t <= 90; $t += 15) {
+        $slots[] = sprintf('%02d:%02d', intdiv($t, 60), $t % 60);
+    }
+    return $slots;
+}
+
+function gns_booking_is_overnight($hm) {
+    return is_string($hm) && $hm < '06:30';
+}
+
+function gns_booking_moment($service_date, $hm) {
+    if (!is_string($service_date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $service_date)) return null;
+    if (!is_string($hm) || !preg_match('/^\d{2}:\d{2}$/', $hm)) return null;
+    $tz = gns_booking_tz();
+    $day = DateTime::createFromFormat('!Y-m-d', $service_date, $tz);
+    $errors = DateTime::getLastErrors();
+    if (!$day || (is_array($errors) && (!empty($errors['warning_count']) || !empty($errors['error_count'])))) return null;
+    if (gns_booking_is_overnight($hm)) $day->modify('+1 day');
+    $parts = explode(':', $hm);
+    $day->setTime((int) $parts[0], (int) $parts[1], 0);
+    return $day;
+}
+
+function gns_booking_round_up_15(DateTime $dt) {
+    $copy = clone $dt;
+    $seconds = ((int) $copy->format('i')) * 60 + (int) $copy->format('s');
+    $mod = $seconds % 900;
+    if ($mod !== 0) $copy->modify('+' . (900 - $mod) . ' seconds');
+    $copy->setTime((int) $copy->format('H'), (int) $copy->format('i'), 0);
+    return $copy;
+}
+
+/**
+ * Earliest bookable moment: now + 30 minutes, rounded up to 15 minutes, in Vietnam.
+ * A result that lands in the closed gap after 01:30 moves to 06:30 the same morning
+ * when the clock is still at or before 01:30, otherwise to 06:30 the next day.
+ */
+function gns_booking_earliest_moment($now = null) {
+    $tz = gns_booking_tz();
+    if (!$now instanceof DateTime) $now = new DateTime('now', $tz);
+    else $now = clone $now;
+    $now->setTimezone($tz);
+    $plus = clone $now;
+    $plus->modify('+30 minutes');
+    $rounded = gns_booking_round_up_15($plus);
+    $hm = $rounded->format('H:i');
+    if ($hm > '01:30' && $hm < '06:30') {
+        if ($now->format('H:i') <= '01:30') {
+            $rounded->setTime(6, 30, 0);
+            return $rounded;
+        }
+        $next = clone $now;
+        $next->modify('+1 day');
+        $next->setTime(6, 30, 0);
+        return $next;
+    }
+    return $rounded;
+}
+
+function gns_booking_service_date(DateTime $moment) {
+    $day = clone $moment;
+    if (gns_booking_is_overnight($day->format('H:i'))) $day->modify('-1 day');
+    return $day->format('Y-m-d');
+}
+
+function gns_booking_bounds($now = null) {
+    $earliest = gns_booking_earliest_moment($now);
+    $service = gns_booking_service_date($earliest);
+    return [
+        'min' => $service,
+        'date' => $service,
+        'time' => $earliest->format('H:i'),
+    ];
+}
+
+function gns_booking_slot_is_allowed($service_date, $hm, $now = null) {
+    if (!in_array($hm, gns_booking_slots(), true)) return false;
+    $moment = gns_booking_moment($service_date, $hm);
+    if (!$moment) return false;
+    return $moment >= gns_booking_earliest_moment($now);
+}
+
+function gns_booking_time_options_html($service_date, $selected) {
+    $html = '';
+    foreach (gns_booking_slots() as $hm) {
+        $disabled = gns_booking_slot_is_allowed($service_date, $hm) ? '' : ' disabled';
+        $sel = ($hm === $selected && $disabled === '') ? ' selected' : '';
+        $html .= '<option value="' . esc_attr($hm) . '"' . $sel . $disabled . '>' . esc_html($hm) . '</option>';
+    }
+    return $html;
+}
+
+function gns_contact_aside_html() {
+    $address = function_exists('gns_addr') ? gns_addr() : '113 Trần Hưng Đạo, Dương Đông, Phú Quốc';
+    $phone = function_exists('gns_phone_label') ? gns_phone_label() : '0979 232 233';
+    $tel = function_exists('gns_phone_href') ? gns_phone_href() : 'tel:+84979232233';
+    $email = function_exists('gns_public_email') ? gns_public_email() : 'contact@ganhngon.com';
+    $zalo = function_exists('gns_saved_text') ? trim(gns_saved_text('gns_zalo_url')) : '';
+    $facebook = function_exists('gns_saved_text') ? trim(gns_saved_text('gns_facebook')) : '';
+    $channels = '';
+    if ($zalo !== '' && filter_var($zalo, FILTER_VALIDATE_URL)) {
+        $channels .= '<a class="btn btn-outline" href="' . esc_url($zalo) . '" rel="noopener" target="_blank">Zalo</a>';
+    }
+    if ($facebook !== '' && preg_match('#(?:^https?://)?(?:www\.)?(?:m\.me/|messenger\.com/)#i', $facebook)) {
+        $channels .= '<a class="btn btn-outline" href="' . esc_url($facebook) . '" rel="noopener" target="_blank">Messenger</a>';
+    }
+    ob_start();
+    ?>
+    <div class="contact-info">
+      <div class="contact-panel">
+        <h2 class="title title-sm">Nhà hàng</h2>
+        <ul class="contact-facts">
+          <li>
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-pin"></use></svg>
+            <span><strong>Địa chỉ</strong><?php echo esc_html($address); ?></span>
+          </li>
+          <li>
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-phone"></use></svg>
+            <span><strong>Hotline</strong><a href="<?php echo esc_url($tel); ?>"><bdi dir="ltr"><?php echo esc_html($phone); ?></bdi></a></span>
+          </li>
+          <li>
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clock"></use></svg>
+            <span><strong>Giờ mở cửa</strong>6:30–2:00 hằng ngày</span>
+          </li>
+          <li>
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-mail"></use></svg>
+            <span><strong>Email</strong><a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></span>
+          </li>
+        </ul>
+        <?php if ($channels !== ''): ?>
+          <div class="actions contact-channels"><?php echo $channels; ?></div>
+        <?php endif; ?>
+      </div>
+      <div class="visit-map contact-map">
+        <iframe title="Bản đồ đến Gánh Ngon, 113 Trần Hưng Đạo, Dương Đông, Phú Quốc" src="https://www.google.com/maps?q=113+Tr%E1%BA%A7n+H%C6%B0ng+%C4%90%E1%BA%A1o,+D%C6%B0%C6%A1ng+%C4%90%C3%B4ng,+Ph%C3%BA+Qu%E1%BB%91c&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
 function gns_request_form_html($context = 'lien-he') {
     $context = sanitize_key((string) $context);
     if (!in_array($context, ['dat-ban', 'lien-he', 'tiec'], true)) $context = 'lien-he';
     $selected = gns_request_default_group($context);
     $source = gns_request_source($context);
     $ajax = esc_url(admin_url('admin-ajax.php'));
-    $today = function_exists('gn_today_ymd') ? gn_today_ymd() : wp_date('Y-m-d');
-    $times = function_exists('gn_booking_time_options_html') ? gn_booking_time_options_html() : '';
+    $bounds = gns_booking_bounds();
+    $times = gns_booking_time_options_html($bounds['date'], $bounds['time']);
     $parties = gns_party_types();
     $class = 'form gn-request';
     if ($context === 'dat-ban') $class .= ' booking-form';
@@ -97,10 +248,10 @@ function gns_request_form_html($context = 'lien-he') {
         <input type="number" name="guests" required min="1" max="5000" step="1" inputmode="numeric" placeholder="<?php echo esc_attr(gns_t('form_guests_ph', 'Ví dụ: 4')); ?>">
       </label>
       <label><?php echo esc_html(gns_t('form_date', 'Ngày')); ?> *
-        <input type="date" name="booking_date" required min="<?php echo esc_attr($today); ?>">
+        <input type="date" name="booking_date" required min="<?php echo esc_attr($bounds['min']); ?>" value="<?php echo esc_attr($bounds['date']); ?>" data-gn-date>
       </label>
       <label><?php echo esc_html(gns_t('form_time', 'Giờ')); ?> *
-        <select name="booking_time" required>
+        <select name="booking_time" required data-gn-time>
           <option value=""><?php echo esc_html(gns_t('form_time_ph', 'Chọn giờ')); ?></option>
           <?php echo $times; ?>
         </select>
@@ -158,11 +309,7 @@ function gns_request_rate_limited() {
 }
 
 function gns_request_valid_time($time) {
-    if ($time === '') return false;
-    if (function_exists('gn_booking_time_slots')) {
-        return in_array($time, gn_booking_time_slots(), true);
-    }
-    return (bool) preg_match('/^\d{2}:\d{2}$/', $time);
+    return in_array($time, gns_booking_slots(), true);
 }
 
 add_action('wp_ajax_nopriv_gns_submit_request', 'gns_ajax_submit_request');
@@ -210,15 +357,18 @@ function gns_ajax_submit_request() {
         wp_send_json_error(['message' => 'Ngày không hợp lệ.']);
     }
     try {
-        $today = (new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh')))->format('Y-m-d');
         $max = (new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh')))->modify('+1 year')->format('Y-m-d');
     } catch (Exception $e) {
-        $today = gmdate('Y-m-d');
         $max = gmdate('Y-m-d', time() + 365 * DAY_IN_SECONDS);
     }
-    if ($date < $today) wp_send_json_error(['message' => 'Không đặt bàn cho ngày đã qua.']);
-    if ($date > $max) wp_send_json_error(['message' => 'Chỉ đặt bàn trong vòng 12 tháng tới.']);
     if (!gns_request_valid_time($time)) wp_send_json_error(['message' => 'Chọn giờ trong danh sách.']);
+    if (!gns_booking_slot_is_allowed($date, $time)) {
+        wp_send_json_error(['message' => 'Giờ này đã qua. Chọn giờ còn lại trong hôm nay, hoặc ngày khác.']);
+    }
+    $arrival = gns_booking_moment($date, $time);
+    if (!$arrival) wp_send_json_error(['message' => 'Ngày không hợp lệ.']);
+    $date = $arrival->format('Y-m-d');
+    if ($date > $max) wp_send_json_error(['message' => 'Chỉ đặt bàn trong vòng 12 tháng tới.']);
 
     $parties = gns_party_types();
     $party = sanitize_key(wp_unslash($_POST['party_type'] ?? ''));

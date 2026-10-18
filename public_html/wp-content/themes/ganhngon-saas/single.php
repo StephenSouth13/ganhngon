@@ -2,15 +2,16 @@
 if (!defined('ABSPATH')) exit;
 get_header();
 while (have_posts()): the_post();
-$thumb = get_the_post_thumbnail_url(null, 'large');
-if ($thumb && function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url($thumb)) $thumb = '';
+$gns_hero = function_exists('gns_post_image_url') ? gns_post_image_url(get_the_ID()) : '';
 ?>
 <section class="post-hero">
-  <?php if ($thumb): ?>
-  <div class="post-cover" style="background-image:url('<?php echo esc_url($thumb); ?>')"></div>
-  <?php else: ?>
-  <?php echo gns_slot_markup('post-cover', get_the_title(), 'i-flame'); ?>
-  <?php endif; ?>
+  <?php
+  if (function_exists('gns_image_or_slot_html')) {
+      echo gns_image_or_slot_html($gns_hero, 'post-cover', get_the_title());
+  } else {
+      echo gns_slot_markup('post-cover', get_the_title(), 'i-flame');
+  }
+  ?>
   <div class="hero-shade" aria-hidden="true"></div>
   <div class="wrap post-hero-inner">
     <a class="post-back" href="<?php echo esc_url(gns_url('tin-tuc')); ?>">← Tin tức</a>

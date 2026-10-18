@@ -92,6 +92,9 @@ function gns_fill_main($html, $page = '') {
     if (strpos($html, '{{NEWS_HOME}}') !== false && function_exists('gns_news_home_html')) {
         $html = str_replace('{{NEWS_HOME}}', gns_news_home_html(), $html);
     }
+    if (strpos($html, '{{CONTACT_ASIDE}}') !== false && function_exists('gns_contact_aside_html')) {
+        $html = str_replace('{{CONTACT_ASIDE}}', gns_contact_aside_html(), $html);
+    }
     if (strpos($html, '{{GN_FORM:') !== false) {
         $html = preg_replace_callback('/\{\{GN_FORM:(dat-ban|lien-he|tiec)\}\}/', function ($m) {
             ob_start();

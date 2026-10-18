@@ -1060,3 +1060,44 @@ a[href^="mailto:"] {
   .news-grid-list { grid-template-columns: minmax(0, 1fr); }
   .svc-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* 1.4.2 — contact page and image fallbacks */
+img.post-cover { width: 100%; height: 100%; object-fit: cover; }
+.news-media .gns-slot[hidden],
+.post-hero .gns-slot[hidden] { display: none !important; }
+.contact-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: start;
+}
+.contact-panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(20px, 3vw, 32px);
+}
+.contact-facts {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.contact-facts li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.contact-facts .icon { width: 22px; height: 22px; color: var(--ember); margin-top: 2px; flex: none; }
+.contact-facts span { display: flex; flex-direction: column; gap: 2px; color: var(--muted); font-size: 0.95rem; }
+.contact-facts strong { color: var(--ink); font-size: 1rem; }
+.contact-facts a { color: inherit; text-decoration: none; }
+.contact-facts a:hover { color: var(--ember); }
+.contact-channels { margin-top: 18px; }
+.contact-map { margin-top: 16px; }
+.contact-layout .gn-request-wrap { margin: 0; }
+@media (max-width: 900px) {
+  .contact-layout { grid-template-columns: minmax(0, 1fr); }
+  .contact-layout .gn-request-wrap { order: -1; }
+}

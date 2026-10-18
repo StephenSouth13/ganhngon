@@ -328,8 +328,21 @@ add_filter('wpseo_frontend_presentation', function ($presentation) {
     return $presentation;
 }, 20);
 
+function gns_schema_is_list($node) {
+    if (!is_array($node)) return false;
+    $i = 0;
+    foreach ($node as $key => $unused) {
+        if ($key !== $i) return false;
+        $i++;
+        unset($unused);
+    }
+    return true;
+}
+
 function gns_scrub_schema_node($node) {
     if (is_string($node)) {
+        if (preg_match('#^https?://(?:www\.)?saophuquoc\.com/?$#i', trim($node))) return null;
+        $node = preg_replace('#https?://(?:www\.)?saophuquoc\.com/?#i', '', $node);
         if (gns_is_hidden_media_url($node)) return gns_real_og_image_url();
         return gns_scrub_public_copy(str_replace(
             ['Phú Quốc, Kiên Giang', 'Phu Quoc, Kien Giang'],
@@ -338,20 +351,51 @@ function gns_scrub_schema_node($node) {
         ));
     }
     if (!is_array($node)) return $node;
+    $type = isset($node['@type']) ? $node['@type'] : '';
+    $types = is_array($type) ? $type : [$type];
+    if (in_array('Person', $types, true)) return null;
+    if (isset($node['parentOrganization'])) {
+        $blob = wp_json_encode($node['parentOrganization']);
+        if (is_string($blob) && stripos($blob, 'saophuquoc') !== false) unset($node['parentOrganization']);
+    }
+    if (isset($node['sameAs']) && is_array($node['sameAs'])) {
+        $node['sameAs'] = array_values(array_filter($node['sameAs'], function ($url) {
+            return !is_string($url) || stripos($url, 'saophuquoc.com') === false;
+        }));
+    }
+    $list = gns_schema_is_list($node);
+    $out = [];
     foreach ($node as $key => $value) {
+        if ($key === 'author' || $key === 'author_name' || $key === 'author_url') continue;
         if ($key === 'addressRegion' && is_string($value)) {
-            $node[$key] = (strpos($value, 'Phu') !== false && strpos($value, 'Phú') === false) ? 'Phu Quoc' : 'Phú Quốc';
+            $out[$key] = (strpos($value, 'Phu') !== false && strpos($value, 'Phú') === false) ? 'Phu Quoc' : 'Phú Quốc';
             continue;
         }
-        $node[$key] = gns_scrub_schema_node($value);
+        $clean = gns_scrub_schema_node($value);
+        if ($clean === null) continue;
+        $out[$key] = $clean;
     }
-    return $node;
+    return $list ? array_values($out) : $out;
 }
 add_filter('wpseo_schema_graph', function ($graph) {
     return gns_scrub_schema_node($graph);
 }, 20);
 
 function gns_scrub_schema_html($html) {
+    $html = preg_replace_callback(
+        '#<script type="application/ld\+json">\s*(.*?)\s*</script>#s',
+        function ($m) {
+            $data = json_decode($m[1], true);
+            if (!is_array($data)) {
+                $raw = preg_replace('#https?://(?:www\.)?saophuquoc\.com/?#i', '', $m[1]);
+                return '<script type="application/ld+json">' . $raw . '</script>';
+            }
+            $data = gns_scrub_schema_node($data);
+            if (!is_array($data)) $data = [];
+            return '<script type="application/ld+json">' . wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
+        },
+        $html
+    );
     $real = gns_real_og_image_url();
     $html = preg_replace_callback('#https?://[^"\\\\\s]+#', function ($m) use ($real) {
         return gns_is_hidden_media_url($m[0]) ? $real : $m[0];
@@ -439,3 +483,52 @@ add_action('template_redirect', function () {
 add_action('wp_footer', function () {
     echo "<script>document.querySelectorAll('video[data-gns-video]').forEach(function(v){if(window.matchMedia('(min-width:768px)').matches){var p=v.play();if(p&&p.catch)p.catch(function(){});}});</script>\n";
 }, 40);
+
+add_filter('rest_endpoints', function ($endpoints) {
+    if (is_user_logged_in() || !is_array($endpoints)) return $endpoints;
+    unset($endpoints['/wp/v2/users'], $endpoints['/wp/v2/users/(?P<id>[\d]+)']);
+    return $endpoints;
+});
+
+add_filter('wp_sitemaps_add_provider', function ($provider, $name) {
+    if ($name === 'users') return false;
+    return $provider;
+}, 10, 2);
+
+add_filter('wp_sitemaps_posts_query_args', function ($args) {
+    if (!is_array($args)) $args = [];
+    $args['post_status'] = 'publish';
+    return $args;
+});
+
+add_filter('wp_sitemaps_taxonomies_query_args', function ($args) {
+    if (!is_array($args)) $args = [];
+    $args['hide_empty'] = true;
+    return $args;
+});
+
+add_filter('wpseo_sitemap_exclude_author', function ($value) {
+    if (is_array($value)) return [];
+    return true;
+});
+
+add_filter('wpseo_sitemap_exclude_empty_terms', '__return_true');
+
+add_filter('wpseo_sitemap_exclude_post', function ($exclude, $post_id) {
+    $status = get_post_status($post_id);
+    if ($status !== 'publish') return true;
+    return $exclude;
+}, 10, 2);
+
+add_filter('option_wpseo_titles', function ($value) {
+    if (!is_array($value)) return $value;
+    $value['disable-author'] = true;
+    $value['noindex-author-wpseo'] = true;
+    return $value;
+});
+
+add_filter('oembed_response_data', function ($data) {
+    if (!is_array($data) || is_user_logged_in()) return $data;
+    unset($data['author_name'], $data['author_url']);
+    return $data;
+});

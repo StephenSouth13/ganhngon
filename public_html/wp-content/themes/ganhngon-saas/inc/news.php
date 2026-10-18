@@ -106,17 +106,67 @@ function gns_post_date_html($post = null) {
     return '<time datetime="' . esc_attr($iso) . '">' . esc_html($display) . '</time>';
 }
 
-function gns_news_media_html($post_id) {
-    if (has_post_thumbnail($post_id)) {
-        return get_the_post_thumbnail($post_id, 'large', [
-            'alt' => '',
-            'loading' => 'lazy',
-            'decoding' => 'async',
-        ]);
+/**
+ * A URL may be shown only when it is a real upload: an attachment row, or a
+ * file that exists under the uploads directory. Hidden AI/stock patterns are out.
+ */
+function gns_usable_upload_url($url) {
+    $url = trim((string) $url);
+    if ($url === '' || (function_exists('gns_is_hidden_media_url') && gns_is_hidden_media_url($url))) return '';
+    $id = function_exists('attachment_url_to_postid') ? (int) attachment_url_to_postid($url) : 0;
+    if ($id > 0) return $url;
+    $uploads = wp_get_upload_dir();
+    if (empty($uploads['baseurl']) || empty($uploads['basedir']) || !empty($uploads['error'])) return '';
+    $path = parse_url($url, PHP_URL_PATH);
+    $base_path = parse_url($uploads['baseurl'], PHP_URL_PATH);
+    if (!is_string($path) || !is_string($base_path) || $base_path === '' || strpos($path, $base_path) !== 0) return '';
+    $rel = rawurldecode(substr($path, strlen($base_path)));
+    if ($rel === '' || strpos($rel, '..') !== false) return '';
+    return is_file($uploads['basedir'] . $rel) ? $url : '';
+}
+
+function gns_post_image_url($post_id) {
+    $post_id = (int) $post_id;
+    if ($post_id <= 0) return '';
+    $thumb_id = (int) get_post_thumbnail_id($post_id);
+    if ($thumb_id > 0) {
+        $url = gns_usable_upload_url((string) wp_get_attachment_image_url($thumb_id, 'large'));
+        if ($url !== '') return $url;
     }
-    $label = get_the_title($post_id);
-    if (function_exists('gns_slot_markup')) return gns_slot_markup('', $label, 'i-flame');
+    $post = get_post($post_id);
+    if ($post && is_string($post->post_content) && preg_match_all('/<img\b[^>]*\ssrc=["\']([^"\']+)["\']/i', $post->post_content, $found)) {
+        foreach ($found[1] as $src) {
+            $url = gns_usable_upload_url($src);
+            if ($url !== '') return $url;
+        }
+    }
+    $attachments = get_children([
+        'post_parent' => $post_id,
+        'post_type' => 'attachment',
+        'post_mime_type' => 'image',
+        'numberposts' => 8,
+        'orderby' => 'menu_order ID',
+        'order' => 'ASC',
+    ]);
+    if (is_array($attachments)) {
+        foreach ($attachments as $attachment) {
+            $url = gns_usable_upload_url((string) wp_get_attachment_image_url($attachment->ID, 'large'));
+            if ($url !== '') return $url;
+        }
+    }
     return '';
+}
+
+function gns_image_or_slot_html($url, $slot_class, $label) {
+    $slot = function_exists('gns_slot_markup') ? gns_slot_markup($slot_class, $label, 'i-flame') : '';
+    if ($url === '') return $slot;
+    $fallback = $slot === '' ? '' : preg_replace('/^<div /', '<div hidden ', $slot, 1);
+    $onerror = 'this.onerror=null;var s=this.nextElementSibling;if(s)s.hidden=false;this.remove();';
+    return '<img class="' . esc_attr($slot_class) . '" src="' . esc_url($url) . '" alt="" loading="lazy" decoding="async" onerror="' . esc_attr($onerror) . '">' . $fallback;
+}
+
+function gns_news_media_html($post_id) {
+    return gns_image_or_slot_html(gns_post_image_url($post_id), '', get_the_title($post_id));
 }
 
 function gns_news_card_html($featured = false) {

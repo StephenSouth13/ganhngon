@@ -97,7 +97,6 @@
         · xác minh đối tác tại <a href="<?php echo esc_url($gns_partner); ?>">ganhngon.com/xac-minh</a>.
       <?php endif; ?>
     </p>
-    <p class="footer-eco">Hệ sinh thái du lịch Phú Quốc: <a href="https://saophuquoc.com/" rel="noopener" target="_blank">Sao Phú Quốc — tour, du thuyền &amp; nghỉ dưỡng</a></p>
   </div>
   <div class="wrap footer-base">
     <span>© <?php echo esc_html(gmdate('Y')); ?> Gánh Ngon Phú Quốc</span>

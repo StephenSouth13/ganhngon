@@ -33,7 +33,92 @@
     update();
   });
 
+  function pad2(n) {
+    n = String(n);
+    return n.length < 2 ? "0" + n : n;
+  }
+
+  function vnParts(date) {
+    var fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23"
+    });
+    var parts = { year: "1970", month: "01", day: "01", hour: "00", minute: "00", second: "00" };
+    fmt.formatToParts(date).forEach(function (p) {
+      if (parts.hasOwnProperty(p.type)) parts[p.type] = p.value;
+    });
+    if (parts.hour === "24") parts.hour = "00";
+    return parts;
+  }
+
+  function ymdAdd(ymd, days) {
+    var p = ymd.split("-");
+    var utc = Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10) + days);
+    var d = new Date(utc);
+    return d.getUTCFullYear() + "-" + pad2(d.getUTCMonth() + 1) + "-" + pad2(d.getUTCDate());
+  }
+
+  function bookingEarliest(now) {
+    var plus = new Date(now.getTime() + 30 * 60000);
+    var p = vnParts(plus);
+    var seconds = parseInt(p.minute, 10) * 60 + parseInt(p.second, 10);
+    var mod = seconds % 900;
+    if (mod !== 0) plus = new Date(plus.getTime() + (900 - mod) * 1000);
+    p = vnParts(plus);
+    var hm = p.hour + ":" + p.minute;
+    var nowHm = vnParts(now).hour + ":" + vnParts(now).minute;
+    var ymd = p.year + "-" + p.month + "-" + p.day;
+    if (hm > "01:30" && hm < "06:30") {
+      if (nowHm <= "01:30") return { ymd: ymd, hm: "06:30" };
+      return { ymd: ymdAdd(vnParts(now).year + "-" + vnParts(now).month + "-" + vnParts(now).day, 1), hm: "06:30" };
+    }
+    return { ymd: ymd, hm: hm };
+  }
+
+  function serviceDateOf(moment) {
+    if (moment.hm < "06:30") return ymdAdd(moment.ymd, -1);
+    return moment.ymd;
+  }
+
+  function slotMomentKey(serviceYmd, hm) {
+    var ymd = hm < "06:30" ? ymdAdd(serviceYmd, 1) : serviceYmd;
+    return ymd + " " + hm;
+  }
+
+  function syncBookingSlots(form) {
+    var dateInput = form.querySelector("[data-gn-date]");
+    var timeSelect = form.querySelector("[data-gn-time]");
+    if (!dateInput || !timeSelect || typeof Intl === "undefined") return;
+    var earliest = bookingEarliest(new Date());
+    var minDate = serviceDateOf(earliest);
+    var earliestKey = earliest.ymd + " " + earliest.hm;
+    dateInput.min = minDate;
+    if (!dateInput.value || dateInput.value < minDate) dateInput.value = minDate;
+    var firstEnabled = null;
+    var selectedOk = false;
+    Array.prototype.forEach.call(timeSelect.options, function (opt) {
+      if (!opt.value) return;
+      var past = slotMomentKey(dateInput.value, opt.value) < earliestKey;
+      opt.disabled = past;
+      if (!past && !firstEnabled) firstEnabled = opt;
+      if (!past && opt.value === timeSelect.value) selectedOk = true;
+    });
+    if (!selectedOk && firstEnabled) timeSelect.value = firstEnabled.value;
+  }
+
   document.querySelectorAll("form[data-gn-request]").forEach(function (form) {
+    var dateInput = form.querySelector("[data-gn-date]");
+    if (dateInput) {
+      dateInput.addEventListener("change", function () { syncBookingSlots(form); });
+      dateInput.addEventListener("input", function () { syncBookingSlots(form); });
+      syncBookingSlots(form);
+    }
     var group = form.querySelector("select[data-gns-group]");
     var sync = function () {
       var value = group ? group.value : "";
