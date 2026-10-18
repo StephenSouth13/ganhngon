@@ -62,7 +62,8 @@
   $gns_hotline = defined('GN_LEGAL_HOTLINE') ? GN_LEGAL_HOTLINE : gns_phone_label();
   $gns_tel = defined('GN_LEGAL_TEL') ? GN_LEGAL_TEL : '+84979232233';
   $gns_email = defined('GN_LEGAL_EMAIL') ? GN_LEGAL_EMAIL : 'contact@ganhngon.com';
-  $gns_legal_hours = defined('GN_LEGAL_HOURS') ? GN_LEGAL_HOURS : '6:30 – 02:00 tất cả các ngày';
+  $gns_legal_hours = defined('GN_LEGAL_HOURS') ? GN_LEGAL_HOURS : '10:00 – 23:00 tất cả các ngày';
+  if (function_exists('gns_refresh_hours_copy')) $gns_legal_hours = gns_refresh_hours_copy($gns_legal_hours);
   $gns_voucher = $gns_en ? home_url('/en/tra-cuu-en/') : home_url('/tra-cuu/');
   $gns_partner = $gns_en ? home_url('/en/xac-minh-en/') : home_url('/xac-minh/');
   ?>
@@ -76,7 +77,7 @@
       <?php echo esc_html($gns_en ? 'Hotline / Zalo: ' : 'Hotline / Zalo: '); ?>
       <a href="tel:<?php echo esc_attr($gns_tel); ?>"><bdi dir="ltr"><?php echo esc_html($gns_hotline); ?></bdi></a>
       · <a href="mailto:<?php echo esc_attr($gns_email); ?>"><?php echo esc_html($gns_email); ?></a>
-      · <?php echo esc_html($gns_en ? 'Open 6:30 – 02:00 daily' : 'Giờ mở cửa: ' . $gns_legal_hours); ?>
+      · <?php echo esc_html($gns_en ? 'Open 10:00 – 23:00 daily' : 'Giờ mở cửa: ' . $gns_legal_hours); ?>
     </p>
     <p class="footer-legal-warn">
       <?php if ($gns_en): ?>

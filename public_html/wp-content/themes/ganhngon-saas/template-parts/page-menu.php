@@ -11,7 +11,7 @@ $groups = count($catalog);
   <div class="wrap page-hero-inner">
     <p class="eyebrow eyebrow-light">Thực đơn Gánh Ngon</p>
     <h1 id="menu-title" class="display">Lửa than hồng,<br><em>nồi lẩu sầu riêng</em>.</h1>
-    <p class="hero-lead">Hải sản đảo và bò Úc nướng tại quầy bếp mở, lẩu gà sầu riêng cho bàn đông, cơm niêu buổi trưa, món Âu cho các bé và quầy bar đến 2 giờ sáng. Giá báo tại nhà hàng.</p>
+    <p class="hero-lead">Hải sản đảo và bò Úc nướng tại quầy bếp mở, lẩu gà sầu riêng cho bàn đông, cơm niêu buổi trưa, món Âu cho các bé và quầy bar đến 23:00. Giá báo tại nhà hàng.</p>
     <div class="hero-actions">
       <a class="btn btn-ember" href="#thuc-don">Xem thực đơn <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow"></use></svg></a>
       <a class="btn btn-ghost-light" href="<?php echo esc_url(gns_url('dat-ban')); ?>"><?php echo esc_html(gns_t('btn_book', 'Đặt bàn')); ?></a>

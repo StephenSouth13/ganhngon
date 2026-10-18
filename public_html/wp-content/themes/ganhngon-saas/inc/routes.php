@@ -23,10 +23,6 @@ function gns_exact_redirects() {
         'home-ko' => '/ko/home-ko/',
         'home-ru' => '/ru/home-ru/',
         'home-ar' => '/ar/home-ar/',
-        'tra-cuu-en' => '/tra-cuu/',
-        'xac-minh-en' => '/xac-minh/',
-        'en/tra-cuu-en' => '/tra-cuu/',
-        'en/xac-minh-en' => '/xac-minh/',
     ];
 }
 

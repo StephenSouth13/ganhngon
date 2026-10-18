@@ -19,6 +19,13 @@
     return fallback;
   }
 
+  function resetTurnstile(form) {
+    if (!window.turnstile || !form) return;
+    var widget = form.querySelector(".cf-turnstile");
+    if (!widget) return;
+    try { window.turnstile.reset(widget); } catch (e) {}
+  }
+
   document.querySelectorAll("select[data-gns-group]").forEach(function (sel) {
     var label = sel.closest("label");
     var hint = label ? label.querySelector("[data-gns-hint]") : null;
@@ -72,23 +79,18 @@
     if (mod !== 0) plus = new Date(plus.getTime() + (900 - mod) * 1000);
     p = vnParts(plus);
     var hm = p.hour + ":" + p.minute;
-    var nowHm = vnParts(now).hour + ":" + vnParts(now).minute;
     var ymd = p.year + "-" + p.month + "-" + p.day;
-    if (hm > "01:30" && hm < "06:30") {
-      if (nowHm <= "01:30") return { ymd: ymd, hm: "06:30" };
-      return { ymd: ymdAdd(vnParts(now).year + "-" + vnParts(now).month + "-" + vnParts(now).day, 1), hm: "06:30" };
-    }
+    if (hm < "10:00") return { ymd: ymd, hm: "10:00" };
+    if (hm > "22:00") return { ymd: ymdAdd(ymd, 1), hm: "10:00" };
     return { ymd: ymd, hm: hm };
   }
 
   function serviceDateOf(moment) {
-    if (moment.hm < "06:30") return ymdAdd(moment.ymd, -1);
     return moment.ymd;
   }
 
   function slotMomentKey(serviceYmd, hm) {
-    var ymd = hm < "06:30" ? ymdAdd(serviceYmd, 1) : serviceYmd;
-    return ymd + " " + hm;
+    return serviceYmd + " " + hm;
   }
 
   function syncBookingSlots(form) {
@@ -152,10 +154,12 @@
           }
           if (btn) btn.disabled = false;
           err.textContent = messageOf(data, "Không gửi được. Gọi 0979 232 233.");
+          resetTurnstile(form);
         })
         .catch(function () {
           if (btn) btn.disabled = false;
           err.textContent = "Không gửi được. Gọi 0979 232 233.";
+          resetTurnstile(form);
         });
     });
   });

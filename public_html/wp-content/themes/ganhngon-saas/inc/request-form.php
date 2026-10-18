@@ -61,20 +61,13 @@ function gns_booking_tz() {
     return new DateTimeZone('Asia/Ho_Chi_Minh');
 }
 
-/** 06:30–23:45 and 00:00–01:30, every 15 minutes. 00:00–01:30 belong to the next calendar day. */
+/** 10:00–22:00 every 15 minutes. 22:00 is the last seating, one hour before close. */
 function gns_booking_slots() {
     $slots = [];
-    for ($t = (6 * 60) + 30; $t <= (23 * 60) + 45; $t += 15) {
-        $slots[] = sprintf('%02d:%02d', intdiv($t, 60), $t % 60);
-    }
-    for ($t = 0; $t <= 90; $t += 15) {
+    for ($t = 10 * 60; $t <= 22 * 60; $t += 15) {
         $slots[] = sprintf('%02d:%02d', intdiv($t, 60), $t % 60);
     }
     return $slots;
-}
-
-function gns_booking_is_overnight($hm) {
-    return is_string($hm) && $hm < '06:30';
 }
 
 function gns_booking_moment($service_date, $hm) {
@@ -84,7 +77,6 @@ function gns_booking_moment($service_date, $hm) {
     $day = DateTime::createFromFormat('!Y-m-d', $service_date, $tz);
     $errors = DateTime::getLastErrors();
     if (!$day || (is_array($errors) && (!empty($errors['warning_count']) || !empty($errors['error_count'])))) return null;
-    if (gns_booking_is_overnight($hm)) $day->modify('+1 day');
     $parts = explode(':', $hm);
     $day->setTime((int) $parts[0], (int) $parts[1], 0);
     return $day;
@@ -101,8 +93,8 @@ function gns_booking_round_up_15(DateTime $dt) {
 
 /**
  * Earliest bookable moment: now + 30 minutes, rounded up to 15 minutes, in Vietnam.
- * A result that lands in the closed gap after 01:30 moves to 06:30 the same morning
- * when the clock is still at or before 01:30, otherwise to 06:30 the next day.
+ * Before 10:00 snaps to 10:00 the same morning. After the 22:00 last seating,
+ * or when that rounding leaves no slot today, the next opening is 10:00 tomorrow.
  */
 function gns_booking_earliest_moment($now = null) {
     $tz = gns_booking_tz();
@@ -113,23 +105,19 @@ function gns_booking_earliest_moment($now = null) {
     $plus->modify('+30 minutes');
     $rounded = gns_booking_round_up_15($plus);
     $hm = $rounded->format('H:i');
-    if ($hm > '01:30' && $hm < '06:30') {
-        if ($now->format('H:i') <= '01:30') {
-            $rounded->setTime(6, 30, 0);
-            return $rounded;
-        }
-        $next = clone $now;
-        $next->modify('+1 day');
-        $next->setTime(6, 30, 0);
-        return $next;
+    if ($hm < '10:00') {
+        $rounded->setTime(10, 0, 0);
+        return $rounded;
+    }
+    if ($hm > '22:00') {
+        $rounded->modify('+1 day');
+        $rounded->setTime(10, 0, 0);
     }
     return $rounded;
 }
 
 function gns_booking_service_date(DateTime $moment) {
-    $day = clone $moment;
-    if (gns_booking_is_overnight($day->format('H:i'))) $day->modify('-1 day');
-    return $day->format('Y-m-d');
+    return $moment->format('Y-m-d');
 }
 
 function gns_booking_bounds($now = null) {
@@ -186,7 +174,7 @@ function gns_contact_aside_html() {
           </li>
           <li>
             <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clock"></use></svg>
-            <span><strong>Giờ mở cửa</strong>6:30–2:00 hằng ngày</span>
+            <span><strong>Giờ mở cửa</strong>10:00–23:00 hằng ngày</span>
           </li>
           <li>
             <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-mail"></use></svg>
@@ -279,6 +267,7 @@ function gns_request_form_html($context = 'lien-he') {
         <textarea name="note" rows="4" maxlength="2000"></textarea>
       </label>
     </div>
+    <?php gns_turnstile_widget(); ?>
     <button class="btn btn-ember btn-block" type="submit"><?php echo esc_html(gns_t('form_submit', 'Gửi yêu cầu')); ?></button>
     <p class="form-note" data-gn-error role="status"></p>
     <?php if ($context === 'lien-he' && $hint !== ''): ?>
@@ -308,6 +297,96 @@ function gns_request_rate_limited() {
 function gns_request_valid_time($time) {
     return in_array($time, gns_booking_slots(), true);
 }
+
+function gns_sanitize_turnstile_key($value) {
+    $value = is_string($value) ? trim($value) : '';
+    $value = preg_replace('/[^A-Za-z0-9_-]/', '', $value);
+    return is_string($value) ? $value : '';
+}
+
+function gns_turnstile_key($constant, $mod) {
+    if (defined($constant)) {
+        $from_config = gns_sanitize_turnstile_key(constant($constant));
+        if ($from_config !== '') return $from_config;
+    }
+    if (!function_exists('gns_saved_text')) return '';
+    return gns_sanitize_turnstile_key(gns_saved_text($mod));
+}
+
+function gns_turnstile_site_key() {
+    return gns_turnstile_key('GN_TURNSTILE_SITE_KEY', 'gns_turnstile_site');
+}
+
+function gns_turnstile_secret_key() {
+    return gns_turnstile_key('GN_TURNSTILE_SECRET_KEY', 'gns_turnstile_secret');
+}
+
+/** Both keys are required. With either one missing, the form is unchanged. */
+function gns_turnstile_active() {
+    return gns_turnstile_site_key() !== '' && gns_turnstile_secret_key() !== '';
+}
+
+function gns_turnstile_widget() {
+    if (!gns_turnstile_active()) return;
+    $lang = 'auto';
+    if (function_exists('pll_current_language')) {
+        $current = pll_current_language('slug');
+        if (is_string($current) && $current !== '') $lang = $current;
+    }
+    printf(
+        '<div class="cf-turnstile" data-sitekey="%s" data-language="%s" data-theme="auto" data-size="flexible"></div>',
+        esc_attr(gns_turnstile_site_key()),
+        esc_attr($lang)
+    );
+}
+
+function gns_turnstile_verify() {
+    if (!gns_turnstile_active()) return true;
+    $token = isset($_POST['cf-turnstile-response']) ? sanitize_text_field(wp_unslash($_POST['cf-turnstile-response'])) : '';
+    if ($token === '' || strlen($token) > 2048) return false;
+    $ip = '';
+    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) $ip = (string) $_SERVER['HTTP_CF_CONNECTING_IP'];
+    elseif (!empty($_SERVER['REMOTE_ADDR'])) $ip = (string) $_SERVER['REMOTE_ADDR'];
+    $res = wp_remote_post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+        'timeout' => 8,
+        'body' => [
+            'secret' => gns_turnstile_secret_key(),
+            'response' => $token,
+            'remoteip' => sanitize_text_field($ip),
+        ],
+    ]);
+    if (is_wp_error($res)) return false;
+    $body = json_decode(wp_remote_retrieve_body($res), true);
+    if (!is_array($body) || empty($body['success'])) return false;
+    if (!empty($body['hostname'])) {
+        $hosts = ['ganhngon.com', 'www.ganhngon.com'];
+        $home = wp_parse_url(home_url('/'), PHP_URL_HOST);
+        if (is_string($home) && $home !== '') $hosts[] = $home;
+        if (!in_array((string) $body['hostname'], $hosts, true)) return false;
+    }
+    return true;
+}
+
+function gns_turnstile_guard() {
+    if (!gns_turnstile_active()) return;
+    if (gns_turnstile_verify()) return;
+    wp_send_json_error([
+        'message' => 'Vui lòng xác minh bạn không phải robot rồi gửi lại, hoặc gọi 0979 232 233.',
+    ], 403);
+}
+add_action('wp_ajax_nopriv_gns_submit_request', 'gns_turnstile_guard', 1);
+add_action('wp_ajax_gns_submit_request', 'gns_turnstile_guard', 1);
+
+add_action('wp_enqueue_scripts', function () {
+    if (!gns_turnstile_active()) return;
+    wp_enqueue_script(
+        'cf-turnstile',
+        'https://challenges.cloudflare.com/turnstile/v0/api.js',
+        [],
+        null,
+        ['strategy' => 'defer', 'in_footer' => true]
+    );
+}, 40);
 
 add_action('wp_ajax_nopriv_gns_submit_request', 'gns_ajax_submit_request');
 add_action('wp_ajax_gns_submit_request', 'gns_ajax_submit_request');
@@ -358,7 +437,7 @@ function gns_ajax_submit_request() {
     } catch (Exception $e) {
         $max = gmdate('Y-m-d', time() + 365 * DAY_IN_SECONDS);
     }
-    if (!gns_request_valid_time($time)) wp_send_json_error(['message' => 'Chọn giờ trong danh sách.']);
+    if (!gns_request_valid_time($time)) wp_send_json_error(['message' => 'Giờ đặt bàn từ 10:00 đến 22:00, mỗi 15 phút.']);
     if (!gns_booking_slot_is_allowed($date, $time)) {
         wp_send_json_error(['message' => 'Giờ này đã qua. Chọn giờ còn lại trong hôm nay, hoặc ngày khác.']);
     }

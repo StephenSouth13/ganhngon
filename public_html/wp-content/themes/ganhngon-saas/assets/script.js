@@ -315,10 +315,10 @@ document.documentElement.classList.add("js");
   // is a separate channel.
   var ADVISOR = {
     vi: {
-      hello: "Gánh Ngon ở 113 Trần Hưng Đạo, Dương Đông, Phú Quốc. Món đặc trưng là lẩu gà sầu riêng. Bàn thường nhận trong ngày, mở cửa 6:30–2:00. Gọi hoặc Zalo 0979 232 233. Giá báo tại nhà hàng.",
+      hello: "Gánh Ngon ở 113 Trần Hưng Đạo, Dương Đông, Phú Quốc. Món đặc trưng là lẩu gà sầu riêng. Bàn thường nhận trong ngày, mở cửa 10:00–23:00. Gọi hoặc Zalo 0979 232 233. Giá báo tại nhà hàng.",
       dish: "Món đặc trưng là lẩu gà sầu riêng: sầu riêng Phú Quốc hoà vào nước hầm gà, không phải món tráng miệng. Nên báo trước khoảng 1 tiếng. Bàn thường vẫn nhận trong ngày. Giá không niêm yết trên web.",
       price: "Nhà hàng không niêm yết giá trên web. Gọi 0979 232 233, cho biết ngày, giờ, số khách và có muốn lẩu gà sầu riêng hay không.",
-      hours: "Mở cửa hằng ngày 6:30 sáng đến 2:00 sáng hôm sau, kể cả lễ. Bàn thường nhận trong ngày.",
+      hours: "Mở cửa hằng ngày 10:00 đến 23:00, kể cả lễ. Bàn thường nhận trong ngày.",
       map: "113 Trần Hưng Đạo, Dương Đông, Phú Quốc. Mở Google Maps từ trang Liên hệ. Gọi 0979 232 233 nếu cần chỉ đường.",
       contact: "Điện thoại và Zalo: 0979 232 233. Email: contact@ganhngon.com. Facebook: facebook.com/ganhngon.",
       book: "Bàn thường đặt và đến trong ngày được. Giữ bàn tại trang Đặt bàn hoặc gọi 0979 232 233. Nhà hàng không xác nhận còn bàn trước khi nhân viên gọi lại.",
@@ -328,10 +328,10 @@ document.documentElement.classList.add("js");
       fallback: "Em giúp được việc đến trong hôm nay: bàn thường, đường đến 113 Trần Hưng Đạo, và món lẩu gà sầu riêng. Gọi 0979 232 233. Giá báo tại nhà hàng.",
     },
     en: {
-      hello: "Gánh Ngon is at 113 Tran Hung Dao, Duong Dong, Phu Quoc. The signature dish is durian chicken hotpot. A regular table can be booked today. Open daily 6:30–2:00. Call 0979 232 233. Prices are quoted at the restaurant.",
+      hello: "Gánh Ngon is at 113 Tran Hung Dao, Duong Dong, Phu Quoc. The signature dish is durian chicken hotpot. A regular table can be booked today. Open daily 10:00–23:00. Call 0979 232 233. Prices are quoted at the restaurant.",
       dish: "The signature dish is durian chicken hotpot: Phu Quoc durian blended into chicken broth, not a dessert. Tell the kitchen about an hour ahead. A regular table can still be requested the same day. The price is not listed on the website.",
       price: "Prices are not listed on the website. Call 0979 232 233 with the date, time, party size, and whether you want durian chicken hotpot.",
-      hours: "Open every day from 6:30 to 2:00 the next morning, including holidays.",
+      hours: "Open every day from 10:00 to 23:00, including holidays.",
       map: "113 Tran Hung Dao, Duong Dong, Phu Quoc — central Duong Dong. Call 0979 232 233 if you need directions.",
       contact: "Phone and Zalo: 0979 232 233. Email: contact@ganhngon.com. Facebook: facebook.com/ganhngon.",
       book: "A regular table can be reserved and used today. The restaurant does not confirm a free table until staff call you back.",

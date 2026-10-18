@@ -28,12 +28,12 @@ add_action('wp_enqueue_scripts', function () {
         [],
         null
     );
-    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.4.2');
-    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.4.2');
-    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.4.2', true);
-    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.4.2', true);
-    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.4.2', true);
-    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.4.2', true);
+    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.4.3');
+    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.4.3');
+    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.4.3', true);
+    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.4.3', true);
+    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.4.3', true);
+    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.4.3', true);
     wp_localize_script('gns-forms', 'GNS', [
         'ajax' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('gns_lead'),
@@ -188,8 +188,9 @@ function gns_addr() {
 
 function gns_hours() {
     $custom = function_exists('gns_saved_text') ? gns_saved_text('gns_hours') : '';
+    if (function_exists('gns_refresh_hours_copy')) $custom = gns_refresh_hours_copy($custom);
     if ($custom !== '') return $custom;
-    return function_exists('gn_t') ? gn_t('hours_clock') : 'Mở cửa hằng ngày 6:30–2:00';
+    return 'Mở cửa hằng ngày 10:00 – 23:00';
 }
 
 function gns_t($key, $fallback) {

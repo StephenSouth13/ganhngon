@@ -172,11 +172,58 @@ function gns_strip_legacy_forms($html) {
     return is_string($html) ? $html : '';
 }
 
+function gns_refresh_hours_copy($text) {
+    if (!is_string($text) || $text === '') return $text;
+    $pairs = [
+        'Mở cửa hằng ngày 6:30 sáng đến 2:00 sáng hôm sau' => 'Mở cửa hằng ngày 10:00 đến 23:00',
+        '6h30 sáng đến 2h sáng hôm sau' => '10:00 đến 23:00',
+        '6h30 sáng đến 2h sáng' => '10:00 đến 23:00',
+        'đến 2h sáng' => 'đến 23:00',
+        '6:00 – 2:00' => '10:00 – 23:00',
+        '6:00–2:00' => '10:00–23:00',
+        '06:00–02:00' => '10:00–23:00',
+        '06:00-02:00' => '10:00-23:00',
+        'Open every day from 6:30 to 2:00 the next morning' => 'Open every day from 10:00 to 23:00',
+        'quầy bar ngoài trời mở đến 2 giờ sáng' => 'quầy bar ngoài trời phục vụ đến 23:00',
+        'Quầy bar ngoài trời mở đến 2 giờ sáng' => 'Quầy bar ngoài trời phục vụ đến 23:00',
+        'quầy bar ngoài trời đến 2 giờ sáng' => 'quầy bar ngoài trời đến 23:00',
+        'quầy bar đến 2 giờ sáng' => 'quầy bar đến 23:00',
+        'Mo-Su 06:30-02:00' => 'Mo-Su 10:00-23:00',
+        'Open daily 6:30–2:00' => 'Open daily 10:00–23:00',
+        'Open 6:30 – 02:00 daily' => 'Open 10:00 – 23:00 daily',
+        '6:30 – 02:00 tất cả các ngày' => '10:00 – 23:00 tất cả các ngày',
+        'Mở cửa hằng ngày 6:30 – 2:00' => 'Mở cửa hằng ngày 10:00 – 23:00',
+        'Mở cửa hằng ngày 6:30–2:00' => 'Mở cửa hằng ngày 10:00–23:00',
+        'Hằng ngày 6:30 – 2:00' => 'Hằng ngày 10:00 – 23:00',
+        'trong giờ mở cửa 6:30 – 2:00' => 'trong giờ mở cửa 10:00 – 23:00',
+        'Mở cửa 6:30 – 2:00' => 'Mở cửa 10:00 – 23:00',
+        'mở cửa 6:30–2:00' => 'mở cửa 10:00–23:00',
+        '6:30–2:00 hằng ngày' => '10:00–23:00 hằng ngày',
+        'Hotline (6:30–2:00)' => 'Hotline (10:00–23:00)',
+        '매일 영업 6:30–2:00' => '매일 영업 10:00–23:00',
+        'Ежедневно 6:30–2:00' => 'Ежедневно 10:00–23:00',
+        'يوميًا 6:30–2:00' => 'يوميًا 10:00–23:00',
+        '每天营业 6:30–2:00' => '每天营业 10:00–23:00',
+        '6:30 – 02:00' => '10:00 – 23:00',
+        '6:30–02:00' => '10:00–23:00',
+        '6:30 – 2:00' => '10:00 – 23:00',
+        '6:30–2:00' => '10:00–23:00',
+        '06:30–02:00' => '10:00–23:00',
+        '06:30-02:00' => '10:00-23:00',
+        'ly cocktail lúc nửa đêm' => 'ly cocktail buổi tối',
+        'Nhà hàng lại mở tới 2 giờ sáng' => 'Nhà hàng đóng cửa lúc 23:00',
+        'đến 2 giờ sáng' => 'đến 23:00',
+        'mở đến 2 giờ sáng' => 'mở đến 23:00',
+    ];
+    return str_replace(array_keys($pairs), array_values($pairs), $text);
+}
+
 function gns_scrub_public_copy($text) {
     if (!is_string($text) || $text === '') return $text;
+    $text = gns_refresh_hours_copy($text);
     $text = str_ireplace(
         ['Hotline/Zalo 24/7', 'Hotline 24/7'],
-        'Hotline (6:30–2:00)',
+        'Hotline (10:00–23:00)',
         $text
     );
     $text = str_replace('10 phòng VIP', '9 phòng VIP', $text);
@@ -356,13 +403,24 @@ function gns_scrub_schema_node($node) {
     $types = is_array($type) ? $type : [$type];
     if (in_array('Person', $types, true)) return null;
     if (isset($node['parentOrganization'])) {
-        $blob = wp_json_encode($node['parentOrganization']);
-        if (is_string($blob) && stripos($blob, 'saophuquoc') !== false) unset($node['parentOrganization']);
+        $parent = $node['parentOrganization'];
+        $blob = is_string($parent) ? $parent : (string) wp_json_encode($parent);
+        $name = (is_array($parent) && isset($parent['name'])) ? (string) $parent['name'] : '';
+        if (stripos($blob, 'saophuquoc') !== false || strcasecmp(trim($name), 'SAO PHU QUOC') === 0) {
+            unset($node['parentOrganization']);
+        }
     }
     $org_types = ['Restaurant', 'Organization', 'LocalBusiness', 'FoodEstablishment'];
     $is_org = false;
     foreach ($org_types as $org_type) {
         if (in_array($org_type, $types, true)) $is_org = true;
+    }
+    if (in_array('OpeningHoursSpecification', $types, true)) {
+        $node['opens'] = '10:00';
+        $node['closes'] = '23:00';
+    }
+    if (isset($node['openingHours']) && is_string($node['openingHours'])) {
+        $node['openingHours'] = 'Mo-Su 10:00-23:00';
     }
     if ($is_org || (isset($node['sameAs']) && is_array($node['sameAs']))) {
         if ($is_org) {
@@ -372,10 +430,7 @@ function gns_scrub_schema_node($node) {
                 return is_string($url) && $url !== '' && stripos($url, 'saophuquoc.com') === false
                     && !preg_match('#instagram\.com/ganhngon|tiktok\.com/@ganhngon|t\.me/ganhngon|facebook\.com/ganhngon#i', $url);
             }));
-            if (function_exists('gns_facebook_url')) {
-                array_unshift($node['sameAs'], gns_facebook_url());
-                $node['sameAs'] = array_values(array_unique($node['sameAs']));
-            }
+            if ($node['sameAs'] === []) unset($node['sameAs']);
         }
     }
     $list = gns_schema_is_list($node);
@@ -396,21 +451,28 @@ add_filter('wpseo_schema_graph', function ($graph) {
     return gns_scrub_schema_node($graph);
 }, 20);
 
-function gns_scrub_schema_html($html) {
-    $html = preg_replace_callback(
-        '#<script type="application/ld\+json">\s*(.*?)\s*</script>#s',
+function gns_scrub_ldjson_html($html) {
+    if (!is_string($html) || $html === '' || stripos($html, 'ld+json') === false) return $html;
+    $next = preg_replace_callback(
+        '#<script\b[^>]*type=(["\'])application/ld\+json\1[^>]*>\s*(.*?)\s*</script>#is',
         function ($m) {
-            $data = json_decode($m[1], true);
+            $open = substr($m[0], 0, (int) strpos($m[0], '>') + 1);
+            $data = json_decode($m[2], true);
             if (!is_array($data)) {
-                $raw = preg_replace('#https?://(?:www\.)?saophuquoc\.com/?#i', '', $m[1]);
-                return '<script type="application/ld+json">' . $raw . '</script>';
+                $raw = preg_replace('#https?://(?:www\.)?saophuquoc\.com/?#i', '', $m[2]);
+                return $open . (is_string($raw) ? $raw : $m[2]) . '</script>';
             }
             $data = gns_scrub_schema_node($data);
             if (!is_array($data)) $data = [];
-            return '<script type="application/ld+json">' . wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
+            return $open . wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
         },
         $html
     );
+    return is_string($next) ? $next : $html;
+}
+
+function gns_scrub_schema_html($html) {
+    $html = gns_scrub_ldjson_html($html);
     $real = gns_real_og_image_url();
     $html = preg_replace_callback('#https?://[^"\\\\\s]+#', function ($m) use ($real) {
         return gns_is_hidden_media_url($m[0]) ? $real : $m[0];
@@ -625,6 +687,17 @@ add_filter('wpseo_sitemap_exclude_post', function ($exclude, $post_id) {
     return $exclude;
 }, 10, 2);
 
+add_filter('wpseo_sitemap_entry', function ($url) {
+    if (!is_array($url) || empty($url['loc'])) return $url;
+    $path = trim((string) wp_parse_url($url['loc'], PHP_URL_PATH), '/');
+    $bare = preg_replace('#^(en|zh|ko|ru|ar)/#', '', $path);
+    if (!is_string($bare)) $bare = $path;
+    $drop = ['dat-cho', 'ganh-ngon', 'privacy-policy', 've-combo', 'lau-ga-sau-rieng'];
+    if (in_array($path, $drop, true) || in_array($bare, $drop, true)) return false;
+    if (function_exists('gns_request_redirect_target') && gns_request_redirect_target($path) !== '') return false;
+    return $url;
+});
+
 add_filter('wpseo_exclude_from_sitemap_by_term_ids', function ($ids) {
     if (!is_array($ids)) $ids = [];
     foreach (['category', 'post_tag'] as $taxonomy) {
@@ -665,11 +738,22 @@ function gns_clean_public_html($html) {
             if (is_string($next)) $html = $next;
         }
     }
-    if (strpos($html, '/lau-ga-sau-rieng') !== false) {
-        $next = preg_replace('~(/lau-ga-sau-rieng)(?!-phu-quoc)(?=/|["\'?#])~', '/lau-ga-sau-rieng-phu-quoc', $html);
+    if (strpos($html, 'lau-ga-sau-rieng') !== false) {
+        $long = home_url('/lau-ga-sau-rieng-phu-quoc/');
+        $next = preg_replace(
+            '~(?:https?:)?//[^"\'\s<>]*/(?:(?:en|zh|ko|ru|ar)/)?lau-ga-sau-rieng/?(?=["\'?#\s])|(?<![\w-])/(?:(?:en|zh|ko|ru|ar)/)?lau-ga-sau-rieng/?(?=["\'?#])~',
+            $long,
+            $html
+        );
         if (is_string($next)) $html = $next;
     }
     return $html;
+}
+
+function gns_finish_public_html($html) {
+    if (!is_string($html) || $html === '') return $html;
+    $html = gns_clean_public_html(gns_scrub_ldjson_html($html));
+    return gns_refresh_hours_copy($html);
 }
 
 add_filter('widget_text', 'gns_clean_public_html');
@@ -686,8 +770,10 @@ add_filter('wp_nav_menu_objects', function ($items) {
             unset($items[$i]);
             continue;
         }
-        if ($url !== '' && preg_match('#/lau-ga-sau-rieng/?(?:$|\?)#', $url) && strpos($url, 'lau-ga-sau-rieng-phu-quoc') === false) {
-            $item->url = preg_replace('#/lau-ga-sau-rieng/?(?=$|\?)#', '/lau-ga-sau-rieng-phu-quoc/', $url);
+        $path = trim((string) wp_parse_url($url, PHP_URL_PATH), '/');
+        $bare = preg_replace('#^(en|zh|ko|ru|ar)/#', '', $path);
+        if ($bare === 'lau-ga-sau-rieng') {
+            $item->url = home_url('/lau-ga-sau-rieng-phu-quoc/');
         }
     }
     return $items;
@@ -695,7 +781,7 @@ add_filter('wp_nav_menu_objects', function ($items) {
 
 add_action('template_redirect', function () {
     if (is_admin() || wp_doing_ajax()) return;
-    ob_start('gns_clean_public_html');
+    ob_start('gns_finish_public_html');
 }, 2);
 
 function gns_lau_canonical_url($url) {

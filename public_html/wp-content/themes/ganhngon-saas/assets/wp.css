@@ -189,7 +189,6 @@ body.admin-bar .site-header { top: 32px; }
   padding-top: 12px;
   border-top: 1px dashed rgba(247, 241, 230, 0.22);
 }
-.footer-eco { margin-top: 14px; font-size: 0.8rem; }
 .site-footer .footer-base { margin-top: 18px; }
 @media (max-width: 1100px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }

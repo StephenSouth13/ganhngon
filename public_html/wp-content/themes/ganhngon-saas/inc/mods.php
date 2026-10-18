@@ -49,8 +49,8 @@ function gns_kses_line($value) {
 }
 
 function gns_footer_about() {
-    $default = 'Nhà hàng Việt giữa trung tâm Dương Đông: hải sản và bò Úc nướng than hồng, lẩu gà sầu riêng, cơm niêu trưa và quầy bar ngoài trời mở đến 2 giờ sáng.';
-    $value = gns_saved_text('gns_footer_about');
+    $default = 'Nhà hàng Việt giữa trung tâm Dương Đông: hải sản và bò Úc nướng than hồng, lẩu gà sầu riêng, cơm niêu trưa và quầy bar ngoài trời phục vụ đến 23:00.';
+    $value = gns_refresh_hours_copy(gns_saved_text('gns_footer_about'));
     return $value !== '' ? $value : $default;
 }
 
@@ -343,11 +343,11 @@ function gns_apply_customizer($html, $page) {
         }
         $html = gns_swap_once($html, 'Nướng than hồng · Lẩu gà sầu riêng · Phú Quốc', gns_saved_text('gns_hero_kicker'));
         $html = gns_swap_once($html, 'Lửa than hồng,<br><em>vị sầu riêng</em> của đảo.', gns_saved_text('gns_hero_title'), true);
-        $html = gns_swap_once($html, 'Nhà hàng Việt giữa trung tâm Dương Đông. Hải sản và bò Úc nướng tại quầy bếp mở, lẩu gà sầu riêng cho bàn đông người, cơm niêu buổi trưa và quầy bar ngoài trời đến 2 giờ sáng.', gns_saved_text('gns_hero_lead'));
+        $html = gns_swap_once($html, 'Nhà hàng Việt giữa trung tâm Dương Đông. Hải sản và bò Úc nướng tại quầy bếp mở, lẩu gà sầu riêng cho bàn đông người, cơm niêu buổi trưa và quầy bar ngoài trời đến 23:00.', gns_refresh_hours_copy(gns_saved_text('gns_hero_lead')));
         $html = gns_swap_once($html, 'Đặt bàn hôm nay', gns_saved_text('gns_hero_cta_label'));
         $html = gns_swap_once($html, 'Xem thực đơn', gns_saved_text('gns_hero_cta2_label'));
         $html = gns_swap_once($html, 'Mỗi bữa ở Gánh Ngon<br>là một kiểu ăn riêng', gns_saved_text('gns_kitchens_title'), true);
-        $html = gns_swap_once($html, 'Từ than hồng đến nồi lẩu, từ cơm niêu trưa đến ly cocktail lúc nửa đêm — chọn kiểu ăn hợp với bàn của anh chị.', gns_saved_text('gns_kitchens_intro'));
+        $html = gns_swap_once($html, 'Từ than hồng đến nồi lẩu, từ cơm niêu trưa đến ly cocktail buổi tối — chọn kiểu ăn hợp với bàn của anh chị.', gns_refresh_hours_copy(gns_saved_text('gns_kitchens_intro')));
         $html = gns_swap_once($html, 'Sầu riêng không nằm ở phần tráng miệng.', gns_saved_text('gns_signature_title'));
         $html = gns_swap_once($html, 'Nó nằm trong nồi nước dùng, tan vào nước gà, để lại vị béo ngậy, thơm sâu và ngọt hậu mà không gia vị nào thay được. Người sợ sầu riêng thường ngạc nhiên nhất ở điểm này.', gns_saved_text('gns_signature_text'));
         $html = gns_swap_once($html, 'Đẹp mà không xa cách', gns_saved_text('gns_spaces_title'));
@@ -371,7 +371,7 @@ function gns_apply_customizer($html, $page) {
     }
 
     if ($page === 'lien-he') {
-        $html = gns_swap_once($html, 'Mở cửa hằng ngày 6:30 – 2:00. Xác nhận nhanh qua điện thoại, Zalo hoặc WhatsApp.', gns_saved_text('gns_contact_intro'));
+        $html = gns_swap_once($html, 'Mở cửa hằng ngày 10:00 – 23:00. Xác nhận nhanh qua điện thoại, Zalo hoặc WhatsApp.', gns_refresh_hours_copy(gns_saved_text('gns_contact_intro')));
     }
 
     $html = gns_replace_saved_facts($html);
@@ -399,10 +399,10 @@ function gns_replace_saved_facts($html) {
     if ($address !== '' && $address !== '113 Trần Hưng Đạo, Dương Đông, Phú Quốc') {
         $html = str_replace('113 Trần Hưng Đạo, Dương Đông, Phú Quốc', esc_html($address), $html);
     }
-    $hours = gns_saved_text('gns_hours');
-    if ($hours !== '' && $hours !== 'Mở cửa hằng ngày 6:30 – 2:00') {
-        $html = str_replace('Mở cửa hằng ngày 6:30 – 2:00', esc_html($hours), $html);
-        $html = str_replace('Hằng ngày 6:30 – 2:00', esc_html($hours), $html);
+    $hours = gns_refresh_hours_copy(gns_saved_text('gns_hours'));
+    if ($hours !== '' && $hours !== 'Mở cửa hằng ngày 10:00 – 23:00') {
+        $html = str_replace('Mở cửa hằng ngày 10:00 – 23:00', esc_html($hours), $html);
+        $html = str_replace('Hằng ngày 10:00 – 23:00', esc_html($hours), $html);
     }
     $zalo = esc_url(gns_saved_text('gns_zalo_url'));
     $zalo_now = 'https://zalo.me/2216004914337654583';
@@ -511,16 +511,38 @@ add_action('customize_register', function ($wp) {
     gns_customize_add_url($wp, 'gns_wa_url', 'WhatsApp', 'gns_info', 'https://wa.me/84979232233');
     gns_customize_add_text($wp, 'gns_email', 'Email', 'gns_info', 'contact@ganhngon.com');
     gns_customize_add_text($wp, 'gns_address', 'Địa chỉ', 'gns_info', '113 Trần Hưng Đạo, Dương Đông, Phú Quốc');
-    gns_customize_add_text($wp, 'gns_hours', 'Giờ mở cửa', 'gns_info', 'Mở cửa hằng ngày 6:30 – 2:00');
+    gns_customize_add_text($wp, 'gns_hours', 'Giờ mở cửa', 'gns_info', 'Mở cửa hằng ngày 10:00 – 23:00');
     gns_customize_add_url($wp, 'gns_maps', 'Google Maps', 'gns_info', function_exists('gn_maps_url') ? gn_maps_url() : '');
     gns_customize_add_url($wp, 'gns_facebook', 'Facebook URL', 'gns_info', 'https://www.facebook.com/ganhngon');
     gns_customize_add_url($wp, 'gns_instagram', 'Instagram', 'gns_info', '');
     gns_customize_add_url($wp, 'gns_tiktok', 'TikTok', 'gns_info', '');
     gns_customize_add_url($wp, 'gns_youtube', 'YouTube', 'gns_info', '');
+    $wp->add_setting('gns_turnstile_site', [
+        'default' => '',
+        'sanitize_callback' => 'gns_sanitize_turnstile_key',
+        'transport' => 'refresh',
+    ]);
+    $wp->add_control('gns_turnstile_site', [
+        'label' => 'Turnstile site key',
+        'description' => 'Để trống cùng secret key thì form giữ nguyên. Có thể khai báo GN_TURNSTILE_SITE_KEY trong wp-config.php.',
+        'section' => 'gns_info',
+        'type' => 'text',
+    ]);
+    $wp->add_setting('gns_turnstile_secret', [
+        'default' => '',
+        'sanitize_callback' => 'gns_sanitize_turnstile_key',
+        'transport' => 'refresh',
+    ]);
+    $wp->add_control('gns_turnstile_secret', [
+        'label' => 'Turnstile secret key',
+        'description' => 'Chỉ bật kiểm tra khi đủ site key và secret key. Hằng số GN_TURNSTILE_SECRET_KEY trong wp-config.php được dùng trước ô này.',
+        'section' => 'gns_info',
+        'type' => 'text',
+    ]);
 
     gns_customize_add_text($wp, 'gns_hero_kicker', 'Hero — dòng nhỏ', 'gns_home', 'Nướng than hồng · Lẩu gà sầu riêng · Phú Quốc');
     gns_customize_add_text($wp, 'gns_hero_title', 'Hero — tiêu đề', 'gns_home', 'Lửa than hồng,<br><em>vị sầu riêng</em> của đảo.', true, true);
-    gns_customize_add_text($wp, 'gns_hero_lead', 'Hero — mô tả', 'gns_home', 'Nhà hàng Việt giữa trung tâm Dương Đông. Hải sản và bò Úc nướng tại quầy bếp mở, lẩu gà sầu riêng cho bàn đông người, cơm niêu buổi trưa và quầy bar ngoài trời đến 2 giờ sáng.', true);
+    gns_customize_add_text($wp, 'gns_hero_lead', 'Hero — mô tả', 'gns_home', 'Nhà hàng Việt giữa trung tâm Dương Đông. Hải sản và bò Úc nướng tại quầy bếp mở, lẩu gà sầu riêng cho bàn đông người, cơm niêu buổi trưa và quầy bar ngoài trời đến 23:00.', true);
     gns_customize_add_media($wp, 'gns_hero_image', 'Hero — ảnh', 'gns_home');
     gns_customize_add_text($wp, 'gns_hero_cta_label', 'Nút chính — chữ', 'gns_home', 'Đặt bàn hôm nay');
     gns_customize_add_url($wp, 'gns_hero_cta_url', 'Nút chính — link', 'gns_home', '');
@@ -530,7 +552,7 @@ add_action('customize_register', function ($wp) {
 
     $blocks = [
         ['gns_kitchens_title', 'Sáu căn bếp — tiêu đề', 'Mỗi bữa ở Gánh Ngon<br>là một kiểu ăn riêng', true],
-        ['gns_kitchens_intro', 'Sáu căn bếp — mô tả', 'Từ than hồng đến nồi lẩu, từ cơm niêu trưa đến ly cocktail lúc nửa đêm — chọn kiểu ăn hợp với bàn của anh chị.', false],
+        ['gns_kitchens_intro', 'Sáu căn bếp — mô tả', 'Từ than hồng đến nồi lẩu, từ cơm niêu trưa đến ly cocktail buổi tối — chọn kiểu ăn hợp với bàn của anh chị.', false],
         ['gns_signature_title', 'Món mũi nhọn — tiêu đề', 'Sầu riêng không nằm ở phần tráng miệng.', false],
         ['gns_signature_text', 'Món mũi nhọn — đoạn', 'Nó nằm trong nồi nước dùng, tan vào nước gà, để lại vị béo ngậy, thơm sâu và ngọt hậu mà không gia vị nào thay được. Người sợ sầu riêng thường ngạc nhiên nhất ở điểm này.', false],
         ['gns_spaces_title', 'Không gian — tiêu đề', 'Đẹp mà không xa cách', false],
@@ -574,10 +596,10 @@ add_action('customize_register', function ($wp) {
     gns_customize_add_text($wp, 'gns_menu_signature_text', 'Món mũi nhọn — đoạn', 'gns_menu', 'Gà ta, sầu riêng chín cây đánh nhuyễn vào nước hầm xương, rau đảo theo mùa và bún tươi. Báo trước khoảng 1 tiếng để nồi nóng khi ngồi xuống. Giá báo tại nhà hàng.', true);
     gns_customize_add_media($wp, 'gns_menu_signature_image', 'Món mũi nhọn — ảnh', 'gns_menu');
 
-    gns_customize_add_text($wp, 'gns_contact_intro', 'Đoạn mở đầu', 'gns_contact', 'Mở cửa hằng ngày 6:30 – 2:00. Gọi 0979 232 233 để nhà hàng xác nhận.', true);
+    gns_customize_add_text($wp, 'gns_contact_intro', 'Đoạn mở đầu', 'gns_contact', 'Mở cửa hằng ngày 10:00 – 23:00. Gọi 0979 232 233 để nhà hàng xác nhận.', true);
     gns_customize_add_text($wp, 'gns_contact_hint', 'Ghi chú dưới form', 'gns_contact', '', true);
 
-    gns_customize_add_text($wp, 'gns_footer_about', 'Đoạn giới thiệu', 'gns_footer', 'Nhà hàng Việt giữa trung tâm Dương Đông: hải sản và bò Úc nướng than hồng, lẩu gà sầu riêng, cơm niêu trưa và quầy bar ngoài trời mở đến 2 giờ sáng.', true);
+    gns_customize_add_text($wp, 'gns_footer_about', 'Đoạn giới thiệu', 'gns_footer', 'Nhà hàng Việt giữa trung tâm Dương Đông: hải sản và bò Úc nướng than hồng, lẩu gà sầu riêng, cơm niêu trưa và quầy bar ngoài trời phục vụ đến 23:00.', true);
     gns_customize_add_text($wp, 'gns_footer_legal', 'Dòng cuối', 'gns_footer', 'Giá món, combo và phòng VIP được báo trực tiếp khi đặt bàn.', true);
 
     gns_customize_add_text($wp, 'gns_khu_a_title', 'Khu A — tiêu đề', 'gns_spaces', 'Khu A – sảnh chính');
