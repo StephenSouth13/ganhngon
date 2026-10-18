@@ -164,14 +164,11 @@ function gns_contact_aside_html() {
     $phone = function_exists('gns_phone_label') ? gns_phone_label() : '0979 232 233';
     $tel = function_exists('gns_phone_href') ? gns_phone_href() : 'tel:+84979232233';
     $email = function_exists('gns_public_email') ? gns_public_email() : 'contact@ganhngon.com';
-    $zalo = function_exists('gns_saved_text') ? trim(gns_saved_text('gns_zalo_url')) : '';
-    $facebook = function_exists('gns_saved_text') ? trim(gns_saved_text('gns_facebook')) : '';
-    $channels = '';
-    if ($zalo !== '' && filter_var($zalo, FILTER_VALIDATE_URL)) {
+    $zalo = function_exists('gns_saved_url') ? gns_saved_url('gns_zalo_url') : '';
+    $facebook = function_exists('gns_facebook_url') ? gns_facebook_url() : 'https://www.facebook.com/ganhngon';
+    $channels = '<a class="btn btn-outline" href="' . esc_url($facebook) . '" rel="noopener" target="_blank">Facebook</a>';
+    if ($zalo !== '') {
         $channels .= '<a class="btn btn-outline" href="' . esc_url($zalo) . '" rel="noopener" target="_blank">Zalo</a>';
-    }
-    if ($facebook !== '' && preg_match('#(?:^https?://)?(?:www\.)?(?:m\.me/|messenger\.com/)#i', $facebook)) {
-        $channels .= '<a class="btn btn-outline" href="' . esc_url($facebook) . '" rel="noopener" target="_blank">Messenger</a>';
     }
     ob_start();
     ?>

@@ -99,11 +99,15 @@ function gns_base_slug() {
 }
 
 function gns_url($slug = '') {
+    $slug = trim((string) $slug, '/');
     if ($slug === '' || $slug === 'home') {
         return function_exists('gn_home') ? gn_home('/') : home_url('/');
     }
+    if ($slug === 'lau-ga-sau-rieng') {
+        return home_url('/lau-ga-sau-rieng-phu-quoc/');
+    }
     if (function_exists('gn_page_url')) return gn_page_url($slug);
-    return home_url('/' . trim($slug, '/') . '/');
+    return home_url('/' . $slug . '/');
 }
 
 function gns_phone_label() {
@@ -122,18 +126,51 @@ function gns_phone_href() {
     return 'tel:' . $tel;
 }
 
+function gns_facebook_url() {
+    $saved = function_exists('gns_saved_text') ? esc_url(trim(gns_saved_text('gns_facebook'))) : '';
+    if ($saved !== '') return $saved;
+    return 'https://www.facebook.com/ganhngon';
+}
+
+function gns_saved_url($key) {
+    if (!function_exists('gns_saved_text')) return '';
+    return esc_url(trim(gns_saved_text($key)));
+}
+
+/** Facebook is official. Every other network appears only after its Customizer URL is saved. */
+function gns_public_socials() {
+    $items = [
+        ['key' => 'facebook', 'label' => 'Facebook', 'url' => gns_facebook_url()],
+    ];
+    $optional = [
+        'gns_instagram' => ['instagram', 'Instagram'],
+        'gns_tiktok' => ['tiktok', 'TikTok'],
+        'gns_youtube' => ['youtube', 'YouTube'],
+        'gns_zalo_url' => ['zalo', 'Zalo'],
+        'gns_wa_url' => ['whatsapp', 'WhatsApp'],
+    ];
+    foreach ($optional as $key => $meta) {
+        $url = gns_saved_url($key);
+        if ($url === '') continue;
+        $items[] = ['key' => $meta[0], 'label' => $meta[1], 'url' => $url];
+    }
+    return $items;
+}
+
+function gns_same_as_urls() {
+    $urls = [];
+    foreach (gns_public_socials() as $item) {
+        if (!empty($item['url'])) $urls[] = $item['url'];
+    }
+    return array_values(array_unique($urls));
+}
+
 function gns_zalo() {
-    $custom = function_exists('gns_saved_text') ? esc_url(gns_saved_text('gns_zalo_url')) : '';
-    $fallback = 'https://zalo.me/' . rawurlencode(function_exists('gn_zalo_raw') ? gn_zalo_raw() : '2216004914337654583');
-    if ($custom !== '' && $custom !== $fallback) return $custom;
-    return $fallback;
+    return gns_saved_url('gns_zalo_url');
 }
 
 function gns_wa() {
-    $custom = function_exists('gns_saved_text') ? esc_url(gns_saved_text('gns_wa_url')) : '';
-    $fallback = 'https://wa.me/' . rawurlencode(function_exists('gn_whatsapp_raw') ? gn_whatsapp_raw() : '84979232233');
-    if ($custom !== '' && $custom !== $fallback) return $custom;
-    return $fallback;
+    return gns_saved_url('gns_wa_url');
 }
 
 function gns_maps() {

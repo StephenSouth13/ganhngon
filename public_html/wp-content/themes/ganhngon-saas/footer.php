@@ -8,6 +8,7 @@
         <span class="brand-text"><span class="brand-name">Gánh Ngon</span><span class="brand-sub">Phú Quốc</span></span>
       </a>
       <p><?php echo esc_html(gns_footer_about()); ?></p>
+      <?php echo gns_social_icons_html(); ?>
     </div>
     <nav class="footer-col" aria-label="<?php echo esc_attr(gns_t('footer_explore', 'Khám phá')); ?>">
       <p class="footer-title"><?php echo esc_html(gns_t('footer_explore', 'Khám phá')); ?></p>
@@ -27,18 +28,9 @@
     </nav>
     <div class="footer-col">
       <p class="footer-title"><?php echo esc_html(gns_t('footer_contact', 'Liên hệ')); ?></p>
-      <a href="<?php echo esc_url(gns_phone_href()); ?>"><bdi dir="ltr"><?php echo esc_html(gns_phone_label()); ?></bdi> · <?php echo esc_html(gns_t('action_call', 'Gọi')); ?> / Zalo</a>
-      <a href="<?php echo esc_url(gns_zalo()); ?>" rel="noopener" target="_blank">Zalo</a>
-      <a href="<?php echo esc_url(gns_wa()); ?>" rel="noopener" target="_blank">WhatsApp (khách quốc tế)</a>
-      <?php if (function_exists('gn_telegram')): ?>
-        <a href="<?php echo esc_url(gn_telegram()); ?>" rel="noopener" target="_blank">Telegram</a>
-      <?php endif; ?>
+      <a href="<?php echo esc_url(gns_phone_href()); ?>"><bdi dir="ltr"><?php echo esc_html(gns_phone_label()); ?></bdi> · <?php echo esc_html(gns_t('action_call', 'Gọi')); ?></a>
       <a href="mailto:<?php echo esc_attr(gns_public_email()); ?>"><?php echo esc_html(gns_public_email()); ?></a>
       <a href="mailto:sales@ganhngon.com">sales@ganhngon.com · Đoàn &amp; tiệc</a>
-      <span>WeChat ID: <?php echo esc_html(function_exists('gn_wechat_id') ? gn_wechat_id() : 'ganhngon'); ?></span>
-      <?php foreach (gns_social_links() as $gns_social): ?>
-        <a href="<?php echo esc_url($gns_social['url']); ?>" rel="noopener" target="_blank"><?php echo esc_html($gns_social['label']); ?></a>
-      <?php endforeach; ?>
     </div>
     <div class="footer-col">
       <p class="footer-title"><?php echo esc_html(gns_t('footer_visit', 'Ghé nhà hàng')); ?></p>
@@ -106,7 +98,9 @@
 <?php get_template_part('template-parts/contact-dock'); ?>
 <nav class="action-bar" aria-label="<?php echo esc_attr(gns_t('action_quick', 'Liên hệ nhanh')); ?>">
   <a href="<?php echo esc_url(gns_phone_href()); ?>"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-phone"></use></svg><span><?php echo esc_html(gns_t('action_call', 'Gọi')); ?></span></a>
+  <?php if (gns_zalo() !== ''): ?>
   <a href="<?php echo esc_url(gns_zalo()); ?>" rel="noopener" target="_blank"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-chat"></use></svg><span>Zalo</span></a>
+  <?php endif; ?>
   <a href="<?php echo esc_url(gns_maps()); ?>" rel="noopener" target="_blank"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-pin"></use></svg><span><?php echo esc_html(gns_t('action_map', 'Chỉ đường')); ?></span></a>
   <a class="action-primary" href="<?php echo esc_url(gns_url('dat-ban')); ?>"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-flame"></use></svg><span><?php echo esc_html(gns_t('btn_book', 'Đặt bàn')); ?></span></a>
 </nav>

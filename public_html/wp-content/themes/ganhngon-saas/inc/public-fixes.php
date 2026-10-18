@@ -251,6 +251,7 @@ function gns_demote_content_h1($html) {
 function gns_public_content($content) {
     if (is_admin() || !is_string($content)) return $content;
     $content = gns_strip_legacy_forms($content);
+    $content = gns_clean_public_html($content);
     $content = gns_scrub_public_copy($content);
     $slug = gns_form_slug();
     $drop = ($slug === 'hinh-anh-review');
@@ -358,10 +359,24 @@ function gns_scrub_schema_node($node) {
         $blob = wp_json_encode($node['parentOrganization']);
         if (is_string($blob) && stripos($blob, 'saophuquoc') !== false) unset($node['parentOrganization']);
     }
-    if (isset($node['sameAs']) && is_array($node['sameAs'])) {
-        $node['sameAs'] = array_values(array_filter($node['sameAs'], function ($url) {
-            return !is_string($url) || stripos($url, 'saophuquoc.com') === false;
-        }));
+    $org_types = ['Restaurant', 'Organization', 'LocalBusiness', 'FoodEstablishment'];
+    $is_org = false;
+    foreach ($org_types as $org_type) {
+        if (in_array($org_type, $types, true)) $is_org = true;
+    }
+    if ($is_org || (isset($node['sameAs']) && is_array($node['sameAs']))) {
+        if ($is_org) {
+            $node['sameAs'] = function_exists('gns_same_as_urls') ? gns_same_as_urls() : ['https://www.facebook.com/ganhngon'];
+        } elseif (isset($node['sameAs']) && is_array($node['sameAs'])) {
+            $node['sameAs'] = array_values(array_filter($node['sameAs'], function ($url) {
+                return is_string($url) && $url !== '' && stripos($url, 'saophuquoc.com') === false
+                    && !preg_match('#instagram\.com/ganhngon|tiktok\.com/@ganhngon|t\.me/ganhngon|facebook\.com/ganhngon#i', $url);
+            }));
+            if (function_exists('gns_facebook_url')) {
+                array_unshift($node['sameAs'], gns_facebook_url());
+                $node['sameAs'] = array_values(array_unique($node['sameAs']));
+            }
+        }
     }
     $list = gns_schema_is_list($node);
     $out = [];
@@ -430,6 +445,21 @@ function gns_scrub_schema_html($html) {
         ],
         $html
     );
+    $html = str_replace(
+        [
+            'hoặc gọi hotline / Zalo / WhatsApp để tư vấn viên',
+            'Hỗ trợ WhatsApp, WeChat, Telegram đặt bàn cho khách quốc tế.',
+            'WhatsApp, WeChat, Telegram',
+            'WeChat ID ganhngon hoặc Telegram',
+        ],
+        [
+            'hoặc gọi hotline để tư vấn viên',
+            'Khách quốc tế gọi hotline hoặc nhắn trang Facebook.',
+            'điện thoại hoặc Facebook',
+            'trang Facebook',
+        ],
+        $html
+    );
     return gns_scrub_public_copy(is_string($html) ? $html : '');
 }
 
@@ -495,17 +525,87 @@ add_filter('wp_sitemaps_add_provider', function ($provider, $name) {
     return $provider;
 }, 10, 2);
 
+add_action('template_redirect', function () {
+    if (get_query_var('sitemap') !== 'users') return;
+    global $wp_query;
+    $wp_query->set_404();
+    status_header(404);
+    nocache_headers();
+    $template = get_404_template();
+    if ($template) include $template;
+    exit;
+}, 0);
+
+function gns_sitemap_excluded_post_ids() {
+    static $ids = null;
+    if ($ids !== null) return $ids;
+    $ids = [];
+    if (!function_exists('gns_request_redirect_target')) return $ids;
+    $found = get_posts([
+        'post_type' => ['post', 'page'],
+        'post_status' => 'publish',
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'no_found_rows' => true,
+        'ignore_sticky_posts' => true,
+    ]);
+    foreach ($found as $id) {
+        $link = get_permalink((int) $id);
+        $path = trim((string) parse_url((string) $link, PHP_URL_PATH), '/');
+        if (gns_request_redirect_target($path) !== '') $ids[] = (int) $id;
+    }
+    return $ids;
+}
+
+function gns_sitemap_excluded_term_ids($taxonomy) {
+    $ids = [];
+    if (!function_exists('gns_request_redirect_target') || !taxonomy_exists($taxonomy)) return $ids;
+    $terms = get_terms([
+        'taxonomy' => $taxonomy,
+        'hide_empty' => false,
+    ]);
+    if (is_wp_error($terms) || !is_array($terms)) return $ids;
+    foreach ($terms as $term) {
+        if ((int) $term->count < 1) {
+            $ids[] = (int) $term->term_id;
+            continue;
+        }
+        $link = get_term_link($term);
+        if (is_wp_error($link)) continue;
+        $path = trim((string) parse_url((string) $link, PHP_URL_PATH), '/');
+        if (gns_request_redirect_target($path) !== '') $ids[] = (int) $term->term_id;
+    }
+    return $ids;
+}
+
 add_filter('wp_sitemaps_posts_query_args', function ($args) {
     if (!is_array($args)) $args = [];
     $args['post_status'] = 'publish';
+    $skip = gns_sitemap_excluded_post_ids();
+    if ($skip) {
+        $args['post__not_in'] = array_values(array_unique(array_merge(
+            array_map('intval', (array) ($args['post__not_in'] ?? [])),
+            $skip
+        )));
+    }
     return $args;
 });
 
-add_filter('wp_sitemaps_taxonomies_query_args', function ($args) {
+add_filter('wp_sitemaps_taxonomies_query_args', function ($args, $taxonomy = '') {
     if (!is_array($args)) $args = [];
     $args['hide_empty'] = true;
+    if ($taxonomy === '' && !empty($args['taxonomy'])) $taxonomy = (string) $args['taxonomy'];
+    if ($taxonomy !== '') {
+        $skip = gns_sitemap_excluded_term_ids($taxonomy);
+        if ($skip) {
+            $args['exclude'] = array_values(array_unique(array_merge(
+                array_map('intval', (array) ($args['exclude'] ?? [])),
+                $skip
+            )));
+        }
+    }
     return $args;
-});
+}, 10, 2);
 
 add_filter('wpseo_sitemap_exclude_author', function ($value) {
     if (is_array($value)) return [];
@@ -517,8 +617,21 @@ add_filter('wpseo_sitemap_exclude_empty_terms', '__return_true');
 add_filter('wpseo_sitemap_exclude_post', function ($exclude, $post_id) {
     $status = get_post_status($post_id);
     if ($status !== 'publish') return true;
+    if (function_exists('gns_request_redirect_target')) {
+        $link = get_permalink((int) $post_id);
+        $path = trim((string) parse_url((string) $link, PHP_URL_PATH), '/');
+        if (gns_request_redirect_target($path) !== '') return true;
+    }
     return $exclude;
 }, 10, 2);
+
+add_filter('wpseo_exclude_from_sitemap_by_term_ids', function ($ids) {
+    if (!is_array($ids)) $ids = [];
+    foreach (['category', 'post_tag'] as $taxonomy) {
+        $ids = array_merge($ids, gns_sitemap_excluded_term_ids($taxonomy));
+    }
+    return array_values(array_unique(array_map('intval', $ids)));
+});
 
 add_filter('option_wpseo_titles', function ($value) {
     if (!is_array($value)) return $value;
@@ -532,3 +645,92 @@ add_filter('oembed_response_data', function ($data) {
     unset($data['author_name'], $data['author_url']);
     return $data;
 });
+
+/**
+ * saophuquoc.com is someone else's site. Drop any link to it from menus,
+ * widgets, post content, and the finished HTML (mu-plugin footer, schema).
+ * Also point the short lẩu URL at the long one wherever a template still emits it.
+ */
+function gns_clean_public_html($html) {
+    if (!is_string($html) || $html === '') return $html;
+    if (stripos($html, 'saophuquoc') !== false || strpos($html, 'Sao Phú Quốc') !== false || stripos($html, 'SAO PHU QUOC') !== false) {
+        $patterns = [
+            '#<div\b[^>]*\bid=(["\'])achau-eco-pq\1[^>]*>.*?</div>#is',
+            '#<p\b[^>]*\bfooter-eco\b[^>]*>.*?</p>#is',
+            '#<a\b[^>]*\bhref=(["\'])[^"\']*saophuquoc\.com[^"\']*\1[^>]*>.*?</a>#is',
+            '#https?://(?:www\.)?saophuquoc\.com[^\s"\'<>]*#i',
+        ];
+        foreach ($patterns as $pattern) {
+            $next = preg_replace($pattern, '', $html);
+            if (is_string($next)) $html = $next;
+        }
+    }
+    if (strpos($html, '/lau-ga-sau-rieng') !== false) {
+        $next = preg_replace('~(/lau-ga-sau-rieng)(?!-phu-quoc)(?=/|["\'?#])~', '/lau-ga-sau-rieng-phu-quoc', $html);
+        if (is_string($next)) $html = $next;
+    }
+    return $html;
+}
+
+add_filter('widget_text', 'gns_clean_public_html');
+add_filter('widget_text_content', 'gns_clean_public_html');
+add_filter('widget_block_content', 'gns_clean_public_html');
+add_filter('widget_custom_html_content', 'gns_clean_public_html');
+add_filter('wp_nav_menu_items', 'gns_clean_public_html');
+
+add_filter('wp_nav_menu_objects', function ($items) {
+    if (!is_array($items)) return $items;
+    foreach ($items as $i => $item) {
+        $url = isset($item->url) ? (string) $item->url : '';
+        if ($url !== '' && stripos($url, 'saophuquoc.com') !== false) {
+            unset($items[$i]);
+            continue;
+        }
+        if ($url !== '' && preg_match('#/lau-ga-sau-rieng/?(?:$|\?)#', $url) && strpos($url, 'lau-ga-sau-rieng-phu-quoc') === false) {
+            $item->url = preg_replace('#/lau-ga-sau-rieng/?(?=$|\?)#', '/lau-ga-sau-rieng-phu-quoc/', $url);
+        }
+    }
+    return $items;
+});
+
+add_action('template_redirect', function () {
+    if (is_admin() || wp_doing_ajax()) return;
+    ob_start('gns_clean_public_html');
+}, 2);
+
+function gns_lau_canonical_url($url) {
+    if (!is_singular()) return $url;
+    $post = get_queried_object();
+    if ($post instanceof WP_Post && $post->post_name === 'lau-ga-sau-rieng-phu-quoc') {
+        return home_url('/lau-ga-sau-rieng-phu-quoc/');
+    }
+    return $url;
+}
+add_filter('get_canonical_url', 'gns_lau_canonical_url', 20);
+add_filter('wpseo_canonical', 'gns_lau_canonical_url', 20);
+add_filter('wpseo_opengraph_url', 'gns_lau_canonical_url', 20);
+
+add_filter('feed_links_show_comments_feed', '__return_false');
+
+remove_action('wp_head', 'wp_generator');
+add_filter('the_generator', '__return_empty_string');
+
+/**
+ * Drop ?ver= only when it is the WordPress core version.
+ * Theme assets keep their own version query.
+ *
+ * readme.html, license.txt and wp-admin/install.php are static (or core PHP
+ * served before the theme). Apache/nginx must deny them. See HUONG-DAN-FTP.md.
+ */
+function gns_strip_core_version_arg($src) {
+    if (!is_string($src) || $src === '') return $src;
+    $ver = (string) get_bloginfo('version');
+    if ($ver === '') return $src;
+    $query = wp_parse_url($src, PHP_URL_QUERY);
+    if (!is_string($query) || $query === '') return $src;
+    parse_str($query, $args);
+    if (!isset($args['ver']) || (string) $args['ver'] !== $ver) return $src;
+    return remove_query_arg('ver', $src);
+}
+add_filter('style_loader_src', 'gns_strip_core_version_arg', 20);
+add_filter('script_loader_src', 'gns_strip_core_version_arg', 20);

@@ -35,10 +35,13 @@
     menu.hidden = false;
   });
 
-  root.querySelector("[data-gns-wechat]").addEventListener("click", function () {
-    setOpen(false);
-    wechat.hidden = false;
-  });
+  var wechatBtn = root.querySelector("[data-gns-wechat]");
+  if (wechatBtn && wechat) {
+    wechatBtn.addEventListener("click", function () {
+      setOpen(false);
+      wechat.hidden = false;
+    });
+  }
 
   document.querySelectorAll("[data-gns-wechat-close]").forEach(function (btn) {
     btn.addEventListener("click", function () { wechat.hidden = true; });

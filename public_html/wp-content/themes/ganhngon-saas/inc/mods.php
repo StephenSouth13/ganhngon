@@ -67,19 +67,36 @@ function gns_public_email() {
 }
 
 function gns_social_links() {
-    $map = [
-        'gns_facebook' => 'Facebook',
-        'gns_instagram' => 'Instagram',
-        'gns_tiktok' => 'TikTok',
-        'gns_youtube' => 'YouTube',
-    ];
     $out = [];
-    foreach ($map as $key => $label) {
-        $url = esc_url(gns_saved_text($key));
-        if ($url === '') continue;
-        $out[] = ['label' => $label, 'url' => $url];
+    foreach (gns_public_socials() as $item) {
+        $out[] = ['label' => $item['label'], 'url' => $item['url']];
     }
     return $out;
+}
+
+function gns_social_svg($key) {
+    $paths = [
+        'facebook' => 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
+        'instagram' => 'M12 2.2c3.2 0 3.6.1 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2-.1-1.2-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4 1.2-.1 1.6-.1 4.8-.1zM12 6.8A5.2 5.2 0 1 0 12 17.2 5.2 5.2 0 0 0 12 6.8zm6.4-1.3a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z',
+        'tiktok' => 'M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z',
+        'youtube' => 'M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.5a3 3 0 0 0-2.1 2.1C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4L15.8 12l-6.3 3.6z',
+        'zalo' => 'M12 2C6.5 2 2 5.9 2 10.7c0 2.7 1.5 5.2 3.7 6.8-.1 1-.5 2.3-1 3.1-.1.2 0 .5.3.4 1.8-.4 3.2-1.1 4.1-1.7.9.2 1.9.3 2.9.3 5.5 0 10-3.9 10-8.7S17.5 2 12 2z',
+        'whatsapp' => 'M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.2 14.2c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1-.4-.1-.8-.3-1.4-.5-2.4-1-4-3.5-4.1-3.7-.1-.2-1-1.3-1-2.5s.6-1.8.9-2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.6.7 2 .8 2.1.1.2.1.3 0 .5-.1.2-.2.3-.3.5l-.2.3c-.1.1-.2.2-.1.4.1.2.6 1 1.3 1.6.9.8 1.6 1 1.8 1.1.2.1.4.1.5-.1.1-.2.6-.7.8-.9.2-.2.3-.2.6-.1.2.1 1.5.7 1.8.8.2.1.4.2.5.3.1.2 0 .6-.2 1.1z',
+    ];
+    $d = isset($paths[$key]) ? $paths[$key] : '';
+    if ($d === '') return '';
+    return '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="' . $d . '"/></svg>';
+}
+
+function gns_social_icons_html() {
+    $html = '<nav class="footer-social" aria-label="Mạng xã hội">';
+    foreach (gns_public_socials() as $item) {
+        $html .= '<a href="' . esc_url($item['url']) . '" target="_blank" rel="noopener" aria-label="' . esc_attr($item['label']) . '">';
+        $html .= gns_social_svg($item['key']);
+        $html .= '</a>';
+    }
+    $html .= '</nav>';
+    return $html;
 }
 
 function gns_mod_image_url($key) {
@@ -389,7 +406,9 @@ function gns_replace_saved_facts($html) {
     }
     $zalo = esc_url(gns_saved_text('gns_zalo_url'));
     $zalo_now = 'https://zalo.me/2216004914337654583';
-    if ($zalo !== '' && $zalo !== $zalo_now) {
+    if ($zalo === '') {
+        $html = preg_replace('#<a\b[^>]*href="' . preg_quote($zalo_now, '#') . '"[^>]*>.*?</a>#s', '', $html);
+    } elseif ($zalo !== $zalo_now) {
         $html = str_replace($zalo_now, $zalo, $html);
     }
     $wa = esc_url(gns_saved_text('gns_wa_url'));
@@ -494,7 +513,7 @@ add_action('customize_register', function ($wp) {
     gns_customize_add_text($wp, 'gns_address', 'Địa chỉ', 'gns_info', '113 Trần Hưng Đạo, Dương Đông, Phú Quốc');
     gns_customize_add_text($wp, 'gns_hours', 'Giờ mở cửa', 'gns_info', 'Mở cửa hằng ngày 6:30 – 2:00');
     gns_customize_add_url($wp, 'gns_maps', 'Google Maps', 'gns_info', function_exists('gn_maps_url') ? gn_maps_url() : '');
-    gns_customize_add_url($wp, 'gns_facebook', 'Facebook', 'gns_info', '');
+    gns_customize_add_url($wp, 'gns_facebook', 'Facebook URL', 'gns_info', 'https://www.facebook.com/ganhngon');
     gns_customize_add_url($wp, 'gns_instagram', 'Instagram', 'gns_info', '');
     gns_customize_add_url($wp, 'gns_tiktok', 'TikTok', 'gns_info', '');
     gns_customize_add_url($wp, 'gns_youtube', 'YouTube', 'gns_info', '');
@@ -555,7 +574,7 @@ add_action('customize_register', function ($wp) {
     gns_customize_add_text($wp, 'gns_menu_signature_text', 'Món mũi nhọn — đoạn', 'gns_menu', 'Gà ta, sầu riêng chín cây đánh nhuyễn vào nước hầm xương, rau đảo theo mùa và bún tươi. Báo trước khoảng 1 tiếng để nồi nóng khi ngồi xuống. Giá báo tại nhà hàng.', true);
     gns_customize_add_media($wp, 'gns_menu_signature_image', 'Món mũi nhọn — ảnh', 'gns_menu');
 
-    gns_customize_add_text($wp, 'gns_contact_intro', 'Đoạn mở đầu', 'gns_contact', 'Mở cửa hằng ngày 6:30 – 2:00. Xác nhận nhanh qua điện thoại, Zalo hoặc WhatsApp.', true);
+    gns_customize_add_text($wp, 'gns_contact_intro', 'Đoạn mở đầu', 'gns_contact', 'Mở cửa hằng ngày 6:30 – 2:00. Gọi 0979 232 233 để nhà hàng xác nhận.', true);
     gns_customize_add_text($wp, 'gns_contact_hint', 'Ghi chú dưới form', 'gns_contact', '', true);
 
     gns_customize_add_text($wp, 'gns_footer_about', 'Đoạn giới thiệu', 'gns_footer', 'Nhà hàng Việt giữa trung tâm Dương Đông: hải sản và bò Úc nướng than hồng, lẩu gà sầu riêng, cơm niêu trưa và quầy bar ngoài trời mở đến 2 giờ sáng.', true);

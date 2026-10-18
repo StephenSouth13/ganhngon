@@ -77,7 +77,7 @@ Permalink giữ nguyên (`/thuc-don/`, `/dat-ban/`, `/ve-ganh-ngon/`, `/lien-he/
 - Trang không có mẫu riêng (giới thiệu, liên hệ, tiệc, đồ uống, chính sách, đối tác, tư vấn) in `the_content()` — nội dung trong database giữ nguyên, chỉ đổi khung header/footer và chữ.
 - Thực đơn `/thuc-don/` liệt kê món từ `inc/menu-snapshot.json`. Món nào có ảnh đúng món đó thì hiện ảnh món. Mâm xiên chỉ dùng cho nhóm xiên và các món xiên, có nhãn nhỏ «Ảnh nhóm». Nhóm chưa có ảnh đúng nhóm hiện ô hoạ tiết thương hiệu (không phải ảnh món). Không lấy ảnh một món khác làm ảnh nhóm. Không dùng ảnh minh hoạ tháng 9 và không dùng ảnh stock làm ảnh món. **Không có giá.**
 - Zalo, điện thoại, WhatsApp, WeChat, bản đồ dùng đúng hàm/số của theme cũ.
-- Khối pháp nhân (CÔNG TY TNHH GÁNH NGON, MST, địa chỉ, cảnh báo giả mạo) và dòng Sao Phú Quốc được gom vào chân trang tối. Theme gỡ hook `wp_footer` của `gn-footer-legal.php` và `achau-eco-pq.php` để không in thêm một khối sáng bên dưới.
+- Khối pháp nhân (CÔNG TY TNHH GÁNH NGON, MST, địa chỉ, cảnh báo giả mạo) nằm ở chân trang tối. Theme gỡ hook `wp_footer` của `gn-footer-legal.php` và `achau-eco-pq.php` để không in thêm một khối sáng, và gỡ mọi liên kết ra tên miền không thuộc nhà hàng.
 - Năm nút chat nổi gộp thành một nút Liên hệ (chat nhà hàng, Zalo, WhatsApp, Telegram, WeChat).
 
 ## 4. Hoàn tác ngay
@@ -90,7 +90,7 @@ Không cần xoá file. Trang Tin tức nếu mới tạo có thể để nguyê
 ## 5. Kiểm tra sau khi bật
 
 - Trang chủ, `/thuc-don/`, `/dat-ban/` (gửi thử một đặt bàn rồi xoá trong admin nếu là thử).
-- `/ve-ganh-ngon/`, `/lien-he/`, `/khach-doan-tiec-rieng/`, `/thuc-don/do-uong/`, `/lau-ga-sau-rieng/`.
+- `/ve-ganh-ngon/`, `/lien-he/`, `/khach-doan-tiec-rieng/`, `/thuc-don/do-uong/`, `/lau-ga-sau-rieng-phu-quoc/` (`/lau-ga-sau-rieng/` chuyển 301 sang đường dài).
 - Đổi ngôn ngữ Polylang trên một trang đã dịch.
 - Nguồn trang: title/description của Yoast vẫn có.
 - Không thấy số tiền trên thực đơn.
@@ -107,3 +107,36 @@ Tên file (không đuôi), hoặc slug của media, hoặc tiêu đề media, ph
 - ví dụ «Lẩu gà sầu riêng Phú Quốc» → `lau-ga-sau-rieng-phu-quoc.jpg`
 
 Tải xong, mở lại `/thuc-don/`. Ảnh mới thay ô hoạ tiết (hoặc ảnh nhóm) của đúng món đó, không cần sửa theme. Ảnh không đúng slug sẽ không gắn vào món nào.
+
+## 7. File lõi WordPress — cần cấu hình máy chủ
+
+Theme gỡ thẻ `generator` và tham số `?ver=` đúng bằng phiên bản WordPress trên file CSS/JS mà WordPress in qua `wp_head`. Ba đường sau do web server trả thẳng, theme không chặn được:
+
+- `/readme.html`
+- `/license.txt`
+- `/wp-admin/install.php`
+
+Dán vào `.htaccess` ở thư mục gốc site (Apache 2.4), phía trên khối WordPress:
+
+```apache
+# ganhngon-saas — không để file lõi lộ phiên bản WordPress
+<Files "readme.html">
+  Require all denied
+</Files>
+<Files "license.txt">
+  Require all denied
+</Files>
+<Files "install.php">
+  Require all denied
+</Files>
+```
+
+Nginx:
+
+```nginx
+location = /readme.html { deny all; }
+location = /license.txt { deny all; }
+location = /wp-admin/install.php { deny all; }
+```
+
+Chặn `install.php` nghĩa là không mở được trình cài đặt cho đến khi gỡ rule. Site đã cài xong thì không cần file đó trên web.

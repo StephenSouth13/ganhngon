@@ -4,7 +4,7 @@ Theme WordPress `ganhngon-saas` (1.3.0) bám giao diện SaaS trong gói `docs/t
 
 ## Trang
 
-Mỗi file HTML của theme SaaS được đưa vào `parts/mains/`. `header.php` / `footer.php` của child theme giữ header một dòng, một chân trang tối (pháp nhân, MST, cảnh báo, Sao Phú Quốc) và một nút liên hệ.
+Mỗi file HTML của theme SaaS được đưa vào `parts/mains/`. `header.php` / `footer.php` của child theme giữ header một dòng, một chân trang tối (pháp nhân, MST, cảnh báo) và một nút liên hệ. Không có liên kết ra ngoài ganhngon.com tới site khác.
 
 - Đặt bàn: form theme cha, `sao_create_booking`.
 - Đối tác: `gn_partner_register` với đúng field `full_name`, `phone`, `partner_type`.
@@ -44,5 +44,5 @@ Không dùng ảnh một món (sầu riêng chiên, bò lúc lắc, cocktail, wh
 - Form cũ `sao_create_booking` / `.gn-kd-lead-form` bị gỡ khỏi nội dung trang. `/doi-tac/`, trang tiệc và 5 trang con dùng một form `gns_submit_request`.
 - Ảnh `uploads/2026/09/ganhngon-*.webp` và `photos/com-nieu.webp` (Wikimedia) thành họa tiết. Danh sách mẫu lọc qua `gns_hidden_media_patterns`. Trang `/hinh-anh-review/` bỏ ảnh đó thay vì lát họa tiết. og:image và JSON-LD dùng `photos/lau-ga-sau-rieng.webp`.
 - Chữ "workspace", "Hotline 24/7", "Đặt cọc 30%", "220+", chú thích nội bộ và quote chưa kiểm chứng không còn trong template. Địa chỉ chân trang và `addressRegion` dùng "113 Trần Hưng Đạo, Dương Đông, Phú Quốc".
-- 301 các đường 404 trong audit (Sao → saophuquoc.com, cẩm nang/thực đơn cũ, `/ve-combo/`, `/privacy-policy/`). `/tin-tuc/page/N` quá trang cuối trả 404.
+- 301 các đường 404 trong audit về trang trên ganhngon.com (cẩm nang/thực đơn cũ, `/ve-combo/`, `/privacy-policy/`). Không chuyển sang tên miền khác. `/tin-tuc/page/N` quá trang cuối trả 404.
 - UI (menu, form, nút, tiêu đề chân trang) theo ngôn ngữ hiện tại. Nội dung bài trong cơ sở dữ liệu không dịch.
