@@ -28,12 +28,12 @@ add_action('wp_enqueue_scripts', function () {
         [],
         null
     );
-    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.4.3');
-    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.4.3');
-    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.4.3', true);
-    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.4.3', true);
-    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.4.3', true);
-    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.4.3', true);
+    wp_enqueue_style('gns-ui', get_stylesheet_directory_uri() . '/assets/styles.css', ['gns-fonts'], '1.4.4');
+    wp_enqueue_style('gns-wp', get_stylesheet_directory_uri() . '/assets/wp.css', ['gns-ui'], '1.4.4');
+    wp_enqueue_script('gns-ui', get_stylesheet_directory_uri() . '/assets/script.js', [], '1.4.4', true);
+    wp_enqueue_script('gns-book', get_stylesheet_directory_uri() . '/assets/booking.js', [], '1.4.4', true);
+    wp_enqueue_script('gns-dock', get_stylesheet_directory_uri() . '/assets/contact.js', [], '1.4.4', true);
+    wp_enqueue_script('gns-forms', get_stylesheet_directory_uri() . '/assets/forms.js', [], '1.4.4', true);
     wp_localize_script('gns-forms', 'GNS', [
         'ajax' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('gns_lead'),

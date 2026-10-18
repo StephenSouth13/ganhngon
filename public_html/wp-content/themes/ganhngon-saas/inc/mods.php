@@ -167,7 +167,7 @@ function gns_editor_band() {
     if (!function_exists('is_singular') || !is_singular('page')) return;
     $post = get_queried_object();
     if (!$post || trim(wp_strip_all_tags((string) $post->post_content)) === '') return;
-    $slug = function_exists('gns_base_slug') ? gns_base_slug() : '';
+    $slug = function_exists('gns_form_slug') ? gns_form_slug() : '';
     $skip = ['dat-ban', 'lien-he', 'voucher', 'cong-doi-tac', 'ai-tu-van', 'advisor'];
     if (in_array($slug, $skip, true)) return;
     echo '<section class="band band-ivory gns-editor"><div class="wrap gns-editor-body">';

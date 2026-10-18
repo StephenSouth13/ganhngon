@@ -166,10 +166,66 @@ function gns_page_has_baked_request_form($slug) {
 }
 
 function gns_strip_legacy_forms($html) {
+    if (!is_string($html) || $html === '') return $html;
     $html = preg_replace('/<form\b[^>]*\bgn-kd-lead-form\b[^>]*>.*?<\/form>/is', '', $html);
     $html = preg_replace('/<form\b[^>]*sao_create_booking[^>]*>.*?<\/form>/is', '', $html);
+    $html = preg_replace_callback('/<form\b([^>]*)>(.*?)<\/form>/is', function ($m) {
+        $open = $m[1];
+        $body = $m[2];
+        if (stripos($open, 'data-gn-request') !== false || stripos($body, 'data-gn-request') !== false) return $m[0];
+        if (stripos($open, 'data-gns-form') !== false) return $m[0];
+        $legacy = false;
+        if (preg_match('/\b(gn-book-form|gn-dat-ban-form|reservation-form|gn-quick-form)\b/i', $open)) $legacy = true;
+        if (preg_match('/name=["\']booking_time["\']/i', $body) && !preg_match('/data-gn-time/i', $body)) $legacy = true;
+        if (preg_match('/>\s*17:30\s*</', $body) && !preg_match('/>\s*10:15\s*</', $body)) $legacy = true;
+        return $legacy ? '' : $m[0];
+    }, $html);
     $html = preg_replace('/<h[1-3][^>]*>\s*Xin báo giá[^<]*<\/h[1-3]>/iu', '', $html);
     return is_string($html) ? $html : '';
+}
+
+/**
+ * Drop the "Hệ sinh thái SAO PHU QUOC" block: the heading and the
+ * paragraphs or lists that follow it, in every language. Also drop a
+ * leftover sentence that still says the restaurant is part of that group.
+ */
+function gns_is_ecosystem_block($html) {
+    $plain = trim(html_entity_decode(wp_strip_all_tags((string) $html), ENT_QUOTES, 'UTF-8'));
+    if ($plain === '') return false;
+    if (preg_match('/SAO\s*PHU\s*QUOC/iu', $plain)) return true;
+    if (preg_match('/(?:một phần của|part of|часть|隶属于|جزء من|의 일원입니다)\s*[—–-]/u', $plain)) return true;
+    if (preg_match('/Liên kết với Bãi Sao/iu', $plain)) return true;
+    return false;
+}
+
+function gns_strip_ecosystem_html($html) {
+    if (!is_string($html) || $html === '') return $html;
+    $next = preg_replace_callback('/<(h[2-4]|p|ul|ol)\b[^>]*>.*?<\/\1>/is', function ($m) {
+        return gns_is_ecosystem_block($m[0]) ? '' : $m[0];
+    }, $html);
+    return is_string($next) ? $next : $html;
+}
+
+function gns_strip_ecosystem_copy($text) {
+    if (!is_string($text) || $text === '') return $text;
+    $clauses = [
+        ', part of SAO PHU QUOC.',
+        ', part of SAO PHU QUOC',
+        ', часть SAO PHU QUOC.',
+        ', часть SAO PHU QUOC',
+        ', SAO PHU QUOC 계열.',
+        ', SAO PHU QUOC 계열',
+        '，隶属 SAO PHU QUOC。',
+        ', 隶属 SAO PHU QUOC。',
+        '隶属 SAO PHU QUOC。',
+        ', ضمن مجموعة SAO PHU QUOC.',
+        ' ضمن مجموعة SAO PHU QUOC.',
+    ];
+    $text = str_replace($clauses, '', $text);
+    $text = preg_replace('/[^<>.?!。]*SAO\s*PHU\s*QUOC[^<>.?!。]*[.?!。]?/iu', '', $text);
+    $text = preg_replace('#https?://(?:www\.)?saophuquoc\.com\S*#i', '', $text);
+    $text = str_ireplace(['saophuquoc.com', 'Sao Phú Quốc'], '', $text);
+    return $text;
 }
 
 function gns_refresh_hours_copy($text) {
@@ -204,29 +260,102 @@ function gns_refresh_hours_copy($text) {
         'Ежедневно 6:30–2:00' => 'Ежедневно 10:00–23:00',
         'يوميًا 6:30–2:00' => 'يوميًا 10:00–23:00',
         '每天营业 6:30–2:00' => '每天营业 10:00–23:00',
+        '06:30–02:00 (hôm sau)' => '10:00–23:00',
+        '06:30-02:00 (hôm sau)' => '10:00–23:00',
         '6:30 – 02:00' => '10:00 – 23:00',
         '6:30–02:00' => '10:00–23:00',
         '6:30 – 2:00' => '10:00 – 23:00',
         '6:30–2:00' => '10:00–23:00',
         '06:30–02:00' => '10:00–23:00',
-        '06:30-02:00' => '10:00-23:00',
+        '06:30-02:00' => '10:00–23:00',
         'ly cocktail lúc nửa đêm' => 'ly cocktail buổi tối',
         'Nhà hàng lại mở tới 2 giờ sáng' => 'Nhà hàng đóng cửa lúc 23:00',
         'đến 2 giờ sáng' => 'đến 23:00',
         'mở đến 2 giờ sáng' => 'mở đến 23:00',
+        'Работаем ежедневно с 06:30 до 02:00' => 'Работаем ежедневно с 10:00 до 23:00',
+        '매일 06:30~02:00 영업' => '매일 10:00~23:00 영업',
+        '每天06:30至02:00营业' => '每天10:00至23:00营业',
+        'نفتح يوميًا من 06:30 حتى 02:00' => 'نفتح يوميًا من 10:00 حتى 23:00',
+        'مفتوح يوميًا من 6:30 حتى 02:00' => 'مفتوح يوميًا من 10:00 حتى 23:00',
+        'مفتوح يوميًا من 06:30 حتى 02:00' => 'مفتوح يوميًا من 10:00 حتى 23:00',
+    ];
+    $text = str_replace(array_keys($pairs), array_values($pairs), $text);
+    return gns_rewrite_old_hour_ranges($text);
+}
+
+/**
+ * 6:30–2:00 written with ASCII, Arabic-Indic, or Persian digits,
+ * and with ~, 至, đến, до, or حتى between the times.
+ */
+function gns_rewrite_old_hour_ranges($text) {
+    if (!is_string($text) || $text === '') return $text;
+    $open = '(?:0?6|٠?٦|۰?۶)';
+    $close = '(?:0?2|٠?٢|۰?۲)';
+    $min30 = '(?:30|٣٠|۳۰)';
+    $min00 = '(?:00|٠٠|۰۰)';
+    $colon = '[:：٫]';
+    $joiner = '(?:\s*(?:–|—|-|~|～|至|đến|до|حتى)\s*)';
+    $pattern = '/(?<![0-9٠-٩۰-۹])' . $open . $colon . $min30 . $joiner . $close . $colon . $min00 . '/u';
+    $next = preg_replace_callback($pattern, function ($m) use ($open, $close, $min30, $min00, $colon) {
+        $span = $m[0];
+        $span = preg_replace('/' . $open . $colon . $min30 . '/u', '10:00', $span, 1);
+        $span = preg_replace('/' . $close . $colon . $min00 . '/u', '23:00', $span, 1);
+        return is_string($span) ? $span : $m[0];
+    }, $text);
+    return is_string($next) ? $next : $text;
+}
+
+function gns_refresh_vip_copy($text) {
+    if (!is_string($text) || $text === '') return $text;
+    $pairs = [
+        '10 private VIP rooms' => '9 private VIP rooms',
+        '10 VIP rooms' => '9 VIP rooms',
+        'VIP rooms (10 rooms' => 'VIP rooms (9 rooms',
+        '10 phòng VIP' => '9 phòng VIP',
+        '(10 phòng' => '(9 phòng',
+        '10 phòng,' => '9 phòng,',
+        '10间独立VIP包房' => '9间独立VIP包房',
+        '10间私人VIP包厢' => '9间私人VIP包厢',
+        '10个私人VIP包间' => '9个私人VIP包间',
+        'VIP包厢（10间' => 'VIP包厢（9间',
+        '10개 프라이빗 VIP룸' => '9개 프라이빗 VIP룸',
+        '프라이빗 VIP룸 10개' => '프라이빗 VIP룸 9개',
+        'VIP룸 10개' => 'VIP룸 9개',
+        'VIP룸(10실' => 'VIP룸(9실',
+        '10 отдельных VIP-залов' => '9 отдельных VIP-залов',
+        '10 приватных VIP-комнат' => '9 приватных VIP-комнат',
+        'VIP-комнаты (10 залов' => 'VIP-комнаты (9 залов',
+        '10 غرف VIP' => '9 غرف VIP',
+        'غرف VIP (10 غرف' => 'غرف VIP (9 غرف',
+        '10 VIP' => '9 VIP',
     ];
     return str_replace(array_keys($pairs), array_values($pairs), $text);
+}
+
+function gns_refresh_support_copy($text) {
+    if (!is_string($text) || $text === '') return $text;
+    $pairs = [
+        'AI tư vấn 24/7 giúp' => 'AI tư vấn. Form đặt bàn nhận yêu cầu mọi lúc; nhà hàng xác nhận trong giờ mở cửa 10:00–23:00. Trợ lý giúp',
+        'AI tư vấn 24/7' => 'AI tư vấn. Form đặt bàn nhận yêu cầu mọi lúc; nhà hàng xác nhận trong giờ mở cửa 10:00–23:00',
+        '<strong>24/7</strong><span>Hỗ trợ riêng</span>' => '<strong>10:00–23:00</strong><span>Hỗ trợ trong giờ mở cửa</span>',
+        '24/7 · Hỗ trợ riêng' => '10:00–23:00 · Hỗ trợ trong giờ mở cửa',
+        '(24/7)' => '(xác nhận trong giờ mở cửa 10:00–23:00)',
+        'Hotline/Zalo 24/7' => 'Hotline (10:00–23:00)',
+        'Hotline 24/7' => 'Hotline (10:00–23:00)',
+    ];
+    $text = str_ireplace(array_keys($pairs), array_values($pairs), $text);
+    $next = preg_replace('/\b24\s*\/\s*7\b/u', '10:00–23:00 hằng ngày', $text);
+    return is_string($next) ? $next : $text;
 }
 
 function gns_scrub_public_copy($text) {
     if (!is_string($text) || $text === '') return $text;
     $text = gns_refresh_hours_copy($text);
-    $text = str_ireplace(
-        ['Hotline/Zalo 24/7', 'Hotline 24/7'],
-        'Hotline (10:00–23:00)',
-        $text
-    );
-    $text = str_replace('10 phòng VIP', '9 phòng VIP', $text);
+    $text = gns_refresh_vip_copy($text);
+    $text = gns_refresh_support_copy($text);
+    $text = gns_strip_ecosystem_copy($text);
+    $text = preg_replace('/\s*giờ hành chính\b/iu', '', $text);
+    $text = is_string($text) ? $text : '';
     $text = preg_replace('/\bhơn\s+220\s+món\b/iu', 'các món', $text);
     $text = preg_replace('/\b220\+\s*món\b/u', 'các món', $text);
     $text = preg_replace('/\b220-dish\b/i', '', $text);
@@ -298,8 +427,13 @@ function gns_demote_content_h1($html) {
 function gns_public_content($content) {
     if (is_admin() || !is_string($content)) return $content;
     $content = gns_strip_legacy_forms($content);
+    $content = gns_strip_ecosystem_html($content);
     $content = gns_clean_public_html($content);
     $content = gns_scrub_public_copy($content);
+    $base = function_exists('gns_form_slug') ? gns_form_slug() : '';
+    if ($base === 'dat-ban' && strpos($content, 'data-gn-request') === false && function_exists('gns_request_form_html')) {
+        $content = gns_request_form_html('dat-ban');
+    }
     $slug = gns_form_slug();
     $drop = ($slug === 'hinh-anh-review');
     $content = gns_swap_hidden_images($content, $drop);
@@ -344,6 +478,10 @@ function gns_meta_from_excerpt($desc) {
 }
 add_filter('wpseo_metadesc', 'gns_meta_from_excerpt', 40);
 add_filter('wpseo_opengraph_desc', 'gns_meta_from_excerpt', 40);
+add_filter('wpseo_twitter_description', 'gns_meta_from_excerpt', 40);
+add_filter('wpseo_title', 'gns_scrub_public_copy', 40);
+add_filter('pre_get_document_title', 'gns_scrub_public_copy', 40);
+add_filter('wpseo_llmstxt_link_description', 'gns_scrub_llms_txt', 20);
 
 add_action('wp_head', function () {
     if (defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION')) return;
@@ -387,6 +525,15 @@ function gns_schema_is_list($node) {
     return true;
 }
 
+function gns_schema_publisher() {
+    return [
+        '@type' => 'Organization',
+        '@id' => home_url('/') . '#restaurant',
+        'name' => 'Gánh Ngon',
+        'url' => home_url('/'),
+    ];
+}
+
 function gns_scrub_schema_node($node) {
     if (is_string($node)) {
         if (preg_match('#^https?://(?:www\.)?saophuquoc\.com/?$#i', trim($node))) return null;
@@ -401,7 +548,9 @@ function gns_scrub_schema_node($node) {
     if (!is_array($node)) return $node;
     $type = isset($node['@type']) ? $node['@type'] : '';
     $types = is_array($type) ? $type : [$type];
-    if (in_array('Person', $types, true)) return null;
+    if (in_array('Person', $types, true)) {
+        return gns_schema_publisher();
+    }
     if (isset($node['parentOrganization'])) {
         $parent = $node['parentOrganization'];
         $blob = is_string($parent) ? $parent : (string) wp_json_encode($parent);
@@ -436,7 +585,11 @@ function gns_scrub_schema_node($node) {
     $list = gns_schema_is_list($node);
     $out = [];
     foreach ($node as $key => $value) {
-        if ($key === 'author' || $key === 'author_name' || $key === 'author_url') continue;
+        if ($key === 'author_name' || $key === 'author_url') continue;
+        if ($key === 'author') {
+            $out[$key] = gns_schema_publisher();
+            continue;
+        }
         if ($key === 'addressRegion' && is_string($value)) {
             $out[$key] = (strpos($value, 'Phu') !== false && strpos($value, 'Phú') === false) ? 'Phu Quoc' : 'Phú Quốc';
             continue;
@@ -750,10 +903,52 @@ function gns_clean_public_html($html) {
     return $html;
 }
 
+function gns_strip_author_meta($html) {
+    if (!is_string($html) || $html === '') return $html;
+    $next = preg_replace('/\s*<meta\b[^>]*\bname=(["\'])author\1[^>]*>/i', '', $html);
+    if (is_string($next)) $html = $next;
+    $next = preg_replace('/\s*<meta\b[^>]*\bproperty=(["\'])article:author\1[^>]*>/i', '', $html);
+    if (is_string($next)) $html = $next;
+    $author_label = 'Written by|Được viết bởi|작성자|作者|Автор|كتبه|بقلم';
+    $next = preg_replace('/\s*<meta\b[^>]*\bname=(["\'])twitter:label(\d+)\1[^>]*content=(["\'])(?:' . $author_label . ')[^"\']*\3[^>]*>\s*<meta\b[^>]*\bname=(["\'])twitter:data\2\4[^>]*>/iu', '', $html);
+    return is_string($next) ? $next : $html;
+}
+
+/**
+ * /llms.txt on this site is a static file in the web root, written by hand
+ * (not the Yoast generator). The web server sends that file before WordPress
+ * runs, so the theme rewrites the file in place when PHP can write it.
+ * Yoast link blurbs, if that generator is turned on later, go through
+ * wpseo_llmstxt_link_description.
+ */
+function gns_scrub_llms_txt($text) {
+    if (!is_string($text) || $text === '') return $text;
+    $text = gns_refresh_hours_copy($text);
+    $text = gns_refresh_vip_copy($text);
+    $text = gns_strip_ecosystem_copy($text);
+    $text = preg_replace('/\s*giờ hành chính\b/iu', '', $text);
+    return is_string($text) ? $text : '';
+}
+
+function gns_repair_static_llms_txt() {
+    if (is_admin()) return;
+    $path = ABSPATH . 'llms.txt';
+    if (!is_readable($path) || !is_writable($path)) return;
+    $raw = file_get_contents($path);
+    if (!is_string($raw) || $raw === '') return;
+    $next = gns_scrub_llms_txt($raw);
+    if ($next === '' || $next === $raw) return;
+    file_put_contents($path, $next);
+}
+add_action('init', 'gns_repair_static_llms_txt', 20);
+
 function gns_finish_public_html($html) {
     if (!is_string($html) || $html === '') return $html;
     $html = gns_clean_public_html(gns_scrub_ldjson_html($html));
-    return gns_refresh_hours_copy($html);
+    $html = gns_strip_legacy_forms($html);
+    $html = gns_strip_ecosystem_html($html);
+    $html = gns_scrub_public_copy($html);
+    return gns_strip_author_meta($html);
 }
 
 add_filter('widget_text', 'gns_clean_public_html');
@@ -797,6 +992,15 @@ add_filter('wpseo_canonical', 'gns_lau_canonical_url', 20);
 add_filter('wpseo_opengraph_url', 'gns_lau_canonical_url', 20);
 
 add_filter('feed_links_show_comments_feed', '__return_false');
+
+add_filter('wpseo_meta_author', '__return_empty_string', 20);
+add_filter('wpseo_enhanced_slack_data', '__return_empty_array', 20);
+add_filter('wpseo_opengraph_author_facebook', '__return_false', 20);
+
+add_filter('the_author', function ($name) {
+    if (is_feed()) return 'Gánh Ngon';
+    return $name;
+}, 20);
 
 remove_action('wp_head', 'wp_generator');
 add_filter('the_generator', '__return_empty_string');

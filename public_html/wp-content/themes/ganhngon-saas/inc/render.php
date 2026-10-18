@@ -30,6 +30,13 @@ function gns_render_main($key) {
         }
     }
     $file = gns_main_path($key);
+    if (!$file) {
+        $base = preg_replace('/-(en|zh|ko|ru|ar)$/', '', (string) $key);
+        if ($base !== $key && in_array($base, ['dat-ban', 'lien-he'], true)) {
+            $file = gns_main_path($base);
+            if ($file) $key = $base;
+        }
+    }
     if (!$file) return false;
     $html = file_get_contents($file);
     if ($html === false) return false;
