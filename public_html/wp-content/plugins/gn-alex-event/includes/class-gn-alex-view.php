@@ -18,6 +18,25 @@ class Gn_Alex_View {
             . '<main id="main">' . $body . '</main></body></html>';
     }
 
+    /** @param array<string,mixed> $partner */
+    public static function referral(string $lang, array $partner): string {
+        $esc = [Gn_Alex_Text::class, 'esc'];
+        $code = (string) ($partner['public_id'] ?? '');
+        $handoff = (string) ($partner['handoff'] ?? '');
+        $allowed = $code !== '' && $handoff === '/dat-ban/?gn_ref=' . rawurlencode($code);
+        $body = '<section class="poster" data-redeems="0" data-money="0" data-otp="0">';
+        if ($allowed && empty($partner['needs_approval'])) {
+            $body .= '<h1>NHẬN ƯU ĐÃI</h1>'
+                . '<p>Table request handoff. This is not a verified discount, not phone ownership, and not an event pass.</p>'
+                . '<p><a href="' . $esc($handoff) . '">/dat-ban/</a></p>'
+                . '<p>Role ' . $esc((string) ($partner['role'] ?? '')) . '</p>';
+        } else {
+            $body .= '<h1>Needs approval</h1><p>This referral is not active. No event pass is issued.</p>';
+        }
+        $body .= '</section>';
+        return self::page($lang, 'Referral', $body, 'referral');
+    }
+
     /** @param array<string,mixed> $state */
     public static function landing(string $lang, array $state): string {
         $c = Gn_Alex_Copy::bundle($lang);

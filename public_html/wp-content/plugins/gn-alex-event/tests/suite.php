@@ -440,8 +440,18 @@ try {
     $driverGrant = $app->grantAttribution(auth($onboarding), (int) $driver['partner_id']);
     $ctvGrant = $app->grantAttribution(auth($onboarding), (int) $ctv['partner_id']);
     expect('self-selected driver stays pending until a different role grants attribution', $ctv['ok'] && $ctv['referral'] === null && $ctv['reason'] === 'requires_approval' && $ctvAgain['public_id'] === $ctv['public_id'] && $driver['referral'] === null && !$earlyInvoice['ok'] && $earlyInvoice['error'] === 'partner_not_attributable' && $ctvReview['referral'] === null && $driverReview['referral'] === null && !$selfGrant['ok'] && $driverGrant['ok'] && $ctvGrant['ok'] && is_string($ctvGrant['referral']), j($earlyInvoice) . j($selfGrant) . j($driverGrant));
+    $pendingLook = $app->lookupPartnerPublic((string) $driver['public_id']);
     $refPage = $http->handle('GET', $ctvGrant['referral'], ['lang' => 'en'], [], [], []);
-    expect('referral page does not redeem', $refPage['status'] === 200 && str_contains($refPage['body'], 'data-redeems="0"') && !str_contains($refPage['body'], '0912000011'));
+    $refAgain = $app->noteReferralVisit((string) $ctvGrant['public_id']);
+    $alexReferral = $http->handle('GET', '/su-kien/' . Gn_Alex_Engine::ALEX_SLUG . '/r/' . $ctvGrant['public_id'], [], [], [], []);
+    $evil = $http->handle('GET', '/gn-alex/referral/' . $ctvGrant['public_id'], ['next' => 'https://evil.example'], [], [], []);
+    $clicks = (int) $db->fetch('SELECT COUNT(*) AS c FROM gn_alex_referral_click WHERE public_id=?', [$ctvGrant['public_id']])['c'];
+    $clickAudit = (string) $db->fetch("SELECT after_json FROM gn_alex_audit WHERE action='referral_click' ORDER BY id DESC LIMIT 1")['after_json'];
+    $waiting = $app->applyPartner(array_merge(csrf($app, 'partner_apply'), ['consent' => 1, 'role' => 'ctv', 'phone' => '0912000033', 'name' => 'Waiting']));
+    $waitingLook = $app->lookupPartnerPublic((string) $waiting['public_id']);
+    $waitingPage = $http->handle('GET', '/gn-alex/referral/' . $waiting['public_id'], [], [], [], []);
+    $unknown = $http->handle('GET', '/gn-alex/referral/NOTREAL', [], [], [], []);
+    expect('referral page does not redeem', str_starts_with((string) $ctvGrant['referral'], '/gn-alex/referral/') && !str_contains((string) $ctvGrant['referral'], Gn_Alex_Engine::ALEX_SLUG) && $ctvGrant['campaign'] === Gn_Alex_Engine::REFERRAL_SLUG && $pendingLook['needs_approval'] === false && $pendingLook['handoff'] === '/dat-ban/?gn_ref=' . $driverGrant['public_id'] && !array_key_exists('phone', $pendingLook) && $waiting['referral'] === null && $waitingLook['needs_approval'] === true && $waitingLook['referral'] === null && $waitingLook['attribution'] === 'none' && !array_key_exists('phone', $waitingLook) && str_contains($waitingPage['body'], 'Needs approval') && !str_contains($waitingPage['body'], '/dat-ban/') && $unknown['status'] === 404 && $refPage['status'] === 200 && str_contains($refPage['body'], 'data-redeems="0"') && str_contains($refPage['body'], 'data-money="0"') && str_contains($refPage['body'], 'NHẬN ƯU ĐÃI') && str_contains($refPage['body'], '/dat-ban/?gn_ref=') && !str_contains($refPage['body'], '0912000011') && !str_contains($refPage['body'], 'https://evil.example') && !str_contains($evil['body'], 'https://evil.example') && $refAgain['click'] === 'ignored' && $clicks === 1 && !str_contains($clickAudit, '0912000011') && $alexReferral['status'] === 404, j($ctvGrant) . $waitingPage['body']);
 
     $invoice = $app->recordInvoice(auth($thungan), [
         'external_id' => 'INV-CTV-1', 'source' => 'manual', 'partner_public_id' => $ctv['public_id'],
@@ -464,11 +474,11 @@ try {
     $raw = (string) $db->fetch('SELECT raw_json FROM gn_alex_invoice WHERE id=?', [(int) $invoice['invoice_id']])['raw_json'];
     expect('paid invoice stays unpriced and ignores bill total', $invoice['ok'] && !empty($dup['replay']) && (int) $db->fetch('SELECT COUNT(*) AS c FROM gn_alex_invoice WHERE external_id=?', ['INV-CTV-1'])['c'] === 1 && $ledger['entry_type'] === 'pending_unpriced' && $ledger['amount_minor'] === null && $ledger['reason'] === 'requires_approval' && (int) $ledger['base_minor'] === 200000 && $paid['priced'] === false && !str_contains($raw, '999999'), j($paid) . j($ledger) . $raw);
     $pricedTooSoon = $app->priceAttribution(auth($onboarding), 'INV-CTV-1');
-    expect('pricing without an approved rule requires approval', !$pricedTooSoon['ok'] && $pricedTooSoon['error'] === 'requires_approval', j($pricedTooSoon));
+    expect('an alex invoice is rejected before any rate is applied', !$pricedTooSoon['ok'] && $pricedTooSoon['error'] === 'alex_not_commissionable', j($pricedTooSoon));
     $rule = $app->proposeRule(auth($quanly), 'ctv', $start - 10, $start + 86400);
     $ruleOk = $app->approveRule(auth($onboarding), (int) $rule['rule_id']);
     $priced = $app->priceAttribution(auth($onboarding), 'INV-CTV-1');
-    expect('one explicit food-base price uses 5 percent after rule approval', $ruleOk['ok'] && $priced['ok'] && (int) $priced['amount_minor'] === 10000 && (int) $priced['rate_bps'] === 500 && $priced['automatic_commission'] === false && $priced['reason'] === 'explicit_approval_not_every_bill', j($priced));
+    expect('alex campaign invoice is not priced', $ruleOk['ok'] && !$priced['ok'] && $priced['error'] === 'alex_not_commissionable' && (int) $db->fetch("SELECT COUNT(*) AS c FROM gn_alex_ledger WHERE entry_type='priced'")['c'] === 0, j($priced));
 
     $driverInv = $app->recordInvoice(auth($thungan), [
         'external_id' => 'INV-DRV-1', 'source' => 'manual', 'partner_public_id' => $driver['public_id'],
@@ -485,7 +495,15 @@ try {
     $driverPaid2 = $app->markApprovedPaid(auth($thungan), 'INV-DRV-2', 'paid-inv-drv-2');
     $secondQuote = $app->priceAttribution(auth($quanly), 'INV-DRV-2');
     $unpricedSecond = (int) $db->fetch("SELECT COUNT(*) AS c FROM gn_alex_ledger l JOIN gn_alex_invoice i ON i.id=l.invoice_id WHERE i.external_id='INV-DRV-2' AND l.entry_type='priced'")['c'];
-    expect('driver 15 percent is not applied to every bill', $driverSecond['ok'] && $driverPaid['reason'] === 'requires_approval' && $driverPaid2['priced'] === false && $driverRuleOk['ok'] && $driverPriced['ok'] && (int) $driverPriced['amount_minor'] === 30000 && !$secondQuote['ok'] && $unpricedSecond === 0, j($driverPriced) . j($driverPaid2));
+    $refInvoice = $app->recordInvoice(auth($thungan), [
+        'external_id' => 'INV-REF-1', 'source' => 'manual', 'partner_public_id' => $ctv['public_id'],
+        'campaign' => Gn_Alex_Engine::REFERRAL_SLUG, 'food_base' => 200000, 'link_verified' => 1,
+    ]);
+    $refPaid = $app->markApprovedPaid(auth($thungan), 'INV-REF-1', 'paid-inv-ref-1');
+    $refPrice = $app->priceAttribution(auth($onboarding), 'INV-REF-1');
+    $roleRow = $db->fetch('SELECT role FROM gn_alex_partner WHERE public_id=?', [$driver['public_id']]);
+    expect('referral family invoice stays unpriced until vat review', $refInvoice['ok'] && $refPaid['priced'] === false && $refPaid['reason'] === 'requires_approval' && !$refPrice['ok'] && $refPrice['error'] === 'vat_review_required' && $roleRow['role'] === 'driver' && $driver['public_id'] !== $ctv['public_id'], j($refPaid) . j($refPrice));
+    expect('driver invoice outside the referral family is not priced', $driverSecond['ok'] && $driverPaid['reason'] === 'requires_approval' && $driverPaid2['priced'] === false && $driverRuleOk['ok'] && !$driverPriced['ok'] && $driverPriced['error'] === 'campaign_not_referral' && !$secondQuote['ok'] && $unpricedSecond === 0, j($driverPriced) . j($driverPaid2));
     expect('alex commission is never calculated', $app->alexCommission()['calculated'] === false && $app->alexCommission()['amount'] === null && $paid['alex_commission'] === null);
 
     $stay = $app->recordInvoice(auth($thungan), [

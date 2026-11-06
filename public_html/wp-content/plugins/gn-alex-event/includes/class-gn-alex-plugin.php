@@ -22,6 +22,7 @@ class Gn_Alex_Plugin {
         add_rewrite_rule('^gn-alex/desk/?$', 'index.php?gn_alex_screen=desk', 'top');
         add_rewrite_rule('^gn-alex/dashboard/?$', 'index.php?gn_alex_screen=dashboard', 'top');
         add_rewrite_rule('^gn-alex/partner/?$', 'index.php?gn_alex_screen=partner', 'top');
+        add_rewrite_rule('^gn-alex/referral/([A-Za-z0-9]+)/?$', 'index.php?gn_alex_screen=referral&gn_alex_event=$matches[1]', 'top');
         add_rewrite_tag('%gn_alex_event%', '([^&]+)');
         add_rewrite_tag('%gn_alex_screen%', '([^&]+)');
     }
@@ -108,7 +109,8 @@ class Gn_Alex_Plugin {
             echo '<div class="notice notice-error"><p>' . esc_html($activation) . '</p></div>';
         }
         echo '<h2>Route ownership</h2><ul>';
-        echo '<li>' . esc_html('Owned: /gn-alex/khach, /gn-alex/quay, /gn-alex/desk, /gn-alex/dashboard, /gn-alex/partner') . '</li>';
+        echo '<li>' . esc_html('Owned: /gn-alex/khach, /gn-alex/quay, /gn-alex/desk, /gn-alex/dashboard, /gn-alex/partner, /gn-alex/referral/{code}') . '</li>';
+        echo '<li>' . esc_html('A referral visit is provisional. It does not verify a phone, issue an event pass, or create money. Staff still link a booking by hand.') . '</li>';
         echo '<li>' . esc_html('Not owned and not redirected: /gnv/khach, /gnv/quay. This plugin does not disable another voucher plugin.') . '</li>';
         echo '</ul>';
         echo '<h2>Money</h2><p>' . esc_html('Payout is disabled. Alex commission is not calculated. Existing gross commission code is not called and is not switched off by this screen.') . '</p>';

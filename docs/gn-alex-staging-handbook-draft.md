@@ -13,6 +13,7 @@ Use the repository after pull request 2 is on `main`, then the later route and s
 - `/gn-alex/quay` counter: staff PIN, one guest lookup, then one confirmed beer or salad.
 - `/gn-alex/desk` private partner review after a staff PIN. There is no public application list.
 - `/gn-alex/dashboard` only with a staff session. The figure is eligible food base, not total revenue.
+- `/gn-alex/referral/{code}` after a manager review and a separate onboarding grant. The code is for the referral-food campaign, not the Alex event. A visit records one provisional click and links only to `/dat-ban/?gn_ref={code}`. It does not verify a phone, issue a pass, or price an invoice. Staff still match the booking by hand.
 - `/wp-json/gn-alex/v1/` for the same actions.
 
 `/gnv/khach` and `/gnv/quay` are not registered here and are not redirected. This plugin does not turn another voucher plugin off, and it does not call the older gross commission functions.

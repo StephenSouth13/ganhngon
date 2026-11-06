@@ -55,11 +55,14 @@ class Gn_Alex_Http {
             $this->engine->recordScan($m[1], 'registration');
             return $this->html(200, Gn_Alex_View::landing($lang, $this->publicForm($m[1], false)));
         }
+        if ($method === 'GET' && preg_match('#^/gn-alex/referral/([A-Za-z0-9]+)$#', $path, $m)) {
+            return $this->referralPage($lang, $m[1]);
+        }
         if ($method === 'GET' && preg_match('#^/su-kien/([a-z0-9-]+)/r/([A-Za-z0-9]+)$#', $path, $m)) {
-            $scan = $this->engine->recordScan($m[1], 'referral', $m[2]);
-            $state = $this->publicForm($m[1], true);
-            $state['scan_ok'] = $scan['ok'];
-            return $this->html($scan['ok'] ? 200 : 404, Gn_Alex_View::landing($lang, $state));
+            if ($m[1] !== Gn_Alex_Engine::REFERRAL_SLUG) {
+                return $this->json(['ok' => false, 'error' => 'referral_not_for_event', 'http' => 404]);
+            }
+            return $this->referralPage($lang, $m[2]);
         }
         if ($method === 'GET' && ($path === '/gnv/khach' || $path === '/gnv/quay' || $path === '/gnv/dashboard' || $path === '/gnv/partner')) {
             return $this->json(['ok' => false, 'error' => 'legacy_route_not_owned', 'http' => 404]);
@@ -207,6 +210,15 @@ class Gn_Alex_Http {
     }
 
     /** @return array{campaign:string,csrf:string,action:string,referral:bool} */
+    private function referralPage(string $lang, string $code): array {
+        $visit = $this->engine->noteReferralVisit($code);
+        if (($visit['error'] ?? '') === 'not_found') {
+            return $this->html(404, Gn_Alex_View::referral($lang, ['public_id' => '', 'needs_approval' => true, 'handoff' => null, 'role' => '']));
+        }
+        $look = $this->engine->lookupPartnerPublic($code);
+        return $this->html(200, Gn_Alex_View::referral($lang, $look));
+    }
+
     private function publicForm(string $campaign, bool $referral, string $purpose = 'otp_request'): array {
         $csrf = $this->engine->issueRegistrationToken($purpose);
         return [
