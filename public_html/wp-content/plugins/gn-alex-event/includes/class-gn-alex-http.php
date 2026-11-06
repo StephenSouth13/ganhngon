@@ -75,6 +75,9 @@ class Gn_Alex_Http {
         if ($method === 'GET' && $path === '/gn-alex/quay') {
             return $this->html(200, Gn_Alex_View::counter($lang));
         }
+        if ($method === 'GET' && $path === '/gn-alex/desk') {
+            return $this->html(200, Gn_Alex_View::desk($lang));
+        }
         if ($method === 'GET' && $path === '/gn-alex/partner') {
             return $this->html(200, Gn_Alex_View::partner($lang, $this->publicForm(Gn_Alex_Engine::ALEX_SLUG, false, 'partner_apply')));
         }
@@ -133,6 +136,12 @@ class Gn_Alex_Http {
         }
         if ($path === '/gn-alex/v1/staff/resolve') {
             return $this->json($this->engine->resolvePresence($auth));
+        }
+        if ($path === '/gn-alex/v1/staff/lookup') {
+            return $this->json($this->engine->lookupGuest($auth));
+        }
+        if ($path === '/gn-alex/v1/staff/partner-queue') {
+            return $this->json($this->engine->partnerQueue($auth));
         }
         if ($path === '/gn-alex/v1/staff/rotate') {
             return $this->json($this->engine->staffRotate($auth));
