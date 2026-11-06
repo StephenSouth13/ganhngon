@@ -1,0 +1,19 @@
+<section class="page-hero page-hero-img" aria-labelledby="page-title">
+  <img src="{{ASSETS}}/img/com-nieu-dap.webp" alt="Cơm niêu" width="1600" height="914" loading="eager" decoding="async" class="page-hero-bg">
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="wrap page-hero-inner">
+    <p class="eyebrow eyebrow-light">Gánh Ngon Phú Quốc</p>
+    <h1 id="page-title" class="display">Tra cứu<br><em>mã</em></h1>
+    <p class="hero-lead">Nhập mã trên phiếu hoặc voucher do nhà hàng cấp. Trang chỉ trả về đúng đơn của mã đó.</p>
+  </div>
+</section>
+<section class="band band-ivory">
+  <div class="wrap prose">
+    <form class="form lookup-form" method="get">
+      <label>Mã tra cứu *<input name="code" required autocomplete="off" placeholder="Mã trên phiếu"></label>
+      <button class="btn btn-dark" type="submit">Tra cứu</button>
+      {{LOOKUP_RESULT}}
+    </form>
+    <p>Mã đối tác (dạng GN-P…) không phải mã voucher. Kiểm tra đối tác tại <a href="{{U:xac-minh}}">/xac-minh</a>.</p>
+  </div>
+</section>
