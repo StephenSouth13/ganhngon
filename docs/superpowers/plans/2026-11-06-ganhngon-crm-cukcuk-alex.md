@@ -1,13 +1,13 @@
 # Gánh Ngon — Alex DJ event, CRM boundary, CukCuk read
 
-Date: 2026-11-06. Local worker authorization for this branch and pull request only: `p-t604u`. This document does not authorize a deploy, a production database change, or an outbound SMS, email, or Zalo message.
+Date: 2026-11-06. This document does not authorize a deploy, a production database change, or an outbound SMS, email, or Zalo message.
 
 ## What was audited in this repository
 
 - Paid e-voucher denominations live only in `public_html/wp-content/mu-plugins/gn-voucher-tiers.php` (`gn_voucher_tiers`). That filter is a price list. It is not an event redemption engine and this work does not change it.
 - `gn-voucher-online` 0.16.13 is not in this repository. The local audit of that build is treated as a constraint, not as source we can import. No old voucher tables are read or migrated.
 - Counter routes `/gnv/khach` and `/gnv/quay`, and the event shell `/su-kien/<slug>`, are not implemented elsewhere in this repo. The SAO theme links to bare `/su-kien/` for a different marketing page. The new plugin serves only `/su-kien/{campaign-slug}/` and leaves `/su-kien/` alone.
-- Jetpack CRM (`zero-bs-crm`) is present. BeautyOS is not. The new code does not write CRM rows and does not add a second commission calculator.
+- Jetpack CRM (`zero-bs-crm`) is present. BeautyOS is not in this repository. The plugin does not post rows to CRM. Partner rules that can change without a version or effective interval, and any plaintext bank field, are not used as a pricing source.
 - Legacy gross commission remains in place and is not called:
   - `gn_commission_for_day()` in the chat-stack payload uses full-day revenue tiers (10% / 12% / 15%), including booking revenue and voucher pay/topup.
   - `gn_pt_commission()` in `gn-partner.php` multiplies booking `total` by a partner percent. `GN_PT_ENABLED` is already false.
@@ -32,16 +32,30 @@ WordPress wiring reuses the usual hooks (`register_activation_hook`, `init` rewr
 - OTP: unconfigured provider fail-closes. A challenge row is written only after the provider returns an acknowledgement id. The OTP is stored as an HMAC, expires in 300 seconds, and locks after 5 mismatches. The isolated mock class `Gn_Alex_Otp_Provider_IsolatedTestMock` acknowledges only when `GN_ALEX_ALLOW_ISOLATED_TEST_MOCK` is defined, `GN_ALEX_TEST_HARNESS=1`, and production mode is off. `Gn_Alex_Otp_Provider_VerifiedGateway` is not constructed by the factory. Live SMS is not wired.
 - One voucher per phone HMAC plus campaign family. The same identity is reused across campaigns. A second QR in the same family does not mint quota. Reissue rotates the ticket secret and does not add quota. The secret is returned once and `tokenUrl()` refuses to place it in a URL.
 - A constant ticket code, ticket secret, or query-string ticket is rejected by staff redeem. A static referral QR records a scan and never redeems. Staff redeem requires a bearer session, CSRF, explicit confirmation, item `beer` or `salad`, and a fresh name plus phone. Quantity, status, and amount from the client are ignored. One confirmed beer is one inserted redemption row with a unique `commit_key`. A pending hold expires instead of debiting twice. The same idempotency key returns the stored result.
-- Staff roles follow the counter pattern `quay`, `thungan`, and `quanly`. PIN is `password_hash`, never a default and never read from the environment. Session TTL is 900 seconds, with rotate and revoke. Quota increase and bank approval need two different `quanly` users.
-- Dashboard metrics are counts from scan, registration, check-in, redemption, abuse, and invoice rows. Alex commission is always null. POS revenue is the food base of invoices whose source is `manual` or `import`, whose link flag was set at insert, and whose latest paid state is not cancelled or refunded. Webhook rows and CukCuk snapshots do not count.
+- Staff roles are `quay`, `thungan`, `quanly`, and `onboarding`. PIN is `password_hash`, never a default and never read from the environment. Session TTL is 900 seconds, with rotate and revoke. The session token is a bearer header, not a cookie. REST `permission_callback` only checks that a credential is present. The engine still verifies it. A passing callback is not authentication.
+- Guest registration uses a single-use token stored as a hash with a 10-minute expiry. It is issued by the server on GET and consumed on POST. A client-supplied session id is not a token.
+- OTP sends are reserved inside a transaction per phone HMAC before the provider is called. A second send is refused while a challenge is still pending. The code is stored only as an HMAC.
+- Dashboard reads require a staff session. There is no no-auth admin dashboard. The public figure is `eligible_food_base` for linked manual or import invoices that are paid and not reversed. It is not labeled as total revenue. Alex commission is not calculated.
+- POS and attribution webhooks require HMAC-SHA256 over the raw body, `X-GN-Timestamp`, `X-GN-Signature`, and `X-GN-Tenant`. The tenant header and the body tenant must both match the server tenant. The secret is server-side. If it is missing, the route fail-closes and stores nothing. Timestamp skew is 300 seconds. The same event key and body returns the first result. The same key with a different body returns a conflict. A webhook cannot set source `manual`, `link_verified`, partner attribution, or a priced commission.
 
-### P1 shared module
+### Staged attribution (not a finished P1)
 
-- Partner apply for `ctv` (500 bps, 0.05) or `driver` (1500 bps, 0.15) only. Admin approval issues a deterministic public id `GNP` plus a hash of role, phone HMAC, and the shared referral family `referral-food`.
-- Invoice rows are insert-only. Status changes are `invoice_event` rows. Paid approval writes an accrual. Cancellation or refund writes a reversal of the same amount. A second reversal is rejected.
-- Bank values must already be `enc:v1:` ciphertext. The request stores a hash. The ciphertext is written only after a second manager approves. Audit JSON records the field name, not the value. The partner page has no bank input and says collection is not available.
-- CukCuk adapter reads only when an endpoint and HTTP client exist. It stores the raw body and timestamp. It does not create invoices. Outage returns the previous snapshot time and a reconciliation CSV. `posWrite()` always returns unsupported and `simulated: false`.
-- CRM boundary is a JSON contract: Jetpack CRM is in the repo, BeautyOS is not, writes are false, and the legacy calculators are not invoked.
+Self-enrollment stores a pending application. Choosing `driver` or `ctv` does not grant attribution and does not issue a referral QR. A `quanly` review still does not grant it. A different person with role `onboarding` grants attribution. Until then, invoice recording rejects the public id.
+
+Paying an attributable invoice writes a `pending_unpriced` ledger row with reason `requires_approval`. A priced amount exists only after an approved `policy_rule` with version, food-only flag, and an effective interval, and only when `onboarding` prices that one invoice. Approving the driver rule does not price every later bill. Rates, when explicitly priced, are 500 bps for CTV and 1500 bps for driver, on the food base only. Alex is never priced. There is no payout run. Bank requests return `payout_provider_pending` and do not store an account.
+
+CukCuk reads only when an endpoint and client exist, stores the raw snapshot and time, and does not create invoices. Outage returns the previous snapshot time. `posWrite()` stays unsupported and `simulated` stays false. CRM writes stay off. This is not production-proven partner accounting.
+
+### Completeness
+
+Coded and covered by local tests, not proven on production WordPress:
+
+- P0 guest registration, OTP fail-closed, beer and salad redemption, identity, quotas, staff sessions, signed webhooks, and staff-only eligible food base.
+- Staged partner application, distinct-role grant, unpriced ledger, and explicit single-invoice pricing.
+
+Not production work:
+
+- Live SMS gateway, live WordPress activation, payout provider, CRM sync, and automatic commission. P1 is not complete.
 
 ## Local run
 
@@ -50,8 +64,8 @@ php scripts/run-gn-alex-tests.php
 php -S 127.0.0.1:8765 scripts/gn-alex-demo-router.php
 ```
 
-The demo server does not enable the OTP mock and does not seed a staff PIN. Registration on that server returns `otp_provider_required`.
+The demo server does not enable the OTP mock, does not seed a staff PIN, and has no webhook secret. Registration returns `otp_provider_required`. An unsigned webhook is not stored.
 
 ## Production gate
 
-Do not activate this on the live site until the approvals in `REPORT-ae-P0-ALEX.md` are explicit. Activation would create new tables in that site's database. This branch does not perform that activation.
+Do not activate this on a live site until a human approves the OTP provider, the webhook secret, and staging. Activation would create new `gn_alex_*` tables. This branch does not perform that activation.

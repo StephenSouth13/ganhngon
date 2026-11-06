@@ -208,6 +208,8 @@ class Gn_Alex_Schema {
             identity_id BIGINT NOT NULL,
             role VARCHAR(20) NOT NULL,
             status VARCHAR(20) NOT NULL,
+            attribution VARCHAR(20) NOT NULL DEFAULT 'none',
+            reviewer_id BIGINT NULL,
             campaign_family VARCHAR(80) NOT NULL,
             display_name VARCHAR(80) NOT NULL,
             created_at BIGINT NOT NULL,
@@ -246,13 +248,39 @@ class Gn_Alex_Schema {
             id {$auto},
             invoice_id BIGINT NOT NULL,
             partner_id BIGINT NOT NULL,
-            entry_type VARCHAR(20) NOT NULL,
+            entry_type VARCHAR(32) NOT NULL,
             rate_bps INT NOT NULL,
             base_minor BIGINT NOT NULL,
-            amount_minor BIGINT NOT NULL,
+            amount_minor BIGINT NULL,
+            reason VARCHAR(80) NOT NULL,
             idempotency_key VARCHAR(80) NOT NULL,
             created_at BIGINT NOT NULL,
             UNIQUE (idempotency_key)
+        ){$engine}";
+
+        $tables[] = "CREATE TABLE IF NOT EXISTS {$prefix}policy_rule (
+            id {$auto},
+            role VARCHAR(20) NOT NULL,
+            rate_bps INT NOT NULL,
+            food_only INT NOT NULL,
+            rule_version INT NOT NULL,
+            effective_from BIGINT NOT NULL,
+            effective_to BIGINT NOT NULL,
+            status VARCHAR(20) NOT NULL,
+            requester_id BIGINT NOT NULL,
+            approver_id BIGINT NULL,
+            created_at BIGINT NOT NULL,
+            decided_at BIGINT NULL
+        ){$engine}";
+
+        $tables[] = "CREATE TABLE IF NOT EXISTS {$prefix}reg_token (
+            id {$auto},
+            token_hash CHAR(64) NOT NULL,
+            purpose VARCHAR(20) NOT NULL,
+            expires_at BIGINT NOT NULL,
+            used_at BIGINT NULL,
+            created_at BIGINT NOT NULL,
+            UNIQUE (token_hash)
         ){$engine}";
 
         $tables[] = "CREATE TABLE IF NOT EXISTS {$prefix}bank (
@@ -279,6 +307,8 @@ class Gn_Alex_Schema {
             id {$auto},
             idempotency_key VARCHAR(80) NOT NULL,
             body_hash CHAR(64) NOT NULL,
+            signed_timestamp BIGINT NOT NULL,
+            tenant VARCHAR(80) NOT NULL,
             result_json TEXT NOT NULL,
             created_at BIGINT NOT NULL,
             UNIQUE (idempotency_key)

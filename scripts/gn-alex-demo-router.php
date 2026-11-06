@@ -60,7 +60,7 @@ if (!empty($_SERVER['HTTP_X_GN_CSRF'])) {
 $raw = file_get_contents('php://input');
 $decoded = is_string($raw) ? json_decode($raw, true) : null;
 $body = is_array($decoded) ? $decoded : ($_POST ?: []);
-$res = $http->handle($method, $uri, $_GET, $body, $headers, $_COOKIE);
+$res = $http->handle($method, $uri, $_GET, $body, $headers, [], is_string($raw) ? $raw : '');
 http_response_code($res['status']);
 foreach ($res['headers'] as $name => $value) {
     header($name . ': ' . $value);

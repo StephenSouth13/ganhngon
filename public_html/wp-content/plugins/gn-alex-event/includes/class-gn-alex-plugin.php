@@ -90,8 +90,14 @@ class Gn_Alex_Plugin {
         foreach ($routes as $route => $method) {
             register_rest_route('gn-alex/v1', '/' . $route, [
                 'methods' => $method,
-                'permission_callback' => static function () {
-                    return true;
+                'permission_callback' => static function (WP_REST_Request $request) use ($route) {
+                    $headers = [];
+                    foreach ($request->get_headers() as $key => $value) {
+                        $headers[strtolower((string) $key)] = is_array($value) ? implode(', ', $value) : (string) $value;
+                    }
+                    $body = $request->get_json_params();
+                    $gate = Gn_Alex_Http::presenceGate('/gn-alex/v1/' . $route, $headers, is_array($body) ? $body : []);
+                    return $gate === null;
                 },
                 'callback' => static function (WP_REST_Request $request) use ($route, $method) {
                     $engine = self::engine();
@@ -107,7 +113,7 @@ class Gn_Alex_Plugin {
                         $body = $request->get_body_params();
                     }
                     $http = new Gn_Alex_Http($engine);
-                    $res = $http->handle($method, '/gn-alex/v1/' . $route, $request->get_query_params(), is_array($body) ? $body : [], $headers, []);
+                    $res = $http->handle($method, '/gn-alex/v1/' . $route, $request->get_query_params(), is_array($body) ? $body : [], $headers, [], (string) $request->get_body());
                     $decoded = json_decode($res['body'], true);
                     return new WP_REST_Response(is_array($decoded) ? $decoded : ['ok' => false], (int) $res['status']);
                 },

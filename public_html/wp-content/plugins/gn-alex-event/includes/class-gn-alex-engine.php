@@ -22,7 +22,9 @@ class Gn_Alex_Engine {
         private bool $production,
         private bool $testHarness,
         private ?Gn_Alex_Get_Client $httpClient = null,
-        private string $posEndpoint = ''
+        private string $posEndpoint = '',
+        private string $webhookSecret = '',
+        private string $tenant = 'ganhngon'
     ) {
         if (strlen($pepper) < 16 || strlen($tokenKey) < 16) {
             throw new InvalidArgumentException('key length');
@@ -63,11 +65,16 @@ class Gn_Alex_Engine {
         return $this->err('token_not_placeable_in_url');
     }
 
-    public function issuePublicCsrf(string $sid): array {
-        if (!preg_match('/^[A-Za-z0-9_-]{16,64}$/', $sid)) {
-            return $this->err('csrf_session');
+    public function issueRegistrationToken(string $purpose): array {
+        if (!in_array($purpose, ['otp_request', 'otp_verify', 'partner_apply'], true)) {
+            return $this->err('csrf_purpose');
         }
-        return $this->ok(['csrf' => hash_hmac('sha256', 'pub|' . $sid, $this->tokenKey), 'csrf_session' => $sid]);
+        $token = bin2hex(random_bytes(16));
+        $this->db->insert(
+            "INSERT INTO {$this->t('reg_token')} (token_hash, purpose, expires_at, used_at, created_at) VALUES (?,?,?,NULL,?)",
+            [hash('sha256', $token), $purpose, $this->now() + 600, $this->now()]
+        );
+        return $this->ok(['csrf' => $token, 'expires_in' => 600, 'single_use' => true]);
     }
 
     public function ensureAlexCampaign(): array {
@@ -125,7 +132,7 @@ class Gn_Alex_Engine {
     }
 
     public function requestOtp(array $in): array {
-        if (!$this->checkPublicCsrf((string) ($in['csrf_session'] ?? ''), (string) ($in['csrf'] ?? ''))) {
+        if (!$this->consumeRegistrationToken((string) ($in['csrf'] ?? ''), 'otp_request')) {
             return $this->err('csrf_failed', 403);
         }
         $locale = (string) ($in['locale'] ?? '');
@@ -149,8 +156,12 @@ class Gn_Alex_Engine {
         }
         $hmac = Gn_Alex_Phone::hmac($phone, $this->pepper);
         $ip = substr((string) ($in['ip'] ?? '0'), 0, 64);
-        if (!$this->rateHit('otp:' . $hmac, 3, 600) || !$this->rateHit('otp-ip:' . $ip, 8, 600)) {
+        if (!$this->rateHit('otp-ip:' . $ip, 8, 600)) {
             return $this->err('rate_limited', 429);
+        }
+        $reserved = $this->reserveIdentityOtp($hmac);
+        if (!$reserved['ok']) {
+            return $reserved;
         }
         if ($this->otp instanceof Gn_Alex_Otp_Provider_IsolatedTestMock) {
             if (!$this->testHarness || $this->production || getenv(Gn_Alex_Otp_Provider_IsolatedTestMock::FLAG) !== '1') {
@@ -174,17 +185,19 @@ class Gn_Alex_Engine {
             [$hmac, (int) $campaign['id'], $hash, $this->now() + self::OTP_TTL, $this->otp->id(), $ack, $locale, $name, $this->now()]
         );
         $this->note('otp_requested');
+        $verify = $this->issueRegistrationToken('otp_verify');
         return $this->ok([
             'challenge_id' => $id,
             'expires_in' => self::OTP_TTL,
             'phone_mask' => Gn_Alex_Phone::mask($phone),
             'provider' => $this->otp->id(),
             'provider_ack' => $ack,
+            'verify_csrf' => $verify['csrf'] ?? '',
         ]);
     }
 
     public function verifyOtp(array $in): array {
-        if (!$this->checkPublicCsrf((string) ($in['csrf_session'] ?? ''), (string) ($in['csrf'] ?? ''))) {
+        if (!$this->consumeRegistrationToken((string) ($in['csrf'] ?? ''), 'otp_verify')) {
             return $this->err('csrf_failed', 403);
         }
         $phone = Gn_Alex_Phone::canonicalize((string) ($in['phone'] ?? ''));
@@ -211,7 +224,12 @@ class Gn_Alex_Engine {
             $status = $attempts >= (int) $row['max_attempts'] ? 'locked' : 'pending';
             $this->db->exec("UPDATE {$this->t('otp')} SET attempts=?, status=? WHERE id=?", [$attempts, $status, (int) $row['id']]);
             $this->flag((int) $campaign['id'], $hmac, 'otp_mismatch');
-            return $this->err($status === 'locked' ? 'otp_locked' : 'otp_invalid');
+            $extra = [];
+            if ($status !== 'locked') {
+                $fresh = $this->issueRegistrationToken('otp_verify');
+                $extra['verify_csrf'] = $fresh['csrf'] ?? '';
+            }
+            return $this->err($status === 'locked' ? 'otp_locked' : 'otp_invalid', 422, $extra);
         }
         $this->db->exec("UPDATE {$this->t('otp')} SET status='verified' WHERE id=?", [(int) $row['id']]);
         $identity = $this->ensureIdentity($hmac, Gn_Alex_Phone::mask($phone), (string) $row['display_name']);
@@ -252,8 +270,8 @@ class Gn_Alex_Engine {
             $this->flag((int) $campaign['id'], null, 'pii_or_ticket_on_scan');
         }
         if ($kind === 'referral' && $partnerPublicId) {
-            $partner = $this->db->fetch("SELECT id, status FROM {$this->t('partner')} WHERE public_id=?", [$partnerPublicId]);
-            if (!$partner || $partner['status'] !== 'approved') {
+            $partner = $this->db->fetch("SELECT id, attribution FROM {$this->t('partner')} WHERE public_id=?", [$partnerPublicId]);
+            if (!$partner || ($partner['attribution'] ?? '') !== 'granted') {
                 return $this->err('unknown_partner');
             }
         }
@@ -763,7 +781,7 @@ class Gn_Alex_Engine {
     }
 
     public function applyPartner(array $in): array {
-        if (!$this->checkPublicCsrf((string) ($in['csrf_session'] ?? ''), (string) ($in['csrf'] ?? ''))) {
+        if (!$this->consumeRegistrationToken((string) ($in['csrf'] ?? ''), 'partner_apply')) {
             return $this->err('csrf_failed', 403);
         }
         if (empty($in['consent'])) {
@@ -789,10 +807,18 @@ class Gn_Alex_Engine {
             return $this->ok(['partner_id' => (int) $existing['id'], 'public_id' => (string) $existing['public_id'], 'status' => (string) $existing['status'], 'created' => false]);
         }
         $id = $this->db->insert(
-            "INSERT INTO {$this->t('partner')} (public_id, identity_id, role, status, campaign_family, display_name, created_at) VALUES (?,?,?,'pending',?,?,?)",
+            "INSERT INTO {$this->t('partner')} (public_id, identity_id, role, status, attribution, reviewer_id, campaign_family, display_name, created_at) VALUES (?,?,?,'pending','none',NULL,?,?,?)",
             [$public, (int) $identity['id'], $role, self::REFERRAL_FAMILY, $name, $this->now()]
         );
-        return $this->ok(['partner_id' => $id, 'public_id' => $public, 'status' => 'pending', 'created' => true, 'referral' => null]);
+        return $this->ok([
+            'partner_id' => $id,
+            'public_id' => $public,
+            'status' => 'pending',
+            'attribution' => 'none',
+            'created' => true,
+            'referral' => null,
+            'reason' => 'requires_approval',
+        ]);
     }
 
     public function approvePartner(array $req, int $partnerId): array {
@@ -801,13 +827,39 @@ class Gn_Alex_Engine {
             return $this->err('unauthorized', 403);
         }
         $partner = $this->db->fetch("SELECT * FROM {$this->t('partner')} WHERE id=?", [$partnerId]);
-        if (!$partner) {
+        if (!$partner || $partner['status'] !== 'pending') {
             return $this->err('not_found', 404);
         }
-        $this->db->exec("UPDATE {$this->t('partner')} SET status='approved' WHERE id=?", [$partnerId]);
+        $this->db->exec(
+            "UPDATE {$this->t('partner')} SET status='reviewed', reviewer_id=?, attribution='none' WHERE id=?",
+            [(int) $staff['staff_id'], $partnerId]
+        );
+        $this->audit('staff:' . $staff['staff_id'], 'partner_review', (string) $partner['public_id'], ['status' => 'pending'], ['status' => 'reviewed', 'referral' => null]);
+        return $this->ok([
+            'public_id' => (string) $partner['public_id'],
+            'referral' => null,
+            'status' => 'reviewed',
+            'attribution' => 'none',
+            'reason' => 'requires_approval',
+        ]);
+    }
+
+    public function grantAttribution(array $req, int $partnerId): array {
+        $staff = $this->activeStaff($req);
+        if (!$staff || $staff['role'] !== 'onboarding' || !$this->csrfOk($staff, $req)) {
+            return $this->err('distinct_role_required', 403);
+        }
+        $partner = $this->db->fetch("SELECT * FROM {$this->t('partner')} WHERE id=?", [$partnerId]);
+        if (!$partner || $partner['status'] !== 'reviewed' || empty($partner['reviewer_id'])) {
+            return $this->err('review_required');
+        }
+        if ((int) $partner['reviewer_id'] === (int) $staff['staff_id']) {
+            return $this->err('self_approval_denied', 403);
+        }
+        $this->db->exec("UPDATE {$this->t('partner')} SET status='attributable', attribution='granted' WHERE id=?", [$partnerId]);
         $link = $this->referralQr(self::ALEX_SLUG, (string) $partner['public_id']);
-        $this->audit('staff:' . $staff['staff_id'], 'partner_approve', (string) $partner['public_id'], ['status' => $partner['status']], ['status' => 'approved']);
-        return $this->ok(['public_id' => (string) $partner['public_id'], 'referral' => $link, 'status' => 'approved']);
+        $this->audit('staff:' . $staff['staff_id'], 'attribution_grant', (string) $partner['public_id'], ['attribution' => 'none'], ['attribution' => 'granted']);
+        return $this->ok(['public_id' => (string) $partner['public_id'], 'referral' => $link, 'status' => 'attributable', 'attribution' => 'granted']);
     }
 
     public function recordInvoice(array $req, array $in): array {
@@ -842,31 +894,29 @@ class Gn_Alex_Engine {
                 return $this->err('not_found', 404);
             }
             $partner = $this->db->fetch("SELECT * FROM {$this->t('partner')} WHERE id=?", [(int) $invoice['partner_id']]);
-            if (!$partner || $partner['status'] !== 'approved') {
+            if (!$partner || ($partner['attribution'] ?? '') !== 'granted') {
                 $this->db->rollback();
-                return $this->err('partner_not_approved');
+                return $this->err('partner_not_attributable');
             }
             $this->db->insert(
                 "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, created_at) VALUES (?,?,?,?,?)",
                 [(int) $invoice['id'], 'approved_paid', 'staff:' . $staff['staff_id'], $idem, $this->now()]
             );
-            $bps = $this->rateBps((string) $partner['role']);
-            $accrual = null;
-            if ($bps !== null && (int) $invoice['link_verified'] === 1 && in_array($invoice['source'], ['manual', 'import'], true)) {
-                $amount = intdiv(((int) $invoice['food_base']) * $bps, 10000);
-                $ledgerKey = 'accrual:' . (int) $invoice['id'];
-                $already = $this->db->fetch("SELECT id, amount_minor FROM {$this->t('ledger')} WHERE idempotency_key=?", [$ledgerKey]);
-                if (!$already) {
-                    $accrual = $this->db->insert(
-                        "INSERT INTO {$this->t('ledger')} (invoice_id, partner_id, entry_type, rate_bps, base_minor, amount_minor, idempotency_key, created_at) VALUES (?,?, 'accrual', ?,?,?,?,?)",
-                        [(int) $invoice['id'], (int) $partner['id'], $bps, (int) $invoice['food_base'], $amount, $ledgerKey, $this->now()]
-                    );
-                } else {
-                    $accrual = (int) $already['id'];
-                }
-            }
+            $ledgerKey = 'pending:' . (int) $invoice['id'];
+            $already = $this->db->fetch("SELECT id FROM {$this->t('ledger')} WHERE idempotency_key=?", [$ledgerKey]);
+            $pendingId = $already ? (int) $already['id'] : $this->db->insert(
+                "INSERT INTO {$this->t('ledger')} (invoice_id, partner_id, entry_type, rate_bps, base_minor, amount_minor, reason, idempotency_key, created_at) VALUES (?,?, 'pending_unpriced', 0, ?, NULL, 'requires_approval', ?, ?)",
+                [(int) $invoice['id'], (int) $partner['id'], (int) $invoice['food_base'], $ledgerKey, $this->now()]
+            );
             $this->db->commit();
-            return $this->ok(['invoice_id' => (int) $invoice['id'], 'accrual_id' => $accrual, 'alex_commission' => null]);
+            return $this->ok([
+                'invoice_id' => (int) $invoice['id'],
+                'ledger_id' => $pendingId,
+                'priced' => false,
+                'reason' => 'requires_approval',
+                'automatic_commission' => false,
+                'alex_commission' => null,
+            ]);
         } catch (PDOException $e) {
             if ($this->db->inTx) {
                 $this->db->rollback();
@@ -905,12 +955,12 @@ class Gn_Alex_Engine {
                 "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, created_at) VALUES (?,?,?,?,?)",
                 [(int) $invoice['id'], $kind, 'staff:' . $staff['staff_id'], $idem, $this->now()]
             );
-            $accrual = $this->db->fetch(
-                "SELECT * FROM {$this->t('ledger')} WHERE invoice_id=? AND entry_type='accrual'",
+            $priced = $this->db->fetch(
+                "SELECT * FROM {$this->t('ledger')} WHERE invoice_id=? AND entry_type='priced'",
                 [(int) $invoice['id']]
             );
             $reversalId = null;
-            if ($accrual) {
+            if ($priced) {
                 $revKey = 'reversal:' . (int) $invoice['id'];
                 $existingRev = $this->db->fetch("SELECT * FROM {$this->t('ledger')} WHERE idempotency_key=?", [$revKey]);
                 if ($existingRev) {
@@ -918,8 +968,8 @@ class Gn_Alex_Engine {
                     return $this->err('already_reversed', 409);
                 }
                 $reversalId = $this->db->insert(
-                    "INSERT INTO {$this->t('ledger')} (invoice_id, partner_id, entry_type, rate_bps, base_minor, amount_minor, idempotency_key, created_at) VALUES (?,?, 'reversal', ?,?,?,?,?)",
-                    [(int) $invoice['id'], (int) $accrual['partner_id'], (int) $accrual['rate_bps'], (int) $accrual['base_minor'], (int) $accrual['amount_minor'], $revKey, $this->now()]
+                    "INSERT INTO {$this->t('ledger')} (invoice_id, partner_id, entry_type, rate_bps, base_minor, amount_minor, reason, idempotency_key, created_at) VALUES (?,?, 'reversal', ?,?,?,?,?,?)",
+                    [(int) $invoice['id'], (int) $priced['partner_id'], (int) $priced['rate_bps'], (int) $priced['base_minor'], $priced['amount_minor'], 'reversal', $revKey, $this->now()]
                 );
             }
             $this->db->commit();
@@ -934,43 +984,19 @@ class Gn_Alex_Engine {
 
     public function requestBank(array $req, int $partnerId, string $ciphertext): array {
         $staff = $this->activeStaff($req);
-        if (!$staff || $staff['role'] !== 'quanly' || !$this->csrfOk($staff, $req)) {
+        if (!$staff || !$this->csrfOk($staff, $req)) {
             return $this->err('unauthorized', 403);
         }
-        if (!preg_match('/^enc:v1:[A-Za-z0-9+\/=_-]{16,180}$/', $ciphertext)) {
-            return $this->err('plaintext_bank_refused');
-        }
-        $hash = 'sha256:' . hash('sha256', $ciphertext);
-        $id = $this->db->insert(
-            "INSERT INTO {$this->t('bank')} (partner_id, requester_id, approver_id, ciphertext, status, created_at, decided_at) VALUES (?,?,NULL,?,'pending',?,NULL)",
-            [$partnerId, (int) $staff['staff_id'], $hash, $this->now()]
-        );
-        $this->audit('staff:' . $staff['staff_id'], 'bank_request', 'bank:' . $id, [], ['field' => 'ciphertext_placeholder', 'status' => 'pending']);
-        return $this->ok(['bank_id' => $id, 'status' => 'pending']);
+        $this->audit('staff:' . $staff['staff_id'], 'bank_blocked', 'partner:' . $partnerId, [], ['status' => 'payout_provider_pending']);
+        return $this->err('payout_provider_pending', 403);
     }
 
     public function approveBank(array $req, int $bankId, string $ciphertext): array {
         $staff = $this->activeStaff($req);
-        if (!$staff || $staff['role'] !== 'quanly' || !$this->csrfOk($staff, $req)) {
+        if (!$staff || !$this->csrfOk($staff, $req)) {
             return $this->err('unauthorized', 403);
         }
-        $row = $this->db->fetch("SELECT * FROM {$this->t('bank')} WHERE id=?", [$bankId]);
-        if (!$row || $row['status'] !== 'pending') {
-            return $this->err('not_found', 404);
-        }
-        if ((int) $row['requester_id'] === (int) $staff['staff_id']) {
-            return $this->err('self_approval_denied', 403);
-        }
-        $expect = 'sha256:' . hash('sha256', $ciphertext);
-        if (!hash_equals((string) $row['ciphertext'], $expect)) {
-            return $this->err('plaintext_bank_refused');
-        }
-        $this->db->exec(
-            "UPDATE {$this->t('bank')} SET ciphertext=?, approver_id=?, status='approved', decided_at=? WHERE id=?",
-            [$ciphertext, (int) $staff['staff_id'], $this->now(), $bankId]
-        );
-        $this->audit('staff:' . $staff['staff_id'], 'bank_approve', 'bank:' . $bankId, [], ['field' => 'ciphertext_placeholder', 'status' => 'approved']);
-        return $this->ok(['status' => 'approved']);
+        return $this->err('payout_provider_pending', 403);
     }
 
     public function exportCsv(array $req): array {
@@ -1065,49 +1091,79 @@ class Gn_Alex_Engine {
         return $this->ok(['csv' => $csv === false ? '' : $csv, 'fallback' => true, 'simulated' => false]);
     }
 
-    public function ingestWebhook(string $key, array $payload): array {
+    /** @param array<string,string> $headers */
+    public function ingestWebhook(string $rawBody, array $headers): array {
+        $countBefore = (int) $this->db->fetch("SELECT COUNT(*) AS c FROM {$this->t('webhook')}")['c'];
+        if (strlen($this->webhookSecret) < 16) {
+            return $this->err('webhook_secret_missing', 503);
+        }
+        if ($this->production && empty($headers['https'])) {
+            return $this->err('https_required', 403);
+        }
+        $timestamp = (string) ($headers['x-gn-timestamp'] ?? '');
+        $signature = (string) ($headers['x-gn-signature'] ?? '');
+        $tenant = (string) ($headers['x-gn-tenant'] ?? '');
+        if ($timestamp === '' || $signature === '' || $tenant === '' || !preg_match('/^[0-9]{10}$/', $timestamp)) {
+            return $this->err('webhook_unauthorized', 401);
+        }
+        if (abs($this->now() - (int) $timestamp) > 300) {
+            return $this->err('webhook_timestamp', 401);
+        }
+        $expect = hash_hmac('sha256', $timestamp . '.' . $rawBody, $this->webhookSecret);
+        if (!hash_equals($expect, $signature)) {
+            return $this->err('webhook_signature', 401);
+        }
+        $payload = json_decode($rawBody, true);
+        if (!is_array($payload)) {
+            return $this->err('webhook_body', 400);
+        }
+        $bodyTenant = (string) ($payload['tenant'] ?? '');
+        if (!hash_equals($this->tenant, $tenant) || !hash_equals($this->tenant, $bodyTenant)) {
+            return $this->err('webhook_tenant', 401);
+        }
+        $key = (string) ($payload['event_key'] ?? '');
         if (!preg_match('/^[A-Za-z0-9_.:-]{8,80}$/', $key)) {
             return $this->err('idempotency_required');
         }
-        $existing = $this->db->fetch("SELECT result_json FROM {$this->t('webhook')} WHERE idempotency_key=?", [$key]);
+        $bodyHash = hash('sha256', $rawBody);
+        $existing = $this->db->fetch("SELECT * FROM {$this->t('webhook')} WHERE idempotency_key=?", [$key]);
         if ($existing) {
+            if (!hash_equals((string) $existing['body_hash'], $bodyHash)) {
+                return $this->err('webhook_conflict', 409);
+            }
             $stored = json_decode((string) $existing['result_json'], true) ?: ['ok' => true];
             $stored['replay'] = true;
             return $stored;
         }
+        $spoof = in_array((string) ($payload['source'] ?? ''), ['manual', 'import'], true) || !empty($payload['link_verified']);
         $result = [
             'ok' => true,
             'accepted' => true,
+            'stored' => true,
+            'attributed' => false,
             'link_verified' => false,
             'commission' => null,
-            'revenue_counted' => false,
+            'priced' => false,
+            'reason' => $spoof ? 'manual_spoof_rejected' : 'untrusted_webhook',
             'replay' => false,
             'http' => 200,
         ];
-        if (!empty($payload['external_id'])) {
-            $inv = $this->insertInvoice('webhook', [
-                'external_id' => (string) $payload['external_id'],
-                'source' => 'webhook',
-                'food_base' => $payload['food_base'] ?? 0,
-                'partner_public_id' => (string) ($payload['partner_public_id'] ?? ''),
-                'campaign' => (string) ($payload['campaign'] ?? ''),
-                'tax' => $payload['tax'] ?? 0,
-                'drinks' => $payload['drinks'] ?? 0,
-                'service_fee' => $payload['service_fee'] ?? 0,
-                'discount' => $payload['discount'] ?? 0,
-                'bill_total' => $payload['bill_total'] ?? null,
-                'status' => $payload['status'] ?? null,
-            ]);
-            $result['invoice'] = ['ok' => $inv['ok'], 'error' => $inv['error'] ?? null, 'invoice_id' => $inv['invoice_id'] ?? null, 'replay' => $inv['replay'] ?? false];
-        }
         $this->db->insert(
-            "INSERT INTO {$this->t('webhook')} (idempotency_key, body_hash, result_json, created_at) VALUES (?,?,?,?)",
-            [$key, hash('sha256', json_encode($this->redact($payload))), json_encode($result), $this->now()]
+            "INSERT INTO {$this->t('webhook')} (idempotency_key, body_hash, signed_timestamp, tenant, result_json, created_at) VALUES (?,?,?,?,?,?)",
+            [$key, $bodyHash, (int) $timestamp, $tenant, json_encode($result), $this->now()]
         );
+        $countAfter = (int) $this->db->fetch("SELECT COUNT(*) AS c FROM {$this->t('webhook')}")['c'];
+        if ($countAfter !== $countBefore + 1) {
+            return $this->err('webhook_conflict', 409);
+        }
         return $result;
     }
 
-    public function publicMetrics(string $slug): array {
+    public function publicMetrics(string $slug, array $req = []): array {
+        $staff = $this->activeStaff($req);
+        if (!$staff || !$this->csrfOk($staff, $req)) {
+            return $this->err('unauthorized', 403);
+        }
         $campaign = $this->campaignBySlug($slug);
         if (!$campaign) {
             return $this->err('campaign_required');
@@ -1137,8 +1193,9 @@ class Gn_Alex_Engine {
             'beer_issued' => $beer,
             'salad' => $salad,
             'suspicious_flags' => $flags,
-            'pos_invoice_count' => $pos['count'],
-            'pos_revenue' => $pos['revenue'],
+            'linked_invoice_count' => $pos['count'],
+            'eligible_food_base' => $pos['food_base'],
+            'automatic_commission' => false,
             'alex_commission' => null,
             'alex_commission_calculated' => false,
         ]);
@@ -1167,9 +1224,12 @@ class Gn_Alex_Engine {
         return $this->ok([
             'beautyos_present' => false,
             'jetpack_crm_in_repo' => true,
-            'mode' => 'read_only_contract',
+            'mode' => 'pending_wp_facts_only',
             'writes' => false,
-            'second_calculator' => false,
+            'crm_posts' => false,
+            'automatic_commission' => false,
+            'staged_attribution_only' => true,
+            'p1_production_proven' => false,
             'legacy_calculators_invoked' => false,
             'contact_map' => [
                 'external_ref' => 'phone_hmac_not_exported_publicly',
@@ -1185,7 +1245,7 @@ class Gn_Alex_Engine {
 
     private function insertInvoice(string $actor, array $in): array {
         $source = (string) ($in['source'] ?? '');
-        if (!in_array($source, ['manual', 'import', 'webhook'], true)) {
+        if (!in_array($source, ['manual', 'import'], true)) {
             return $this->err('source_invalid');
         }
         $external = (string) ($in['external_id'] ?? '');
@@ -1196,8 +1256,8 @@ class Gn_Alex_Engine {
             return $this->err('food_base');
         }
         $partner = $this->db->fetch("SELECT * FROM {$this->t('partner')} WHERE public_id=?", [(string) ($in['partner_public_id'] ?? '')]);
-        if (!$partner) {
-            return $this->err('partner_required');
+        if (!$partner || ($partner['attribution'] ?? '') !== 'granted') {
+            return $this->err('partner_not_attributable');
         }
         $campaignId = null;
         if (!empty($in['campaign'])) {
@@ -1277,7 +1337,7 @@ class Gn_Alex_Engine {
                 $revenue += (int) $row['food_base'];
             }
         }
-        return ['count' => $count, 'revenue' => $revenue];
+        return ['count' => $count, 'food_base' => $revenue];
     }
 
     /** @return array{recognized:bool,lines:list<array{kind:string,amount:int,name:string}>} */
@@ -1319,7 +1379,7 @@ class Gn_Alex_Engine {
     }
 
     private function insertStaff(string $role, string $pin, string $label, string $actor): array {
-        if (!in_array($role, ['quay', 'thungan', 'quanly'], true)) {
+        if (!in_array($role, ['quay', 'thungan', 'quanly', 'onboarding'], true)) {
             return $this->err('role_invalid');
         }
         if ($reason = $this->pinError($pin)) {
@@ -1402,11 +1462,164 @@ class Gn_Alex_Engine {
         return $given !== '' && hash_equals($expect, $given);
     }
 
-    private function checkPublicCsrf(string $sid, string $token): bool {
-        if (!preg_match('/^[A-Za-z0-9_-]{16,64}$/', $sid) || $token === '') {
+    private function consumeRegistrationToken(string $token, string $purpose): bool {
+        if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
             return false;
         }
-        return hash_equals(hash_hmac('sha256', 'pub|' . $sid, $this->tokenKey), $token);
+        $this->db->begin();
+        try {
+            $row = $this->db->fetch($this->db->lockSql('reg_token', 'token_hash=?'), [hash('sha256', $token)]);
+            if (!$row || (string) $row['purpose'] !== $purpose || !empty($row['used_at']) || (int) $row['expires_at'] < $this->now()) {
+                $this->db->rollback();
+                return false;
+            }
+            $changed = $this->db->exec(
+                "UPDATE {$this->t('reg_token')} SET used_at=? WHERE id=? AND used_at IS NULL",
+                [$this->now(), (int) $row['id']]
+            );
+            if ($changed !== 1) {
+                $this->db->rollback();
+                return false;
+            }
+            $this->db->commit();
+            return true;
+        } catch (Throwable $e) {
+            if ($this->db->inTx) {
+                $this->db->rollback();
+            }
+            return false;
+        }
+    }
+
+    /** @return array<string,mixed> */
+    private function reserveIdentityOtp(string $hmac): array {
+        $bucket = 'otp:' . $hmac;
+        $now = $this->now();
+        $this->db->begin();
+        try {
+            $pending = $this->db->fetch(
+                "SELECT id FROM {$this->t('otp')} WHERE phone_hmac=? AND status='pending' AND expires_at>?",
+                [$hmac, $now]
+            );
+            if ($pending) {
+                $this->db->rollback();
+                return $this->err('otp_already_pending', 429);
+            }
+            $row = $this->db->fetch($this->db->lockSql('rate', 'bucket=?'), [$bucket]);
+            if (!$row || (int) $row['reset_at'] <= $now) {
+                if ($row) {
+                    $this->db->exec("UPDATE {$this->t('rate')} SET n=1, reset_at=? WHERE bucket=?", [$now + 600, $bucket]);
+                } else {
+                    $this->db->insert("INSERT INTO {$this->t('rate')} (bucket, n, reset_at) VALUES (?,?,?)", [$bucket, 1, $now + 600]);
+                }
+                $this->db->commit();
+                return $this->ok(['reserved' => true]);
+            }
+            if ((int) $row['n'] >= 3) {
+                $this->db->rollback();
+                return $this->err('rate_limited', 429);
+            }
+            $this->db->exec("UPDATE {$this->t('rate')} SET n=n+1 WHERE bucket=?", [$bucket]);
+            $this->db->commit();
+            return $this->ok(['reserved' => true]);
+        } catch (PDOException $e) {
+            if ($this->db->inTx) {
+                $this->db->rollback();
+            }
+            if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'UNIQUE') || str_contains($e->getMessage(), 'locked')) {
+                return $this->err('rate_limited', 429);
+            }
+            throw $e;
+        }
+    }
+
+    public function proposeRule(array $req, string $role, int $effectiveFrom, int $effectiveTo): array {
+        $staff = $this->activeStaff($req);
+        if (!$staff || $staff['role'] !== 'quanly' || !$this->csrfOk($staff, $req)) {
+            return $this->err('unauthorized', 403);
+        }
+        $bps = $this->rateBps($role);
+        if ($bps === null || $effectiveTo <= $effectiveFrom) {
+            return $this->err('policy_invalid');
+        }
+        $version = 1 + (int) $this->db->fetch("SELECT COUNT(*) AS c FROM {$this->t('policy_rule')} WHERE role=?", [$role])['c'];
+        $id = $this->db->insert(
+            "INSERT INTO {$this->t('policy_rule')} (role, rate_bps, food_only, rule_version, effective_from, effective_to, status, requester_id, approver_id, created_at, decided_at) VALUES (?,?,1,?,?,?,'pending',?,NULL,?,NULL)",
+            [$role, $bps, $version, $effectiveFrom, $effectiveTo, (int) $staff['staff_id'], $this->now()]
+        );
+        return $this->ok(['rule_id' => $id, 'rule_version' => $version, 'status' => 'pending', 'reason' => 'requires_approval']);
+    }
+
+    public function approveRule(array $req, int $ruleId): array {
+        $staff = $this->activeStaff($req);
+        if (!$staff || $staff['role'] !== 'onboarding' || !$this->csrfOk($staff, $req)) {
+            return $this->err('distinct_role_required', 403);
+        }
+        $rule = $this->db->fetch("SELECT * FROM {$this->t('policy_rule')} WHERE id=?", [$ruleId]);
+        if (!$rule || $rule['status'] !== 'pending') {
+            return $this->err('not_found', 404);
+        }
+        if ((int) $rule['requester_id'] === (int) $staff['staff_id']) {
+            return $this->err('self_approval_denied', 403);
+        }
+        $this->db->exec(
+            "UPDATE {$this->t('policy_rule')} SET status='approved', approver_id=?, decided_at=? WHERE id=?",
+            [(int) $staff['staff_id'], $this->now(), $ruleId]
+        );
+        $this->audit('staff:' . $staff['staff_id'], 'rule_approve', 'rule:' . $ruleId, ['status' => 'pending'], ['status' => 'approved', 'rule_version' => (int) $rule['rule_version']]);
+        return $this->ok(['status' => 'approved', 'rule_version' => (int) $rule['rule_version'], 'automatic_commission' => false]);
+    }
+
+    public function priceAttribution(array $req, string $externalId): array {
+        $staff = $this->activeStaff($req);
+        if (!$staff || $staff['role'] !== 'onboarding' || !$this->csrfOk($staff, $req)) {
+            return $this->err('distinct_role_required', 403);
+        }
+        $invoice = $this->db->fetch("SELECT * FROM {$this->t('invoice')} WHERE external_id=?", [$externalId]);
+        if (!$invoice || (int) $invoice['link_verified'] !== 1 || !in_array($invoice['source'], ['manual', 'import'], true)) {
+            return $this->err('requires_approval');
+        }
+        $partner = $this->db->fetch("SELECT * FROM {$this->t('partner')} WHERE id=?", [(int) $invoice['partner_id']]);
+        if (!$partner || ($partner['attribution'] ?? '') !== 'granted') {
+            return $this->err('partner_not_attributable');
+        }
+        $paid = $this->db->fetch(
+            "SELECT id FROM {$this->t('invoice_event')} WHERE invoice_id=? AND event_type='approved_paid'",
+            [(int) $invoice['id']]
+        );
+        $dead = $this->db->fetch(
+            "SELECT id FROM {$this->t('invoice_event')} WHERE invoice_id=? AND event_type IN ('cancelled','refunded')",
+            [(int) $invoice['id']]
+        );
+        if (!$paid || $dead) {
+            return $this->err('requires_approval');
+        }
+        $rule = $this->db->fetch(
+            "SELECT * FROM {$this->t('policy_rule')} WHERE role=? AND status='approved' AND food_only=1 AND effective_from<=? AND effective_to>? ORDER BY rule_version DESC LIMIT 1",
+            [(string) $partner['role'], $this->now(), $this->now()]
+        );
+        if (!$rule || (int) $rule['rate_bps'] !== (int) $this->rateBps((string) $partner['role'])) {
+            return $this->err('requires_approval');
+        }
+        $existing = $this->db->fetch("SELECT * FROM {$this->t('ledger')} WHERE invoice_id=? AND entry_type='priced'", [(int) $invoice['id']]);
+        if ($existing) {
+            return $this->ok(['replay' => true, 'amount_minor' => $existing['amount_minor'], 'priced' => true, 'reason' => 'explicit_approval_not_every_bill']);
+        }
+        $amount = intdiv(((int) $invoice['food_base']) * (int) $rule['rate_bps'], 10000);
+        $id = $this->db->insert(
+            "INSERT INTO {$this->t('ledger')} (invoice_id, partner_id, entry_type, rate_bps, base_minor, amount_minor, reason, idempotency_key, created_at) VALUES (?,?, 'priced', ?,?,?, 'explicit_approval_not_every_bill', ?, ?)",
+            [(int) $invoice['id'], (int) $partner['id'], (int) $rule['rate_bps'], (int) $invoice['food_base'], $amount, 'priced:' . (int) $invoice['id'], $this->now()]
+        );
+        return $this->ok([
+            'ledger_id' => $id,
+            'priced' => true,
+            'amount_minor' => $amount,
+            'rate_bps' => (int) $rule['rate_bps'],
+            'rule_version' => (int) $rule['rule_version'],
+            'reason' => 'explicit_approval_not_every_bill',
+            'automatic_commission' => false,
+            'alex_commission' => null,
+        ]);
     }
 
     /** @param array<string,mixed> $req */

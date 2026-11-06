@@ -38,7 +38,6 @@ class Gn_Alex_View {
         $body .= '<form class="card" method="post" action="' . $action . '">'
             . '<input type="hidden" name="campaign" value="' . $esc((string) $state['campaign']) . '">'
             . '<input type="hidden" name="locale" value="' . $esc($c['html_lang']) . '">'
-            . '<input type="hidden" name="csrf_session" value="' . $esc((string) $state['csrf_session']) . '">'
             . '<input type="hidden" name="csrf" value="' . $esc((string) $state['csrf']) . '">'
             . '<label for="gn-name">' . $esc($c['name']) . '</label>'
             . '<input id="gn-name" name="name" autocomplete="name" required maxlength="80">'
@@ -96,8 +95,8 @@ class Gn_Alex_View {
             'beer_issued' => 'Beer',
             'salad' => 'Salad',
             'suspicious_flags' => 'Flags',
-            'pos_invoice_count' => 'POS invoices',
-            'pos_revenue' => 'POS revenue',
+            'linked_invoice_count' => 'Linked invoices',
+            'eligible_food_base' => 'Eligible food base',
         ] as $key => $label) {
             $cards .= '<article><h2>' . $esc($label) . '</h2><p>' . $esc((string) ($metrics[$key] ?? '0')) . '</p></article>';
         }
@@ -117,7 +116,6 @@ class Gn_Alex_View {
         $esc = [Gn_Alex_Text::class, 'esc'];
         $body = '<section class="saas"><h1>' . $esc($c['partner_title']) . '</h1><p>' . $esc($c['no_bank']) . '</p>'
             . '<form method="post" action="/gn-alex/v1/partner/apply">'
-            . '<input type="hidden" name="csrf_session" value="' . $esc((string) $state['csrf_session']) . '">'
             . '<input type="hidden" name="csrf" value="' . $esc((string) $state['csrf']) . '">'
             . '<label for="p-name">' . $esc($c['name']) . '</label><input id="p-name" name="name" required>'
             . '<label for="p-phone">' . $esc($c['phone']) . '</label><input id="p-phone" name="phone" inputmode="tel" required>'

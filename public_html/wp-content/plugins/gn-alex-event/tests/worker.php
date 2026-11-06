@@ -19,4 +19,17 @@ $engine = new Gn_Alex_Engine(
     false
 );
 $engine->setNow((int) $cfg['now']);
+if (($cfg['action'] ?? 'redeem') === 'otp') {
+    $engine = new Gn_Alex_Engine(
+        $db,
+        $cfg['pepper'],
+        $cfg['token_key'],
+        new Gn_Alex_Otp_Provider_IsolatedTestMock(true, false),
+        false,
+        true
+    );
+    $engine->setNow((int) $cfg['now']);
+    echo json_encode($engine->requestOtp($cfg['request']));
+    exit;
+}
 echo json_encode($engine->redeem($cfg['request']));

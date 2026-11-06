@@ -41,7 +41,7 @@ class Gn_Alex_Http {
      * @param array<string,string> $cookies
      * @return array{status:int,headers:array<string,string>,body:string}
      */
-    public function handle(string $method, string $path, array $query, array $body, array $headers, array $cookies): array {
+    public function handle(string $method, string $path, array $query, array $body, array $headers, array $cookies, string $rawBody = ''): array {
         $path = '/' . trim($path, '/');
         if ($path === '/') {
             $path = '/su-kien/' . Gn_Alex_Engine::ALEX_SLUG;
@@ -73,20 +73,28 @@ class Gn_Alex_Http {
             return $this->html(200, Gn_Alex_View::counter($lang));
         }
         if ($method === 'GET' && $path === '/gnv/partner') {
-            return $this->html(200, Gn_Alex_View::partner($lang, $this->publicForm(Gn_Alex_Engine::ALEX_SLUG, false)));
+            return $this->html(200, Gn_Alex_View::partner($lang, $this->publicForm(Gn_Alex_Engine::ALEX_SLUG, false, 'partner_apply')));
         }
         if ($method === 'GET' && ($path === '/gnv/dashboard' || $path === '/gn-alex/v1/dashboard')) {
+            $blocked = self::presenceGate($path, $headers, []);
+            if ($blocked !== null) {
+                return $this->json(['ok' => false, 'error' => $blocked, 'http' => 401]);
+            }
             $slug = (string) ($query['event'] ?? Gn_Alex_Engine::ALEX_SLUG);
-            $metrics = $this->engine->publicMetrics($slug);
+            $metrics = $this->engine->publicMetrics($slug, $this->authBody([], $headers));
             if (!$metrics['ok']) {
                 return $this->json($metrics);
             }
             if (($headers['accept'] ?? '') === 'application/json' || $path === '/gn-alex/v1/dashboard') {
                 return $this->json($metrics);
             }
-            return $this->html(200, Gn_Alex_View::dashboard($lang, $metrics, !empty($query['demo'])));
+            return $this->html(200, Gn_Alex_View::dashboard($lang, $metrics, false));
         }
         if ($method === 'GET' && $path === '/gn-alex/v1/pos/reconcile') {
+            $blocked = self::presenceGate($path, $headers, []);
+            if ($blocked !== null) {
+                return $this->json(['ok' => false, 'error' => $blocked, 'http' => 401]);
+            }
             return $this->json($this->engine->posReconcileCsv());
         }
 
@@ -94,6 +102,10 @@ class Gn_Alex_Http {
             return $this->json(['ok' => false, 'error' => 'not_found', 'http' => 404]);
         }
 
+        $blocked = self::presenceGate($path, $headers, $body);
+        if ($blocked !== null) {
+            return $this->json(['ok' => false, 'error' => $blocked, 'http' => 401]);
+        }
         $auth = $this->authBody($body, $headers);
         if ($path === '/gn-alex/v1/otp/request') {
             return $this->json($this->engine->requestOtp($body));
@@ -150,7 +162,19 @@ class Gn_Alex_Http {
             return $this->json($this->engine->exportCsv($auth));
         }
         if ($path === '/gn-alex/v1/pos/webhook') {
-            return $this->json($this->engine->ingestWebhook((string) ($body['idempotency_key'] ?? ''), $body));
+            return $this->json($this->engine->ingestWebhook($rawBody, $headers));
+        }
+        if ($path === '/gn-alex/v1/admin/partner/grant') {
+            return $this->json($this->engine->grantAttribution($auth, (int) ($body['partner_id'] ?? 0)));
+        }
+        if ($path === '/gn-alex/v1/admin/rule/propose') {
+            return $this->json($this->engine->proposeRule($auth, (string) ($body['role'] ?? ''), (int) ($body['effective_from'] ?? 0), (int) ($body['effective_to'] ?? 0)));
+        }
+        if ($path === '/gn-alex/v1/admin/rule/approve') {
+            return $this->json($this->engine->approveRule($auth, (int) ($body['rule_id'] ?? 0)));
+        }
+        if ($path === '/gn-alex/v1/admin/attribution/price') {
+            return $this->json($this->engine->priceAttribution($auth, (string) ($body['external_id'] ?? '')));
         }
         if ($path === '/gn-alex/v1/invoice') {
             return $this->json($this->engine->recordInvoice($auth, $body));
@@ -164,17 +188,43 @@ class Gn_Alex_Http {
         return $this->json(['ok' => false, 'error' => 'not_found', 'http' => 404]);
     }
 
-    /** @return array{campaign:string,csrf_session:string,csrf:string,action:string,referral:bool} */
-    private function publicForm(string $campaign, bool $referral): array {
-        $sid = bin2hex(random_bytes(16));
-        $csrf = $this->engine->issuePublicCsrf($sid);
+    /** @return array{campaign:string,csrf:string,action:string,referral:bool} */
+    private function publicForm(string $campaign, bool $referral, string $purpose = 'otp_request'): array {
+        $csrf = $this->engine->issueRegistrationToken($purpose);
         return [
             'campaign' => $campaign,
-            'csrf_session' => $sid,
             'csrf' => (string) ($csrf['csrf'] ?? ''),
-            'action' => '/gn-alex/v1/otp/request',
+            'action' => $purpose === 'partner_apply' ? '/gn-alex/v1/partner/apply' : '/gn-alex/v1/otp/request',
             'referral' => $referral,
         ];
+    }
+
+    /**
+     * Presence check only. A passing gate does not authenticate the caller.
+     * @param array<string,string> $headers
+     * @param array<string,mixed> $body
+     */
+    public static function presenceGate(string $path, array $headers, array $body): ?string {
+        $bearer = stripos((string) ($headers['authorization'] ?? ''), 'bearer ') === 0;
+        $staffPath = str_contains($path, '/staff/') && !str_ends_with($path, '/staff/login');
+        $adminPath = str_contains($path, '/admin/') || str_contains($path, '/invoice');
+        $metricPath = str_ends_with($path, '/dashboard') || str_ends_with($path, '/pos/reconcile');
+        if (($staffPath || $adminPath || $metricPath) && !$bearer) {
+            return 'credential_missing';
+        }
+        if (str_ends_with($path, '/pos/webhook')) {
+            foreach (['x-gn-timestamp', 'x-gn-signature', 'x-gn-tenant'] as $header) {
+                if (trim((string) ($headers[$header] ?? '')) === '') {
+                    return 'webhook_unauthorized';
+                }
+            }
+        }
+        if (str_ends_with($path, '/otp/request') || str_ends_with($path, '/otp/verify') || str_ends_with($path, '/partner/apply')) {
+            if (trim((string) ($body['csrf'] ?? '')) === '') {
+                return 'csrf_failed';
+            }
+        }
+        return null;
     }
 
     /**
