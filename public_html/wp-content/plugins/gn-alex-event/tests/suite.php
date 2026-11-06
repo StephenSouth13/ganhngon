@@ -210,6 +210,10 @@ try {
     expect('POST lookup reaches auth and redeem without a bearer stops at presence', $postLookup['status'] === 403 && str_contains($postLookup['body'], 'unauthorized') && $postRedeem['status'] === 401, $postLookup['body'] . $postRedeem['body']);
     $underscore = Gn_Alex_Http::normalizeHeaders(['X_GN_Timestamp' => ['1700000000'], 'X_GN_Signature' => ['abc'], 'X_GN_Tenant' => ['ganhngon']]);
     expect('wordpress header names map onto webhook presence checks', Gn_Alex_Http::presenceGate('/gn-alex/v1/pos/webhook', $underscore, []) === null && Gn_Alex_Http::presenceGate('/gn-alex/v1/pos/webhook', ['x_gn_timestamp' => '1'], []) === 'webhook_unauthorized');
+    $splitSig = Gn_Alex_Http::normalizeHeaders(['x-gn-signature' => ['abcd', 'ef']]);
+    expect('duplicate signature headers are not joined', $splitSig['x-gn-signature'] === '');
+    $forwarded = Gn_Alex_Http::forwardedHeaders(['REDIRECT_HTTP_AUTHORIZATION' => 'Bearer abc', 'HTTP_X_GN_CSRF' => 'csrf-1', 'QUERY_STRING' => 'token=secret']);
+    expect('redirect authorization and csrf are forwarded and query tokens are not', $forwarded['authorization'] === 'Bearer abc' && $forwarded['x-gn-csrf'] === 'csrf-1' && !isset($forwarded['token']));
     expect('rest list includes lookup queue and grant as POST only', Gn_Alex_Http::apiRoutes()['/gn-alex/v1/staff/lookup'] === 'POST' && Gn_Alex_Http::apiRoutes()['/gn-alex/v1/staff/partner-queue'] === 'POST' && Gn_Alex_Http::apiRoutes()['/gn-alex/v1/admin/partner/grant'] === 'POST' && in_array('GET /gn-alex/desk', Gn_Alex_Http::routes(), true));
     $counter = $http->handle('GET', '/gn-alex/quay', [], [], [], []);
     expect('counter has no prefilled pin or bank field', $counter['status'] === 200 && !preg_match('/name="pin"[^>]*value=/', $counter['body']) && !str_contains($counter['body'], 'name="bank"'));
@@ -445,9 +449,16 @@ try {
         'service_fee' => 15000, 'discount' => 10000, 'bill_total' => 999999, 'status' => 'approved_paid', 'link_verified' => 1,
     ]);
     $dup = $app->recordInvoice(auth($thungan), [
-        'external_id' => 'INV-CTV-1', 'source' => 'import', 'partner_public_id' => $ctv['public_id'],
-        'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'food_base' => 200000, 'link_verified' => 1,
+        'external_id' => 'INV-CTV-1', 'source' => 'manual', 'partner_public_id' => $ctv['public_id'],
+        'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'food_base' => '200000', 'link_verified' => 1, 'vat_treatment' => 'unknown',
     ]);
+    $conflict = $app->recordInvoice(auth($thungan), [
+        'external_id' => 'INV-CTV-1', 'source' => 'import', 'partner_public_id' => $driver['public_id'],
+        'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'food_base' => 100, 'link_verified' => 1,
+    ]);
+    $stillFood = (int) $db->fetch('SELECT food_base FROM gn_alex_invoice WHERE external_id=?', ['INV-CTV-1'])['food_base'];
+    $conflictAudit = (string) $db->fetch("SELECT after_json FROM gn_alex_audit WHERE action='invoice_conflict' ORDER BY id DESC LIMIT 1")['after_json'];
+    expect('conflicting invoice id does not overwrite', !$conflict['ok'] && $conflict['error'] === 'invoice_conflict' && empty($conflict['replay']) && $stillFood === 200000 && str_contains($conflictAudit, 'food_base') && !str_contains($conflictAudit, '0912000011'), j($conflict) . $conflictAudit);
     $paid = $app->markApprovedPaid(auth($thungan), 'INV-CTV-1', 'paid-inv-ctv-1');
     $ledger = $db->fetch("SELECT * FROM gn_alex_ledger WHERE invoice_id=? AND entry_type='pending_unpriced'", [(int) $invoice['invoice_id']]);
     $raw = (string) $db->fetch('SELECT raw_json FROM gn_alex_invoice WHERE id=?', [(int) $invoice['invoice_id']])['raw_json'];
@@ -482,8 +493,13 @@ try {
         'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'food_base' => 50000, 'link_verified' => 1,
     ]);
     $app->markApprovedPaid(auth($thungan), 'INV-STAY-1', 'paid-inv-stay-1');
+    $paidReplay = $app->markApprovedPaid(auth($thungan), 'INV-CTV-1', 'paid-inv-ctv-1');
+    $paidCross = $app->markApprovedPaid(auth($thungan), 'INV-STAY-1', 'paid-inv-ctv-1');
+    expect('paid idempotency replays only the same invoice', !empty($paidReplay['replay']) && (int) $paidReplay['invoice_id'] === (int) $invoice['invoice_id'] && !$paidCross['ok'] && $paidCross['error'] === 'invoice_conflict', j($paidReplay) . j($paidCross));
     $metricsBeforeRefund = $app->publicMetrics(Gn_Alex_Engine::ALEX_SLUG, auth($quanly));
     expect('dashboard labels eligible food base from linked invoices only', $metricsBeforeRefund['linked_invoice_count'] === 2 && $metricsBeforeRefund['eligible_food_base'] === 250000 && !array_key_exists('pos_revenue', $metricsBeforeRefund), j($metricsBeforeRefund));
+    $refundAsPaid = $app->reverseInvoice(auth($quanly), 'INV-CTV-1', 'refunded', 'paid-inv-ctv-1');
+    expect('refund cannot reuse a paid idempotency key', !$refundAsPaid['ok'] && $refundAsPaid['error'] === 'invoice_conflict', j($refundAsPaid));
     $refund = $app->reverseInvoice(auth($quanly), 'INV-CTV-1', 'refunded', 'refund-inv-ctv-1');
     $refundAgain = $app->reverseInvoice(auth($quanly), 'INV-CTV-1', 'refunded', 'refund-inv-ctv-2');
     $net = 0;
@@ -574,6 +590,7 @@ try {
         'x-gn-tenant' => 'ganhngon',
     ];
     $badSig = $signed->ingestWebhook($body1, ['x-gn-timestamp' => (string) $start, 'x-gn-signature' => str_repeat('ab', 32), 'x-gn-tenant' => 'ganhngon']);
+    $shortSig = $signed->ingestWebhook($body1, ['x-gn-timestamp' => (string) $start, 'x-gn-signature' => 'abc', 'x-gn-tenant' => 'ganhngon']);
     $oldTs = $signed->ingestWebhook($body1, ['x-gn-timestamp' => (string) ($start - 301), 'x-gn-signature' => hash_hmac('sha256', ($start - 301) . '.' . $body1, $secret), 'x-gn-tenant' => 'ganhngon']);
     $badTenant = $signed->ingestWebhook($body1, ['x-gn-timestamp' => (string) $start, 'x-gn-signature' => hash_hmac('sha256', $start . '.' . $body1, $secret), 'x-gn-tenant' => 'other']);
     $okHook = $signed->ingestWebhook($body1, $headers1);
@@ -587,7 +604,7 @@ try {
     $hookRows = (int) $db->fetch('SELECT COUNT(*) AS c FROM gn_alex_webhook')['c'];
     $hookInvoice = (int) $db->fetch("SELECT COUNT(*) AS c FROM gn_alex_invoice WHERE external_id='signed-key-1'")['c'];
     $stored = $db->fetch('SELECT result_json, body_hash, signed_timestamp FROM gn_alex_webhook WHERE idempotency_key=?', ['signed-key-1']);
-    expect('signed webhook rejects bad signature, stale time, and wrong tenant', !$badSig['ok'] && $badSig['error'] === 'webhook_signature' && !$oldTs['ok'] && $oldTs['error'] === 'webhook_timestamp' && !$badTenant['ok'] && $badTenant['error'] === 'webhook_tenant', j($badSig) . j($oldTs) . j($badTenant));
+    expect('signed webhook rejects bad signature, stale time, and wrong tenant', !$badSig['ok'] && $badSig['error'] === 'webhook_signature' && !$shortSig['ok'] && $shortSig['error'] === 'webhook_signature' && !$oldTs['ok'] && $oldTs['error'] === 'webhook_timestamp' && !$badTenant['ok'] && $badTenant['error'] === 'webhook_tenant', j($badSig) . j($oldTs) . j($badTenant));
     expect('signed replay returns the first result and a different body conflicts', $okHook['ok'] && $okHook['attributed'] === false && $okHook['link_verified'] === false && $okHook['reason'] === 'manual_spoof_rejected' && !empty($replayHook['replay']) && !$conflict['ok'] && $conflict['error'] === 'webhook_conflict' && $hookRows === 1 && $hookInvoice === 0 && !str_contains((string) $stored['result_json'], $secret) && (int) $stored['signed_timestamp'] === $start, j($okHook) . j($conflict));
     $forged = $app->requestOtp(['csrf' => bin2hex(random_bytes(16)), 'locale' => 'en', 'consent' => 1, 'phone' => '0912000066', 'name' => 'Forged', 'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'ip' => '10.9.0.1']);
     $once = csrf($app);
@@ -646,6 +663,23 @@ try {
         $raceCfg + ['request' => $tokA + ['locale' => 'en', 'consent' => 1, 'phone' => $racePhone, 'name' => 'Race Otp', 'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'ip' => '10.9.4.1']],
         $raceCfg + ['request' => $tokB + ['locale' => 'en', 'consent' => 1, 'phone' => $racePhone, 'name' => 'Race Otp', 'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'ip' => '10.9.4.2']],
     ]);
+    $openReconcile = $http->handle('GET', '/gn-alex/v1/pos/reconcile', [], [], [], []);
+    $bearerOnly = $http->handle('GET', '/gn-alex/v1/pos/reconcile', [], [], ['authorization' => 'Bearer ' . $quanly['token']], []);
+    $quayReconcile = $http->handle('GET', '/gn-alex/v1/pos/reconcile', [], [], ['authorization' => 'Bearer ' . $quay['token'], 'x-gn-csrf' => $quay['csrf']], []);
+    $managerReconcile = $http->handle('GET', '/gn-alex/v1/pos/reconcile', [], [], ['authorization' => 'Bearer ' . $quanly['token'], 'x-gn-csrf' => $quanly['csrf']], []);
+    $dashNoCsrf = $http->handle('GET', '/gn-alex/dashboard', [], [], ['authorization' => 'Bearer ' . $quanly['token']], []);
+    expect('reconcile and dashboard require a manager session and csrf', $openReconcile['status'] === 401 && $bearerOnly['status'] === 401 && $quayReconcile['status'] === 403 && $managerReconcile['status'] === 200 && $dashNoCsrf['status'] === 401, $openReconcile['body'] . $quayReconcile['body'] . $managerReconcile['body']);
+    expect('staff enrollment is not a public REST route', !isset(Gn_Alex_Http::apiRoutes()['/gn-alex/v1/staff/enroll']));
+    $noSessionBank = $app->approveBank([], 1, 'enc:v1:' . bin2hex(random_bytes(8)));
+    expect('bank approval stays closed with no stored account', !$noSessionBank['ok'] && $noSessionBank['error'] === 'payout_provider_pending' && (int) $db->fetch('SELECT COUNT(*) AS c FROM gn_alex_bank')['c'] === 0, j($noSessionBank));
+    $paidRace = runPair([
+        ['driver' => 'sqlite', 'sqlite' => $dbPath, 'pepper' => $pepper, 'token_key' => $tokenKey, 'now' => $start, 'action' => 'paid', 'auth' => auth($thungan), 'external_id' => 'INV-STAY-1', 'idem' => 'paid-race-stay-1'],
+        ['driver' => 'sqlite', 'sqlite' => $dbPath, 'pepper' => $pepper, 'token_key' => $tokenKey, 'now' => $start, 'action' => 'paid', 'auth' => auth($thungan), 'external_id' => 'INV-STAY-1', 'idem' => 'paid-race-stay-1'],
+    ]);
+    $paidEvents = (int) $db->fetch("SELECT COUNT(*) AS c FROM gn_alex_invoice_event WHERE idempotency_key='paid-race-stay-1'")['c'];
+    $paidReplayCount = (int) (!empty($paidRace[0]['replay'])) + (int) (!empty($paidRace[1]['replay']));
+    expect('sqlite paid idempotency race keeps one event', !empty($paidRace[0]['ok']) && !empty($paidRace[1]['ok']) && $paidReplayCount === 1 && $paidEvents === 1, j($paidRace[0]) . j($paidRace[1]));
+
     $raceOk = (int) (!empty($race[0]['ok'])) + (int) (!empty($race[1]['ok']));
     $racePending = (int) $db->fetch("SELECT COUNT(*) AS c FROM gn_alex_otp WHERE phone_hmac=? AND status='pending'", [$raceHmac])['c'];
     expect('concurrent otp requests cannot pass the identity quota', $raceOk === 1 && $racePending === 1, j($race[0]) . j($race[1]));
@@ -770,6 +804,22 @@ function recordMysql(): void {
     $okCount = (int) (!empty($bodies[0]['ok'])) + (int) (!empty($bodies[1]['ok']));
     $issued = (int) $db->fetch('SELECT beer_issued FROM gn_alex_voucher WHERE id=?', [(int) $guest['voucher_id']])['beer_issued'];
     expect('mysql transaction allows one of two concurrent redeems', $okCount === 1 && $issued === 1, j($bodies[0]) . j($bodies[1]));
+    $ident = $db->insert('INSERT INTO gn_alex_identity (phone_hmac, phone_mask, display_name, created_at) VALUES (?,?,?,?)', [str_repeat('b', 64), '+8491****111', 'Pay', $start]);
+    $partnerId = $db->insert(
+        'INSERT INTO gn_alex_partner (public_id, identity_id, role, status, attribution, reviewer_id, campaign_family, display_name, created_at) VALUES (?,?,?,?,?,?,?,?,?)',
+        ['GNPTESTPAID', $ident, 'ctv', 'attributable', 'granted', (int) $q['staff_id'], 'referral-food', 'Pay', $start]
+    );
+    $db->insert(
+        'INSERT INTO gn_alex_invoice (external_id, partner_id, campaign_id, source, food_base, tax, drinks, service_fee, discount, link_verified, raw_json, created_at) VALUES (?,?,NULL,?,?,0,0,0,0,1,?,?)',
+        ['INV-MY-PAID', $partnerId, 'manual', 1000, '{}', $start]
+    );
+    $mysqlPaid = runPair([
+        $cfg + ['action' => 'paid', 'auth' => ['session_token' => $qLogin['token'], 'csrf' => $qLogin['csrf']], 'external_id' => 'INV-MY-PAID', 'idem' => 'paid-my-race-1'],
+        $cfg + ['action' => 'paid', 'auth' => ['session_token' => $qLogin['token'], 'csrf' => $qLogin['csrf']], 'external_id' => 'INV-MY-PAID', 'idem' => 'paid-my-race-1'],
+    ]);
+    $mysqlEvents = (int) $db->fetch("SELECT COUNT(*) AS c FROM gn_alex_invoice_event WHERE idempotency_key='paid-my-race-1'")['c'];
+    $mysqlReplays = (int) (!empty($mysqlPaid[0]['replay'])) + (int) (!empty($mysqlPaid[1]['replay']));
+    expect('mysql paid idempotency race keeps one event', !empty($mysqlPaid[0]['ok']) && !empty($mysqlPaid[1]['ok']) && $mysqlReplays === 1 && $mysqlEvents === 1, j($mysqlPaid[0]) . j($mysqlPaid[1]));
 }
 
 /** @param list<array<string,mixed>> $configs @return list<array<string,mixed>> */

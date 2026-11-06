@@ -22,7 +22,7 @@ php scripts/run-gn-alex-tests.php
 * /gn-alex/quay counter
 * /gn-alex/dashboard staff session required
 * /gn-alex/partner public pending application
-* /wp-json/gn-alex/v1/ API. Login, redeem, lookup, review, and grant accept POST only. GET on those paths is method_not_allowed. The permission callback checks that a credential is present. It does not prove the caller.
+* /wp-json/gn-alex/v1/ API. Login, redeem, lookup, review, and grant accept POST only. GET on those paths is method_not_allowed. The permission callback checks that a credential is present. It does not prove the caller. Reconcile and the dashboard also require the staff CSRF header. Staff enrollment is a WordPress admin action, not a REST route. Repeating an invoice with the same canonical values is a replay. A different food base, partner, source, or VAT treatment for that id is invoice_conflict. Payout stays disabled.
 
 /gnv/khach and /gnv/quay are not registered and are not redirected. An existing voucher plugin can keep them.
 

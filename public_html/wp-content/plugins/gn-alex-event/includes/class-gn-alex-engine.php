@@ -965,12 +965,15 @@ class Gn_Alex_Engine {
         if (!preg_match('/^[A-Za-z0-9_.:-]{8,80}$/', $idem)) {
             return $this->err('idempotency_required');
         }
+        $actor = 'staff:' . $staff['staff_id'];
+        $fingerprint = $this->eventFingerprint('approved_paid', $externalId, $actor, $idem);
         $this->db->begin();
         try {
             $prior = $this->db->fetch("SELECT * FROM {$this->t('invoice_event')} WHERE idempotency_key=?", [$idem]);
             if ($prior) {
-                $this->db->commit();
-                return $this->ok(['replay' => true, 'invoice_id' => (int) $prior['invoice_id']]);
+                $decision = $this->eventDecision($prior, $fingerprint, $externalId, 'approved_paid');
+                $this->db->rollback();
+                return $decision;
             }
             $invoice = $this->db->fetch($this->db->lockSql('invoice', 'external_id=?'), [$externalId]);
             if (!$invoice) {
@@ -983,8 +986,8 @@ class Gn_Alex_Engine {
                 return $this->err('partner_not_attributable');
             }
             $this->db->insert(
-                "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, created_at) VALUES (?,?,?,?,?)",
-                [(int) $invoice['id'], 'approved_paid', 'staff:' . $staff['staff_id'], $idem, $this->now()]
+                "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, body_hash, created_at) VALUES (?,?,?,?,?,?)",
+                [(int) $invoice['id'], 'approved_paid', $actor, $idem, $fingerprint, $this->now()]
             );
             $ledgerKey = 'pending:' . (int) $invoice['id'];
             $already = $this->db->fetch("SELECT id FROM {$this->t('ledger')} WHERE idempotency_key=?", [$ledgerKey]);
@@ -1007,7 +1010,11 @@ class Gn_Alex_Engine {
                 $this->db->rollback();
             }
             if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'UNIQUE')) {
-                return $this->ok(['replay' => true]);
+                $prior = $this->db->fetch("SELECT * FROM {$this->t('invoice_event')} WHERE idempotency_key=?", [$idem]);
+                if ($prior) {
+                    return $this->eventDecision($prior, $fingerprint, $externalId, 'approved_paid');
+                }
+                return $this->err('invoice_conflict', 409);
             }
             throw $e;
         }
@@ -1024,12 +1031,15 @@ class Gn_Alex_Engine {
         if (!preg_match('/^[A-Za-z0-9_.:-]{8,80}$/', $idem)) {
             return $this->err('idempotency_required');
         }
+        $actor = 'staff:' . $staff['staff_id'];
+        $fingerprint = $this->eventFingerprint($kind, $externalId, $actor, $idem);
         $this->db->begin();
         try {
             $prior = $this->db->fetch("SELECT * FROM {$this->t('invoice_event')} WHERE idempotency_key=?", [$idem]);
             if ($prior) {
-                $this->db->commit();
-                return $this->ok(['replay' => true, 'invoice_id' => (int) $prior['invoice_id']]);
+                $decision = $this->eventDecision($prior, $fingerprint, $externalId, $kind);
+                $this->db->rollback();
+                return $decision;
             }
             $invoice = $this->db->fetch($this->db->lockSql('invoice', 'external_id=?'), [$externalId]);
             if (!$invoice) {
@@ -1037,8 +1047,8 @@ class Gn_Alex_Engine {
                 return $this->err('not_found', 404);
             }
             $this->db->insert(
-                "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, created_at) VALUES (?,?,?,?,?)",
-                [(int) $invoice['id'], $kind, 'staff:' . $staff['staff_id'], $idem, $this->now()]
+                "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, body_hash, created_at) VALUES (?,?,?,?,?,?)",
+                [(int) $invoice['id'], $kind, $actor, $idem, $fingerprint, $this->now()]
             );
             $priced = $this->db->fetch(
                 "SELECT * FROM {$this->t('ledger')} WHERE invoice_id=? AND entry_type='priced'",
@@ -1064,24 +1074,22 @@ class Gn_Alex_Engine {
             if ($this->db->inTx) {
                 $this->db->rollback();
             }
+            if ($e instanceof PDOException && ($e->getCode() === '23000' || str_contains($e->getMessage(), 'UNIQUE'))) {
+                $prior = $this->db->fetch("SELECT * FROM {$this->t('invoice_event')} WHERE idempotency_key=?", [$idem]);
+                if ($prior) {
+                    return $this->eventDecision($prior, $fingerprint, $externalId, $kind);
+                }
+                return $this->err('invoice_conflict', 409);
+            }
             throw $e;
         }
     }
 
     public function requestBank(array $req, int $partnerId, string $ciphertext): array {
-        $staff = $this->activeStaff($req);
-        if (!$staff || !$this->csrfOk($staff, $req)) {
-            return $this->err('unauthorized', 403);
-        }
-        $this->audit('staff:' . $staff['staff_id'], 'bank_blocked', 'partner:' . $partnerId, [], ['status' => 'payout_provider_pending']);
         return $this->err('payout_provider_pending', 403);
     }
 
     public function approveBank(array $req, int $bankId, string $ciphertext): array {
-        $staff = $this->activeStaff($req);
-        if (!$staff || !$this->csrfOk($staff, $req)) {
-            return $this->err('unauthorized', 403);
-        }
         return $this->err('payout_provider_pending', 403);
     }
 
@@ -1153,6 +1161,14 @@ class Gn_Alex_Engine {
         return ['ok' => false, 'error' => 'pos_write_unsupported', 'wrote' => false, 'simulated' => false, 'http' => 405];
     }
 
+    public function exportReconcile(array $req): array {
+        $staff = $this->activeStaff($req);
+        if (!$staff || $staff['role'] !== 'quanly' || !$this->csrfOk($staff, $req)) {
+            return $this->err('unauthorized', 403);
+        }
+        return $this->posReconcileCsv();
+    }
+
     public function posReconcileCsv(): array {
         $last = $this->db->fetch("SELECT * FROM {$this->t('pos_snapshot')} ORDER BY id DESC LIMIT 1");
         $fh = fopen('php://temp', 'w+');
@@ -1214,7 +1230,7 @@ class Gn_Alex_Engine {
             return $this->err('webhook_timestamp', 401);
         }
         $expect = hash_hmac('sha256', $timestamp . '.' . $rawBody, $this->webhookSecret);
-        if (!hash_equals($expect, $signature)) {
+        if (!preg_match('/^[a-f0-9]{64}$/', $signature) || !hash_equals($expect, $signature)) {
             return $this->err('webhook_signature', 401);
         }
         $payload = json_decode($rawBody, true);
@@ -1356,8 +1372,13 @@ class Gn_Alex_Engine {
         if (!preg_match('/^[A-Za-z0-9_.:-]{4,80}$/', $external)) {
             return $this->err('external_id');
         }
-        if (!isset($in['food_base']) || !is_numeric($in['food_base']) || (int) $in['food_base'] < 0) {
+        $food = $this->minorUnits($in['food_base'] ?? null);
+        if ($food === null) {
             return $this->err('food_base');
+        }
+        $vat = (string) ($in['vat_treatment'] ?? 'unknown');
+        if (!in_array($vat, ['included', 'excluded', 'unknown'], true)) {
+            return $this->err('vat_treatment');
         }
         $partner = $this->db->fetch("SELECT * FROM {$this->t('partner')} WHERE public_id=?", [(string) ($in['partner_public_id'] ?? '')]);
         if (!$partner || ($partner['attribution'] ?? '') !== 'granted') {
@@ -1377,41 +1398,108 @@ class Gn_Alex_Engine {
                 $ignored[] = $key;
             }
         }
-        $link = ($source !== 'webhook' && !empty($in['link_verified'])) ? 1 : 0;
-        $raw = json_encode(['ignored_keys' => $ignored, 'source' => $source, 'actor' => $actor]);
+        $link = !empty($in['link_verified']) ? 1 : 0;
+        $canonical = [
+            'campaign_id' => $campaignId,
+            'external_id' => $external,
+            'food_base' => $food,
+            'link_verified' => $link,
+            'partner_id' => (int) $partner['id'],
+            'source' => $source,
+            'vat_treatment' => $vat,
+        ];
+        $fingerprint = hash('sha256', json_encode($canonical, JSON_UNESCAPED_SLASHES));
+        $raw = json_encode(['fingerprint' => $fingerprint, 'vat_treatment' => $vat, 'ignored_keys' => $ignored], JSON_UNESCAPED_SLASHES);
+        $receivedHash = $this->eventFingerprint('received', $external, $actor, 'recv:' . $external);
         $this->db->begin();
         try {
             $existing = $this->db->fetch($this->db->lockSql('invoice', 'external_id=?'), [$external]);
             if ($existing) {
-                $this->db->commit();
-                return $this->ok(['invoice_id' => (int) $existing['id'], 'replay' => true, 'created' => false]);
+                $this->db->rollback();
+                return $this->invoiceReplayOrConflict($existing, $fingerprint, $canonical, $actor, $external);
             }
             $id = $this->db->insert(
                 "INSERT INTO {$this->t('invoice')} (external_id, partner_id, campaign_id, source, food_base, tax, drinks, service_fee, discount, link_verified, raw_json, created_at)
                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                [
-                    $external, (int) $partner['id'], $campaignId, $source, (int) $in['food_base'],
-                    (int) ($in['tax'] ?? 0), (int) ($in['drinks'] ?? 0), (int) ($in['service_fee'] ?? 0), (int) ($in['discount'] ?? 0),
-                    $link, $raw, $this->now(),
-                ]
+                [$external, (int) $partner['id'], $campaignId, $source, $food, 0, 0, 0, 0, $link, $raw, $this->now()]
             );
             $this->db->insert(
-                "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, created_at) VALUES (?,?,?,?,?)",
-                [$id, 'received', $actor, 'recv:' . $external, $this->now()]
+                "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, body_hash, created_at) VALUES (?,?,?,?,?,?)",
+                [$id, 'received', $actor, 'recv:' . $external, $receivedHash, $this->now()]
             );
             $this->db->commit();
-            $this->audit($actor, 'invoice_record', $external, [], ['food_base' => (int) $in['food_base'], 'source' => $source, 'link_verified' => $link]);
+            $this->audit($actor, 'invoice_record', $external, [], ['food_base' => $food, 'source' => $source, 'link_verified' => $link, 'vat_treatment' => $vat]);
             return $this->ok(['invoice_id' => $id, 'replay' => false, 'created' => true, 'link_verified' => $link]);
         } catch (PDOException $e) {
             if ($this->db->inTx) {
                 $this->db->rollback();
             }
             if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'UNIQUE')) {
-                $existing = $this->db->fetch("SELECT id FROM {$this->t('invoice')} WHERE external_id=?", [$external]);
-                return $this->ok(['invoice_id' => (int) ($existing['id'] ?? 0), 'replay' => true, 'created' => false]);
+                $existing = $this->db->fetch("SELECT * FROM {$this->t('invoice')} WHERE external_id=?", [$external]);
+                if ($existing) {
+                    return $this->invoiceReplayOrConflict($existing, $fingerprint, $canonical, $actor, $external);
+                }
+                return $this->err('invoice_conflict', 409);
             }
             throw $e;
         }
+    }
+
+    /** @param mixed $value */
+    private function minorUnits($value): ?int {
+        if (is_int($value)) {
+            return ($value >= 0 && $value <= 9000000000000) ? $value : null;
+        }
+        if (is_string($value) && preg_match('/^(0|[1-9][0-9]{0,14})$/', $value)) {
+            $number = (int) $value;
+            return ($number <= 9000000000000) ? $number : null;
+        }
+        return null;
+    }
+
+    /** @param array<string,mixed> $canonical */
+    private function invoiceReplayOrConflict(array $existing, string $fingerprint, array $canonical, string $actor, string $external): array {
+        $stored = json_decode((string) $existing['raw_json'], true);
+        $storedHash = is_array($stored) ? (string) ($stored['fingerprint'] ?? '') : '';
+        if ($storedHash !== '' && hash_equals($storedHash, $fingerprint)) {
+            return $this->ok(['invoice_id' => (int) $existing['id'], 'replay' => true, 'created' => false, 'conflict' => false]);
+        }
+        $storedCanonical = [
+            'campaign_id' => $existing['campaign_id'] === null ? null : (int) $existing['campaign_id'],
+            'external_id' => (string) $existing['external_id'],
+            'food_base' => (int) $existing['food_base'],
+            'link_verified' => (int) $existing['link_verified'],
+            'partner_id' => (int) $existing['partner_id'],
+            'source' => (string) $existing['source'],
+            'vat_treatment' => is_array($stored) ? (string) ($stored['vat_treatment'] ?? 'unknown') : 'unknown',
+        ];
+        $fields = [];
+        foreach ($canonical as $key => $value) {
+            if (($storedCanonical[$key] ?? null) !== $value) {
+                $fields[] = $key;
+            }
+        }
+        $this->audit($actor, 'invoice_conflict', $external, [], ['fields' => $fields]);
+        return $this->err('invoice_conflict', 409);
+    }
+
+    private function eventFingerprint(string $action, string $externalId, string $actor, string $idem): string {
+        $payload = ['action' => $action, 'actor' => $actor, 'external_id' => $externalId, 'idempotency_key' => $idem];
+        ksort($payload);
+        return hash('sha256', json_encode($payload, JSON_UNESCAPED_SLASHES));
+    }
+
+    /** @param array<string,mixed> $prior */
+    private function eventDecision(array $prior, string $fingerprint, string $externalId, string $action): array {
+        $invoice = $this->db->fetch("SELECT id, external_id FROM {$this->t('invoice')} WHERE id=?", [(int) $prior['invoice_id']]);
+        $same = $invoice
+            && hash_equals((string) $invoice['external_id'], $externalId)
+            && (string) $prior['event_type'] === $action
+            && hash_equals((string) ($prior['body_hash'] ?? ''), $fingerprint);
+        if ($same) {
+            return $this->ok(['replay' => true, 'invoice_id' => (int) $invoice['id'], 'conflict' => false]);
+        }
+        return $this->err('invoice_conflict', 409);
     }
 
     private function linkedPos(int $campaignId): array {

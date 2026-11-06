@@ -44,16 +44,8 @@ class Gn_Alex_Plugin {
         }
         $query = [];
         parse_str((string) parse_url($uri, PHP_URL_QUERY), $query);
-        $headers = [];
-        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
-            $headers['authorization'] = (string) $_SERVER['HTTP_AUTHORIZATION'];
-        }
-        if (!empty($_SERVER['HTTP_X_GN_GUEST'])) {
-            $headers['x-gn-guest'] = (string) $_SERVER['HTTP_X_GN_GUEST'];
-        }
-        if (!empty($_SERVER['HTTP_ACCEPT'])) {
-            $headers['accept'] = (string) $_SERVER['HTTP_ACCEPT'];
-        }
+        unset($query['token'], $query['csrf'], $query['guest'], $query['session']);
+        $headers = Gn_Alex_Http::forwardedHeaders($_SERVER);
         $http = new Gn_Alex_Http($engine);
         $res = $http->handle((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'), $path, $query, [], $headers, []);
         status_header((int) $res['status']);

@@ -19,6 +19,10 @@ $engine = new Gn_Alex_Engine(
     false
 );
 $engine->setNow((int) $cfg['now']);
+if (($cfg['action'] ?? 'redeem') === 'paid') {
+    echo json_encode($engine->markApprovedPaid($cfg['auth'], (string) $cfg['external_id'], (string) $cfg['idem']));
+    exit;
+}
 if (($cfg['action'] ?? 'redeem') === 'otp') {
     $engine = new Gn_Alex_Engine(
         $db,
