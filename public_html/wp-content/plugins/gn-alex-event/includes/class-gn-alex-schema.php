@@ -274,6 +274,15 @@ class Gn_Alex_Schema {
             decided_at BIGINT NULL
         ){$engine}";
 
+        $tables[] = "CREATE TABLE IF NOT EXISTS {$prefix}referral_click (
+            id {$auto},
+            partner_id BIGINT NOT NULL,
+            public_id VARCHAR(20) NOT NULL,
+            campaign_family VARCHAR(40) NOT NULL,
+            created_at BIGINT NOT NULL,
+            UNIQUE (partner_id)
+        ){$engine}";
+
         $tables[] = "CREATE TABLE IF NOT EXISTS {$prefix}reg_token (
             id {$auto},
             token_hash CHAR(64) NOT NULL,

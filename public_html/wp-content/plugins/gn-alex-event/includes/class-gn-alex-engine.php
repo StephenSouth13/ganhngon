@@ -8,6 +8,7 @@ class Gn_Alex_Engine {
     public const ALEX_FAMILY = 'alex-dj-pq-20261108';
     public const ALEX_PARTNER = 'alex';
     public const REFERRAL_FAMILY = 'referral-food';
+    public const REFERRAL_SLUG = 'referral-food';
 
     private ?int $nowFixed = null;
     private string $dummyHash;
@@ -50,7 +51,17 @@ class Gn_Alex_Engine {
     }
 
     public function referralQr(string $slug, string $publicId): string {
-        return '/su-kien/' . rawurlencode($slug) . '/r/' . rawurlencode($publicId) . '/';
+        if ($slug !== self::REFERRAL_SLUG || !preg_match('/^[A-Z0-9]{6,20}$/', $publicId)) {
+            return '';
+        }
+        return '/gn-alex/referral/' . rawurlencode($publicId);
+    }
+
+    public function handoffPath(string $publicId): string {
+        if (!preg_match('/^[A-Z0-9]{6,20}$/', $publicId)) {
+            return '';
+        }
+        return '/dat-ban/?gn_ref=' . rawurlencode($publicId);
     }
 
     public function guestPath(): string {
@@ -94,6 +105,27 @@ class Gn_Alex_Engine {
                 'Asia/Bangkok', 3, 1, 1, $en['poster'] . ' DJ party', $ru['poster'] . ' DJ',
                 $en['c1'] . ' ' . $en['c2'] . ' ' . $en['c3'] . ' ' . $en['c4'],
                 $ru['c1'] . ' ' . $ru['c2'] . ' ' . $ru['c3'] . ' ' . $ru['c4'],
+                'scheduled', $this->now(),
+            ]
+        );
+        return $this->campaignById($id);
+    }
+
+    public function ensureReferralCampaign(): array {
+        $found = $this->campaignBySlug(self::REFERRAL_SLUG);
+        if ($found) {
+            return $found;
+        }
+        $start = new DateTimeImmutable('2026-01-01 00:00:00', new DateTimeZone('Asia/Bangkok'));
+        $end = new DateTimeImmutable('2027-01-01 00:00:00', new DateTimeZone('Asia/Bangkok'));
+        $id = $this->db->insert(
+            "INSERT INTO {$this->t('campaign')} (slug, campaign_family, partner_code, starts_at, ends_at, tz, beer_quota, salad_quota, policy_version, title_en, title_ru, conditions_en, conditions_ru, status, created_at)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                self::REFERRAL_SLUG, self::REFERRAL_FAMILY, 'referral', $start->getTimestamp(), $end->getTimestamp(),
+                'Asia/Bangkok', 0, 0, 1, 'Referral food', 'Referral food',
+                'Table request handoff. Not a discount and not an event pass.',
+                'Table request handoff. Not a discount and not an event pass.',
                 'scheduled', $this->now(),
             ]
         );
@@ -940,10 +972,67 @@ class Gn_Alex_Engine {
         if ((int) $partner['reviewer_id'] === (int) $staff['staff_id']) {
             return $this->err('self_approval_denied', 403);
         }
+        $campaign = $this->ensureReferralCampaign();
+        if (($campaign['slug'] ?? '') !== self::REFERRAL_SLUG || (int) ($campaign['beer_quota'] ?? 1) !== 0) {
+            return $this->err('campaign_not_referral');
+        }
+        $link = $this->referralQr(self::REFERRAL_SLUG, (string) $partner['public_id']);
+        if ($link === '' || str_contains($link, self::ALEX_SLUG)) {
+            return $this->err('campaign_not_referral');
+        }
         $this->db->exec("UPDATE {$this->t('partner')} SET status='attributable', attribution='granted' WHERE id=?", [$partnerId]);
-        $link = $this->referralQr(self::ALEX_SLUG, (string) $partner['public_id']);
-        $this->audit('staff:' . $staff['staff_id'], 'attribution_grant', (string) $partner['public_id'], ['attribution' => 'none'], ['attribution' => 'granted']);
-        return $this->ok(['public_id' => (string) $partner['public_id'], 'referral' => $link, 'status' => 'attributable', 'attribution' => 'granted']);
+        $this->audit('staff:' . $staff['staff_id'], 'attribution_grant', (string) $partner['public_id'], ['attribution' => 'none'], ['attribution' => 'granted', 'campaign' => self::REFERRAL_SLUG]);
+        return $this->ok([
+            'public_id' => (string) $partner['public_id'],
+            'role' => (string) $partner['role'],
+            'referral' => $link,
+            'handoff' => $this->handoffPath((string) $partner['public_id']),
+            'status' => 'attributable',
+            'attribution' => 'granted',
+            'campaign' => self::REFERRAL_SLUG,
+        ]);
+    }
+
+    public function lookupPartnerPublic(string $code): array {
+        $code = strtoupper($code);
+        if (!preg_match('/^[A-Z0-9]{6,20}$/', $code)) {
+            return $this->err('not_found', 404);
+        }
+        $partner = $this->db->fetch("SELECT public_id, role, status, attribution FROM {$this->t('partner')} WHERE public_id=?", [$code]);
+        if (!$partner) {
+            return $this->err('not_found', 404);
+        }
+        $granted = $partner['status'] === 'attributable' && $partner['attribution'] === 'granted';
+        return $this->ok([
+            'public_id' => (string) $partner['public_id'],
+            'role' => (string) $partner['role'],
+            'status' => (string) $partner['status'],
+            'attribution' => $granted ? 'granted' : 'none',
+            'referral' => $granted ? $this->referralQr(self::REFERRAL_SLUG, $code) : null,
+            'handoff' => $granted ? $this->handoffPath($code) : null,
+            'needs_approval' => !$granted,
+        ]);
+    }
+
+    public function noteReferralVisit(string $code): array {
+        $look = $this->lookupPartnerPublic($code);
+        if (!$look['ok']) {
+            return $look;
+        }
+        if (!empty($look['needs_approval'])) {
+            return $this->ok(['public_id' => $look['public_id'], 'created' => false, 'click' => 'needs_approval', 'needs_approval' => true]);
+        }
+        $partner = $this->db->fetch("SELECT id FROM {$this->t('partner')} WHERE public_id=?", [(string) $look['public_id']]);
+        $existing = $this->db->fetch("SELECT id, created_at FROM {$this->t('referral_click')} WHERE partner_id=?", [(int) $partner['id']]);
+        if ($existing) {
+            return $this->ok(['public_id' => $look['public_id'], 'created' => false, 'click' => 'ignored', 'needs_approval' => false]);
+        }
+        $this->db->insert(
+            "INSERT INTO {$this->t('referral_click')} (partner_id, public_id, campaign_family, created_at) VALUES (?,?,?,?)",
+            [(int) $partner['id'], (string) $look['public_id'], self::REFERRAL_FAMILY, $this->now()]
+        );
+        $this->audit('public', 'referral_click', (string) $look['public_id'], [], ['source' => 'provisional', 'campaign' => self::REFERRAL_SLUG]);
+        return $this->ok(['public_id' => $look['public_id'], 'created' => true, 'click' => 'provisional', 'needs_approval' => false]);
     }
 
     public function recordInvoice(array $req, array $in): array {
@@ -1045,6 +1134,14 @@ class Gn_Alex_Engine {
             if (!$invoice) {
                 $this->db->rollback();
                 return $this->err('not_found', 404);
+            }
+            $alreadyDead = $this->db->fetch(
+                "SELECT id FROM {$this->t('invoice_event')} WHERE invoice_id=? AND event_type IN ('cancelled','refunded')",
+                [(int) $invoice['id']]
+            );
+            if ($alreadyDead) {
+                $this->db->rollback();
+                return $this->err('already_reversed', 409);
             }
             $this->db->insert(
                 "INSERT INTO {$this->t('invoice_event')} (invoice_id, event_type, actor, idempotency_key, body_hash, created_at) VALUES (?,?,?,?,?,?)",
@@ -1776,48 +1873,19 @@ class Gn_Alex_Engine {
         if (!$partner || ($partner['attribution'] ?? '') !== 'granted') {
             return $this->err('partner_not_attributable');
         }
-        $paid = $this->db->fetch(
-            "SELECT id FROM {$this->t('invoice_event')} WHERE invoice_id=? AND event_type='approved_paid'",
-            [(int) $invoice['id']]
-        );
-        $dead = $this->db->fetch(
-            "SELECT id FROM {$this->t('invoice_event')} WHERE invoice_id=? AND event_type IN ('cancelled','refunded')",
-            [(int) $invoice['id']]
-        );
-        if (!$paid || $dead) {
-            return $this->err('requires_approval');
+        $campaign = $invoice['campaign_id'] !== null ? $this->campaignById((int) $invoice['campaign_id']) : null;
+        $slug = (string) ($campaign['slug'] ?? '');
+        $family = (string) ($campaign['campaign_family'] ?? '');
+        if ($slug === self::ALEX_SLUG || $family === self::ALEX_FAMILY) {
+            return $this->err('alex_not_commissionable');
         }
-        $rule = $this->db->fetch(
-            "SELECT * FROM {$this->t('policy_rule')} WHERE role=? AND status='approved' AND food_only=1 AND effective_from<=? AND effective_to>? ORDER BY rule_version DESC LIMIT 1",
-            [(string) $partner['role'], $this->now(), $this->now()]
-        );
-        if (!$rule || (int) $rule['rate_bps'] !== (int) $this->rateBps((string) $partner['role'])) {
-            return $this->err('requires_approval');
+        if ($slug !== self::REFERRAL_SLUG || $family !== self::REFERRAL_FAMILY) {
+            return $this->err('campaign_not_referral');
         }
-        $existing = $this->db->fetch("SELECT * FROM {$this->t('ledger')} WHERE invoice_id=? AND entry_type='priced'", [(int) $invoice['id']]);
-        if ($existing) {
-            return $this->ok(['replay' => true, 'amount_minor' => $existing['amount_minor'], 'priced' => true, 'reason' => 'explicit_approval_not_every_bill']);
+        if ((string) $partner['role'] !== 'ctv' && (string) $partner['role'] !== 'driver') {
+            return $this->err('role_invalid');
         }
-        $amount = intdiv(((int) $invoice['food_base']) * (int) $rule['rate_bps'], 10000);
-        $id = $this->db->insert(
-            "INSERT INTO {$this->t('ledger')} (invoice_id, partner_id, entry_type, rate_bps, base_minor, amount_minor, reason, idempotency_key, created_at) VALUES (?,?, 'priced', ?,?,?, 'explicit_approval_not_every_bill', ?, ?)",
-            [(int) $invoice['id'], (int) $partner['id'], (int) $rule['rate_bps'], (int) $invoice['food_base'], $amount, 'priced:' . (int) $invoice['id'], $this->now()]
-        );
-        $this->audit('staff:' . $staff['staff_id'], 'attribution_price', $externalId, [], [
-            'amount_minor' => $amount,
-            'rule_version' => (int) $rule['rule_version'],
-            'food_base' => (int) $invoice['food_base'],
-        ]);
-        return $this->ok([
-            'ledger_id' => $id,
-            'priced' => true,
-            'amount_minor' => $amount,
-            'rate_bps' => (int) $rule['rate_bps'],
-            'rule_version' => (int) $rule['rule_version'],
-            'reason' => 'explicit_approval_not_every_bill',
-            'automatic_commission' => false,
-            'alex_commission' => null,
-        ]);
+        return $this->err('vat_review_required');
     }
 
     /** @param array<string,mixed> $req */
