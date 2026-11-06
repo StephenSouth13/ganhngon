@@ -18,11 +18,11 @@ php scripts/run-gn-alex-tests.php
 == Routes owned by this plugin ==
 
 * /su-kien/{slug}/ guest landing for an event slug only. Bare /su-kien/ is not taken.
-* /gn-alex/khach guest pass
+* /gn-alex/khach read-only pass when the guest header is valid. A missing or invalid header links back to the event page and does not start registration.
 * /gn-alex/quay counter
 * /gn-alex/dashboard staff session required
 * /gn-alex/partner public pending application
-* /wp-json/gn-alex/v1/ API
+* /wp-json/gn-alex/v1/ API. Login, redeem, lookup, review, and grant accept POST only. GET on those paths is method_not_allowed. The permission callback checks that a credential is present. It does not prove the caller.
 
 /gnv/khach and /gnv/quay are not registered and are not redirected. An existing voucher plugin can keep them.
 

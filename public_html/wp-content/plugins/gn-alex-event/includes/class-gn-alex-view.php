@@ -61,6 +61,18 @@ class Gn_Alex_View {
         return self::page($lang, $c['guest_title'], $body, 'dj');
     }
 
+    public static function guestLink(string $lang): string {
+        $esc = [Gn_Alex_Text::class, 'esc'];
+        $href = '/su-kien/' . Gn_Alex_Engine::ALEX_SLUG . '/?lang=' . ($lang === 'ru' ? 'ru' : 'en');
+        $text = $lang === 'ru'
+            ? 'Это не пропуск. Вернитесь на страницу события, чтобы зарегистрироваться.'
+            : 'This is not a pass. Return to the event page to register.';
+        $link = $lang === 'ru' ? 'Страница события' : 'Event page';
+        $body = '<section class="card"><h1>' . $esc($lang === 'ru' ? 'Пропуск' : 'Pass') . '</h1><p>' . $esc($text) . '</p>'
+            . '<p><a href="' . $esc($href) . '">' . $esc($link) . '</a></p></section>';
+        return self::page($lang, 'Pass', $body, 'dj');
+    }
+
     public static function counter(string $lang): string {
         $c = Gn_Alex_Copy::bundle($lang);
         $esc = [Gn_Alex_Text::class, 'esc'];

@@ -10,6 +10,7 @@ class Gn_Alex_Http {
             'GET /su-kien/{slug}/r/{partner}/',
             'GET /gn-alex/khach',
             'GET /gn-alex/quay',
+            'GET /gn-alex/desk',
             'GET /gn-alex/dashboard',
             'GET /gn-alex/partner',
             'POST /gn-alex/v1/otp/request',
@@ -48,6 +49,7 @@ class Gn_Alex_Http {
         }
         $lang = ($query['lang'] ?? '') === 'ru' ? 'ru' : 'en';
         $method = strtoupper($method);
+        $headers = self::normalizeHeaders($headers);
 
         if ($method === 'GET' && preg_match('#^/su-kien/([a-z0-9-]+)$#', $path, $m)) {
             $this->engine->recordScan($m[1], 'registration');
@@ -70,7 +72,7 @@ class Gn_Alex_Http {
                     return $this->html(200, Gn_Alex_View::guest($lang, $status));
                 }
             }
-            return $this->html(200, Gn_Alex_View::landing($lang, $this->publicForm(Gn_Alex_Engine::ALEX_SLUG, false)));
+            return $this->html(200, Gn_Alex_View::guestLink($lang));
         }
         if ($method === 'GET' && $path === '/gn-alex/quay') {
             return $this->html(200, Gn_Alex_View::counter($lang));
@@ -104,6 +106,10 @@ class Gn_Alex_Http {
             return $this->json($this->engine->posReconcileCsv());
         }
 
+        $allowed = self::apiRoutes()[$path] ?? null;
+        if ($allowed !== null && $method !== $allowed) {
+            return $this->json(['ok' => false, 'error' => 'method_not_allowed', 'http' => 405]);
+        }
         if ($method !== 'POST') {
             return $this->json(['ok' => false, 'error' => 'not_found', 'http' => 404]);
         }
@@ -211,12 +217,79 @@ class Gn_Alex_Http {
         ];
     }
 
+    /** @return array<string,string> path => HTTP method for state-changing and read APIs */
+    public static function apiRoutes(): array {
+        return [
+            '/gn-alex/v1/otp/request' => 'POST',
+            '/gn-alex/v1/otp/verify' => 'POST',
+            '/gn-alex/v1/scan' => 'POST',
+            '/gn-alex/v1/staff/login' => 'POST',
+            '/gn-alex/v1/staff/redeem' => 'POST',
+            '/gn-alex/v1/staff/resolve' => 'POST',
+            '/gn-alex/v1/staff/lookup' => 'POST',
+            '/gn-alex/v1/staff/partner-queue' => 'POST',
+            '/gn-alex/v1/staff/rotate' => 'POST',
+            '/gn-alex/v1/staff/revoke' => 'POST',
+            '/gn-alex/v1/partner/apply' => 'POST',
+            '/gn-alex/v1/admin/partner/approve' => 'POST',
+            '/gn-alex/v1/admin/partner/grant' => 'POST',
+            '/gn-alex/v1/admin/policy' => 'POST',
+            '/gn-alex/v1/admin/rule/propose' => 'POST',
+            '/gn-alex/v1/admin/rule/approve' => 'POST',
+            '/gn-alex/v1/admin/attribution/price' => 'POST',
+            '/gn-alex/v1/admin/override/request' => 'POST',
+            '/gn-alex/v1/admin/override/approve' => 'POST',
+            '/gn-alex/v1/admin/bank/request' => 'POST',
+            '/gn-alex/v1/admin/bank/approve' => 'POST',
+            '/gn-alex/v1/admin/export.csv' => 'POST',
+            '/gn-alex/v1/invoice' => 'POST',
+            '/gn-alex/v1/invoice/paid' => 'POST',
+            '/gn-alex/v1/invoice/reverse' => 'POST',
+            '/gn-alex/v1/pos/webhook' => 'POST',
+            '/gn-alex/v1/pos/reconcile' => 'GET',
+            '/gn-alex/v1/dashboard' => 'GET',
+        ];
+    }
+
     /**
-     * Presence check only. A passing gate does not authenticate the caller.
+     * @param array<string,mixed> $headers
+     * @return array<string,string>
+     */
+    public static function outcomeMessage(string $key, string $value): string {
+        if ($key === 'gn_alex' && $value === 'ok') {
+            return 'Manager created.';
+        }
+        if ($key === 'gn_alex' && $value === 'denied') {
+            return 'Manager was not created. A manager already exists, or the PIN was rejected.';
+        }
+        if ($key === 'gn_alex_staff' && $value === 'ok') {
+            return 'Staff person created.';
+        }
+        if ($key === 'gn_alex_staff' && $value === 'denied') {
+            return 'Staff person was not created. Create the first manager before adding other roles.';
+        }
+        return '';
+    }
+
+    public static function normalizeHeaders(array $headers): array {
+        $out = [];
+        foreach ($headers as $key => $value) {
+            $name = strtolower(str_replace('_', '-', (string) $key));
+            if (is_array($value)) {
+                $value = implode(', ', $value);
+            }
+            $out[$name] = (string) $value;
+        }
+        return $out;
+    }
+
+    /**
+     * Presence check only. A passing gate does not authenticate the caller and does not check the HTTP verb.
      * @param array<string,string> $headers
      * @param array<string,mixed> $body
      */
     public static function presenceGate(string $path, array $headers, array $body): ?string {
+        $headers = self::normalizeHeaders($headers);
         $bearer = stripos((string) ($headers['authorization'] ?? ''), 'bearer ') === 0;
         $staffPath = str_contains($path, '/staff/') && !str_ends_with($path, '/staff/login');
         $adminPath = str_contains($path, '/admin/') || str_contains($path, '/invoice');

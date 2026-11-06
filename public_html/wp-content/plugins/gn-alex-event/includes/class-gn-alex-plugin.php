@@ -65,40 +65,13 @@ class Gn_Alex_Plugin {
     }
 
     public static function rest(): void {
-        $routes = [
-            'otp/request' => 'POST',
-            'otp/verify' => 'POST',
-            'scan' => 'POST',
-            'staff/login' => 'POST',
-            'staff/redeem' => 'POST',
-            'staff/resolve' => 'POST',
-            'staff/rotate' => 'POST',
-            'staff/revoke' => 'POST',
-            'partner/apply' => 'POST',
-            'admin/partner/approve' => 'POST',
-            'admin/policy' => 'POST',
-            'admin/override/request' => 'POST',
-            'admin/override/approve' => 'POST',
-            'admin/bank/request' => 'POST',
-            'admin/bank/approve' => 'POST',
-            'admin/export.csv' => 'POST',
-            'invoice' => 'POST',
-            'invoice/paid' => 'POST',
-            'invoice/reverse' => 'POST',
-            'pos/webhook' => 'POST',
-            'pos/reconcile' => 'GET',
-            'dashboard' => 'GET',
-        ];
-        foreach ($routes as $route => $method) {
+        foreach (Gn_Alex_Http::apiRoutes() as $path => $method) {
+            $route = substr($path, strlen('/gn-alex/v1/'));
             register_rest_route('gn-alex/v1', '/' . $route, [
                 'methods' => $method,
                 'permission_callback' => static function (WP_REST_Request $request) use ($route) {
-                    $headers = [];
-                    foreach ($request->get_headers() as $key => $value) {
-                        $headers[strtolower((string) $key)] = is_array($value) ? implode(', ', $value) : (string) $value;
-                    }
                     $body = $request->get_json_params();
-                    $gate = Gn_Alex_Http::presenceGate('/gn-alex/v1/' . $route, $headers, is_array($body) ? $body : []);
+                    $gate = Gn_Alex_Http::presenceGate('/gn-alex/v1/' . $route, $request->get_headers(), is_array($body) ? $body : []);
                     return $gate === null;
                 },
                 'callback' => static function (WP_REST_Request $request) use ($route, $method) {
@@ -106,16 +79,12 @@ class Gn_Alex_Plugin {
                     if (!$engine) {
                         return new WP_REST_Response(['ok' => false, 'error' => 'storage_unavailable', 'simulated' => false], 503);
                     }
-                    $headers = [];
-                    foreach ($request->get_headers() as $key => $value) {
-                        $headers[strtolower((string) $key)] = is_array($value) ? implode(', ', $value) : (string) $value;
-                    }
                     $body = $request->get_json_params();
                     if (!is_array($body) || $body === []) {
                         $body = $request->get_body_params();
                     }
                     $http = new Gn_Alex_Http($engine);
-                    $res = $http->handle($method, '/gn-alex/v1/' . $route, $request->get_query_params(), is_array($body) ? $body : [], $headers, [], (string) $request->get_body());
+                    $res = $http->handle($method, '/gn-alex/v1/' . $route, $request->get_query_params(), is_array($body) ? $body : [], Gn_Alex_Http::normalizeHeaders($request->get_headers()), [], (string) $request->get_body());
                     $decoded = json_decode($res['body'], true);
                     return new WP_REST_Response(is_array($decoded) ? $decoded : ['ok' => false], (int) $res['status']);
                 },
@@ -134,6 +103,14 @@ class Gn_Alex_Plugin {
         $engine = self::engine();
         $status = $engine ? $engine->providerStatus() : ['provider' => 'unconfigured', 'production_verified' => false, 'webhook_configured' => false, 'payout_enabled' => false];
         echo '<div class="wrap"><h1>Alex event staging</h1>';
+        foreach (['gn_alex', 'gn_alex_staff'] as $noticeKey) {
+            $noticeValue = isset($_GET[$noticeKey]) ? sanitize_text_field(wp_unslash($_GET[$noticeKey])) : '';
+            $notice = Gn_Alex_Http::outcomeMessage($noticeKey, $noticeValue);
+            if ($notice !== '') {
+                $class = $noticeValue === 'ok' ? 'notice-success' : 'notice-error';
+                echo '<div class="notice ' . esc_attr($class) . '"><p>' . esc_html($notice) . '</p></div>';
+            }
+        }
         $activation = get_option('gn_alex_activation_error');
         if (is_string($activation) && $activation !== '') {
             echo '<div class="notice notice-error"><p>' . esc_html($activation) . '</p></div>';
@@ -148,15 +125,21 @@ class Gn_Alex_Plugin {
         echo '<li>' . esc_html('OTP production verified: ' . (!empty($status['production_verified']) ? 'yes' : 'no')) . '</li>';
         echo '<li>' . esc_html('Webhook secret configured: ' . (!empty($status['webhook_configured']) ? 'yes' : 'no')) . '</li>';
         echo '</ul><p>' . esc_html('Set GN_ALEX_WEBHOOK_SECRET and the OTP gateway in server config. This screen does not accept or display those values.') . '</p>';
-        echo '<h2>First manager</h2>';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
-        wp_nonce_field('gn_alex_bootstrap');
-        echo '<input type="hidden" name="action" value="gn_alex_bootstrap">';
-        echo '<label for="gn-alex-pin">Manager PIN</label><br>';
-        echo '<input id="gn-alex-pin" name="pin" type="password" autocomplete="new-password" required minlength="8" maxlength="12">';
-        submit_button('Create manager');
-        echo '</form>';
+        $staffCount = $engine ? $engine->staffCount() : 0;
+        if ($staffCount === 0) {
+            echo '<h2>First manager</h2>';
+            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+            wp_nonce_field('gn_alex_bootstrap');
+            echo '<input type="hidden" name="action" value="gn_alex_bootstrap">';
+            echo '<label for="gn-alex-pin">Manager PIN</label><br>';
+            echo '<input id="gn-alex-pin" name="pin" type="password" autocomplete="new-password" required minlength="8" maxlength="12">';
+            submit_button('Create manager');
+            echo '</form>';
+        }
         echo '<h2>Additional staff</h2>';
+        if ($staffCount === 0) {
+            echo '<p>' . esc_html('Create the first manager before adding quay, cashier, or onboarding people.') . '</p>';
+        }
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('gn_alex_enroll');
         echo '<input type="hidden" name="action" value="gn_alex_enroll">';

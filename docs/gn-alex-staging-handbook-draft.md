@@ -9,7 +9,7 @@ Use the repository after pull request 2 is on `main`, then the later route and s
 ## What this plugin owns
 
 - `/su-kien/{slug}/` for an event slug only. Bare `/su-kien/` stays with the existing theme.
-- `/gn-alex/khach` guest registration.
+- `/gn-alex/khach` is a read-only pass when a valid guest header is present. Otherwise it links to the event page and does not issue a registration token. Registration stays on `/su-kien/{slug}/`.
 - `/gn-alex/quay` counter: staff PIN, one guest lookup, then one confirmed beer or salad.
 - `/gn-alex/desk` private partner review after a staff PIN. There is no public application list.
 - `/gn-alex/dashboard` only with a staff session. The figure is eligible food base, not total revenue.

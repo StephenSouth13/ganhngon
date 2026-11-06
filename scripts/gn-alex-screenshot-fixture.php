@@ -1,6 +1,7 @@
 <?php
 /**
- * Isolated screenshot server. Not for production. OTP mock is test-only.
+ * HTML mockups for review only. Not a WordPress end-to-end test and not evidence that a guest arrived from a referral.
+ * The person shown is the synthetic fixture Mila Petrova. OTP mock is test-only.
  * php -S 127.0.0.1:8766 scripts/gn-alex-screenshot-fixture.php
  */
 $root = dirname(__DIR__) . '/public_html/wp-content/plugins/gn-alex-event';
