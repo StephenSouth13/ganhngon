@@ -721,6 +721,10 @@ class Gn_Alex_Engine {
         return $this->ok(['applications' => $rows, 'payout_enabled' => false]);
     }
 
+    public function staffCount(): int {
+        return (int) $this->db->fetch("SELECT COUNT(*) AS c FROM {$this->t('staff')}")['c'];
+    }
+
     public function webhookConfigured(): bool {
         return strlen($this->webhookSecret) >= 16;
     }
