@@ -103,7 +103,7 @@ class Gn_Alex_Http {
             if ($blocked !== null) {
                 return $this->json(['ok' => false, 'error' => $blocked, 'http' => 401]);
             }
-            return $this->json($this->engine->posReconcileCsv());
+            return $this->json($this->engine->exportReconcile($this->authBody([], $headers)));
         }
 
         $allowed = self::apiRoutes()[$path] ?? null;
@@ -271,12 +271,40 @@ class Gn_Alex_Http {
         return '';
     }
 
+    /** @param array<string,mixed> $server @return array<string,string> */
+    public static function forwardedHeaders(array $server): array {
+        $headers = [];
+        foreach (['HTTP_AUTHORIZATION', 'REDIRECT_HTTP_AUTHORIZATION'] as $key) {
+            if (!empty($server[$key]) && is_string($server[$key])) {
+                $headers['authorization'] = $server[$key];
+                break;
+            }
+        }
+        foreach ([
+            'HTTP_X_GN_GUEST' => 'x-gn-guest',
+            'HTTP_X_GN_CSRF' => 'x-gn-csrf',
+            'HTTP_X_GN_TIMESTAMP' => 'x-gn-timestamp',
+            'HTTP_X_GN_SIGNATURE' => 'x-gn-signature',
+            'HTTP_X_GN_TENANT' => 'x-gn-tenant',
+            'HTTP_ACCEPT' => 'accept',
+        ] as $serverKey => $name) {
+            if (!empty($server[$serverKey]) && is_string($server[$serverKey])) {
+                $headers[$name] = $server[$serverKey];
+            }
+        }
+        return $headers;
+    }
+
     public static function normalizeHeaders(array $headers): array {
         $out = [];
         foreach ($headers as $key => $value) {
             $name = strtolower(str_replace('_', '-', (string) $key));
             if (is_array($value)) {
-                $value = implode(', ', $value);
+                if (count($value) !== 1) {
+                    $out[$name] = '';
+                    continue;
+                }
+                $value = $value[0];
             }
             $out[$name] = (string) $value;
         }
@@ -296,6 +324,9 @@ class Gn_Alex_Http {
         $metricPath = str_ends_with($path, '/dashboard') || str_ends_with($path, '/pos/reconcile');
         if (($staffPath || $adminPath || $metricPath) && !$bearer) {
             return 'credential_missing';
+        }
+        if ($metricPath && trim((string) ($headers['x-gn-csrf'] ?? '')) === '') {
+            return 'csrf_failed';
         }
         if (str_ends_with($path, '/pos/webhook')) {
             foreach (['x-gn-timestamp', 'x-gn-signature', 'x-gn-tenant'] as $header) {

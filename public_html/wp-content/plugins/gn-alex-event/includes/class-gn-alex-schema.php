@@ -240,6 +240,7 @@ class Gn_Alex_Schema {
             event_type VARCHAR(30) NOT NULL,
             actor VARCHAR(40) NOT NULL,
             idempotency_key VARCHAR(80) NOT NULL,
+            body_hash CHAR(64) NOT NULL,
             created_at BIGINT NOT NULL,
             UNIQUE (idempotency_key)
         ){$engine}";
