@@ -180,9 +180,12 @@ try {
     $enPage = $http->handle('GET', '/su-kien/alex-dj-20261108', ['lang' => 'en'], [], [], []);
     expect('ru landing', $ruPage['status'] === 200 && str_contains($ruPage['body'], 'Не больше 3 бокалов') && str_contains($ruPage['body'], 'lang="ru"') && !str_contains(strtolower($ruPage['body']), 'unlimited'));
     expect('en landing', $enPage['status'] === 200 && str_contains($enPage['body'], 'Maximum 3 beers') && str_contains($enPage['body'], '>ALEX<') && !str_contains($enPage['body'], '<img'));
-    $counter = $http->handle('GET', '/gnv/quay', [], [], [], []);
+    $legacy = $http->handle('GET', '/gnv/khach', [], [], [], []);
+    $legacyQuay = $http->handle('GET', '/gnv/quay', [], [], [], []);
+    expect('legacy voucher paths are not served by this plugin', $legacy['status'] === 404 && str_contains($legacy['body'], 'legacy_route_not_owned') && $legacyQuay['status'] === 404, $legacy['body']);
+    $counter = $http->handle('GET', '/gn-alex/quay', [], [], [], []);
     expect('counter has no prefilled pin or bank field', $counter['status'] === 200 && !preg_match('/name="pin"[^>]*value=/', $counter['body']) && !str_contains($counter['body'], 'name="bank"'));
-    $dash = $http->handle('GET', '/gnv/dashboard', ['demo' => '1', 'event' => Gn_Alex_Engine::ALEX_SLUG], [], [], []);
+    $dash = $http->handle('GET', '/gn-alex/dashboard', ['demo' => '1', 'event' => Gn_Alex_Engine::ALEX_SLUG], [], [], []);
     expect('dashboard without staff session is refused', $dash['status'] === 401 && !str_contains($dash['body'], $phone) && !str_contains($dash['body'], 'Eligible food base'), $dash['body']);
     $js = file_get_contents(dirname(__DIR__) . '/assets/gn-alex.js');
     expect('scanner does not submit a url ticket', str_contains($js, 'replaceState') && !preg_match('/payload\.ticket|ticket_code\s*:/', $js));

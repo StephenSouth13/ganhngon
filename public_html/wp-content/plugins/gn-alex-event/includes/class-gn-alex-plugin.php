@@ -17,8 +17,10 @@ class Gn_Alex_Plugin {
 
     public static function routes(): void {
         add_rewrite_rule('^su-kien/([^/]+)/?$', 'index.php?gn_alex_event=$matches[1]', 'top');
-        add_rewrite_rule('^gnv/khach/?$', 'index.php?gn_alex_screen=khach', 'top');
-        add_rewrite_rule('^gnv/quay/?$', 'index.php?gn_alex_screen=quay', 'top');
+        add_rewrite_rule('^gn-alex/khach/?$', 'index.php?gn_alex_screen=khach', 'top');
+        add_rewrite_rule('^gn-alex/quay/?$', 'index.php?gn_alex_screen=quay', 'top');
+        add_rewrite_rule('^gn-alex/dashboard/?$', 'index.php?gn_alex_screen=dashboard', 'top');
+        add_rewrite_rule('^gn-alex/partner/?$', 'index.php?gn_alex_screen=partner', 'top');
         add_rewrite_tag('%gn_alex_event%', '([^&]+)');
         add_rewrite_tag('%gn_alex_screen%', '([^&]+)');
     }
@@ -29,7 +31,7 @@ class Gn_Alex_Plugin {
         }
         $uri = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '/';
         $path = (string) (parse_url($uri, PHP_URL_PATH) ?: '/');
-        $watched = (bool) preg_match('#^/su-kien/[^/]+#', $path) || str_starts_with($path, '/gnv/');
+        $watched = (bool) preg_match('#^/su-kien/[^/]+#', $path) || str_starts_with($path, '/gn-alex/');
         if (!$watched) {
             return;
         }
@@ -40,7 +42,6 @@ class Gn_Alex_Plugin {
             exit;
         }
         $query = [];
-        $qs = (string) strtok('');
         parse_str((string) parse_url($uri, PHP_URL_QUERY), $query);
         $headers = [];
         if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
