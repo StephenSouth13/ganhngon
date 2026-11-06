@@ -105,7 +105,7 @@ class Gn_Alex_View {
             . $demoNote
             . '<div class="grid">' . $cards . '</div>'
             . '<p class="commission">' . $esc($lang === 'ru' ? 'Комиссия Alex не рассчитывается.' : 'Alex commission is not calculated.') . '</p>'
-            . '<form method="get" action="/gnv/dashboard"><label for="event">Event</label>'
+            . '<form method="get" action="/gn-alex/dashboard"><label for="event">Event</label>'
             . '<select id="event" name="event"><option value="' . $esc(Gn_Alex_Engine::ALEX_SLUG) . '">ALEX 2026-11-08</option></select>'
             . '<button type="submit">' . $esc($lang === 'ru' ? 'Показать' : 'Show') . '</button></form></section>';
         return self::page($lang, $c['dash_title'], $body, 'saas');

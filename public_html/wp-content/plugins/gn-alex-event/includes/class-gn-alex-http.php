@@ -8,10 +8,10 @@ class Gn_Alex_Http {
         return [
             'GET /su-kien/{slug}/',
             'GET /su-kien/{slug}/r/{partner}/',
-            'GET /gnv/khach',
-            'GET /gnv/quay',
-            'GET /gnv/dashboard',
-            'GET /gnv/partner',
+            'GET /gn-alex/khach',
+            'GET /gn-alex/quay',
+            'GET /gn-alex/dashboard',
+            'GET /gn-alex/partner',
             'POST /gn-alex/v1/otp/request',
             'POST /gn-alex/v1/otp/verify',
             'POST /gn-alex/v1/scan',
@@ -59,7 +59,10 @@ class Gn_Alex_Http {
             $state['scan_ok'] = $scan['ok'];
             return $this->html($scan['ok'] ? 200 : 404, Gn_Alex_View::landing($lang, $state));
         }
-        if ($method === 'GET' && $path === '/gnv/khach') {
+        if ($method === 'GET' && ($path === '/gnv/khach' || $path === '/gnv/quay' || $path === '/gnv/dashboard' || $path === '/gnv/partner')) {
+            return $this->json(['ok' => false, 'error' => 'legacy_route_not_owned', 'http' => 404]);
+        }
+        if ($method === 'GET' && $path === '/gn-alex/khach') {
             $guest = (string) ($headers['x-gn-guest'] ?? '');
             if ($guest !== '') {
                 $status = $this->engine->guestStatus($guest);
@@ -69,13 +72,13 @@ class Gn_Alex_Http {
             }
             return $this->html(200, Gn_Alex_View::landing($lang, $this->publicForm(Gn_Alex_Engine::ALEX_SLUG, false)));
         }
-        if ($method === 'GET' && $path === '/gnv/quay') {
+        if ($method === 'GET' && $path === '/gn-alex/quay') {
             return $this->html(200, Gn_Alex_View::counter($lang));
         }
-        if ($method === 'GET' && $path === '/gnv/partner') {
+        if ($method === 'GET' && $path === '/gn-alex/partner') {
             return $this->html(200, Gn_Alex_View::partner($lang, $this->publicForm(Gn_Alex_Engine::ALEX_SLUG, false, 'partner_apply')));
         }
-        if ($method === 'GET' && ($path === '/gnv/dashboard' || $path === '/gn-alex/v1/dashboard')) {
+        if ($method === 'GET' && ($path === '/gn-alex/dashboard' || $path === '/gn-alex/v1/dashboard')) {
             $blocked = self::presenceGate($path, $headers, []);
             if ($blocked !== null) {
                 return $this->json(['ok' => false, 'error' => $blocked, 'http' => 401]);

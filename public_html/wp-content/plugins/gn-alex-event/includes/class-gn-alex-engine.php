@@ -54,11 +54,11 @@ class Gn_Alex_Engine {
     }
 
     public function guestPath(): string {
-        return '/gnv/khach';
+        return '/gn-alex/khach';
     }
 
     public function counterPath(): string {
-        return '/gnv/quay';
+        return '/gn-alex/quay';
     }
 
     public function tokenUrl(string $token): array {
