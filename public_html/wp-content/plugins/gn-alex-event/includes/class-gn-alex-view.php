@@ -65,22 +65,49 @@ class Gn_Alex_View {
         $c = Gn_Alex_Copy::bundle($lang);
         $esc = [Gn_Alex_Text::class, 'esc'];
         $body = '<section class="saas"><h1>' . $esc($c['counter_title']) . '</h1>'
+            . '<p id="gn-url-warning" hidden>' . $esc($lang === 'ru' ? 'Код в адресе отклонён. Спросите имя и телефон.' : 'A code in the address was ignored. Ask for the name and phone.') . '</p>'
             . '<form id="gn-login" method="post" action="/gn-alex/v1/staff/login">'
             . '<label for="staff-id">' . $esc($c['staff_id']) . '</label>'
             . '<input id="staff-id" name="staff_id" inputmode="numeric" autocomplete="username" required>'
             . '<label for="staff-pin">' . $esc($c['pin']) . '</label>'
             . '<input id="staff-pin" name="pin" type="password" autocomplete="current-password" required>'
             . '<button type="submit">' . $esc($c['login']) . '</button></form>'
-            . '<form id="gn-redeem" method="post" action="/gn-alex/v1/staff/redeem" hidden>'
+            . '<form id="gn-lookup" method="post" action="/gn-alex/v1/staff/lookup" hidden>'
             . '<label for="proof-name">' . $esc($c['name']) . '</label><input id="proof-name" name="proof_name" autocomplete="off" required>'
             . '<label for="proof-phone">' . $esc($c['phone']) . '</label><input id="proof-phone" name="proof_phone" inputmode="tel" autocomplete="off" required>'
             . '<input type="hidden" name="campaign" value="' . $esc(Gn_Alex_Engine::ALEX_SLUG) . '">'
+            . '<button type="submit">' . $esc($lang === 'ru' ? 'Найти гостя' : 'Find guest') . '</button></form>'
+            . '<section id="gn-resolved" hidden><h2 id="gn-resolved-name"></h2><p id="gn-resolved-mask"></p><p id="gn-resolved-remaining"></p>'
+            . '<form id="gn-redeem" method="post" action="/gn-alex/v1/staff/redeem">'
+            . '<input type="hidden" name="campaign" value="' . $esc(Gn_Alex_Engine::ALEX_SLUG) . '">'
             . '<input type="hidden" name="confirm" value="1">'
             . '<button type="submit" name="item" value="beer">' . $esc($c['beer_btn']) . '</button>'
-            . '<button type="submit" name="item" value="salad">' . $esc($c['salad_btn']) . '</button>'
-            . '<p id="gn-result" role="status" aria-live="polite"></p></form>'
+            . '<button type="submit" name="item" value="salad">' . $esc($c['salad_btn']) . '</button></form>'
+            . '<form id="gn-override" method="post" action="/gn-alex/v1/admin/override/request">'
+            . '<label for="gn-reason">' . $esc($lang === 'ru' ? 'Просьба другому менеджеру' : 'Ask the other manager') . '</label>'
+            . '<input id="gn-reason" name="reason" required maxlength="160">'
+            . '<button type="submit">' . $esc($lang === 'ru' ? 'Запросить одно пиво' : 'Request one beer') . '</button></form></section>'
+            . '<p><button type="button" id="gn-rotate" hidden>' . $esc($lang === 'ru' ? 'Сменить сессию' : 'Rotate session') . '</button>'
+            . '<button type="button" id="gn-revoke" hidden>' . $esc($lang === 'ru' ? 'Выйти' : 'Revoke session') . '</button></p>'
+            . '<p id="gn-result" role="status" aria-live="polite"></p>'
             . '<script src="/assets/gn-alex.js"></script></section>';
         return self::page($lang, $c['counter_title'], $body, 'saas');
+    }
+
+    public static function desk(string $lang): string {
+        $c = Gn_Alex_Copy::bundle($lang);
+        $esc = [Gn_Alex_Text::class, 'esc'];
+        $body = '<section class="saas"><h1>' . $esc($lang === 'ru' ? 'Заявки партнёров' : 'Partner applications') . '</h1>'
+            . '<p>' . $esc($c['no_bank']) . '</p>'
+            . '<p>' . $esc($lang === 'ru' ? 'Выплаты выключены. Публичного списка нет.' : 'Payout is disabled. There is no public list.') . '</p>'
+            . '<form id="gn-login" method="post" action="/gn-alex/v1/staff/login">'
+            . '<label for="desk-staff">' . $esc($c['staff_id']) . '</label><input id="desk-staff" name="staff_id" inputmode="numeric" required>'
+            . '<label for="desk-pin">' . $esc($c['pin']) . '</label><input id="desk-pin" name="pin" type="password" autocomplete="current-password" required>'
+            . '<button type="submit">' . $esc($c['login']) . '</button></form>'
+            . '<div id="gn-queue" hidden></div>'
+            . '<p id="gn-result" role="status" aria-live="polite"></p>'
+            . '<script src="/assets/gn-alex.js"></script></section>';
+        return self::page($lang, 'Partner desk', $body, 'saas');
     }
 
     /** @param array<string,mixed> $metrics */

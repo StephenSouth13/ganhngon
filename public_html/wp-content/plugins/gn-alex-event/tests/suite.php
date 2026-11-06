@@ -141,6 +141,17 @@ try {
     $thuEn = $app->enrollStaffForIsolatedTest('thungan', $thuPin, 'thungan-1');
     $thungan = $app->staffLogin($thuEn['staff_id'], $thuPin, '10.2.2.5');
     expect('staff sessions issued', $quay['ok'] && $quanly['ok'] && $quanlyB['ok'] && $thungan['ok'], j($quay));
+    $look = $app->lookupGuest(array_merge(auth($quay), [
+        'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'proof_phone' => $phone, 'proof_name' => $name,
+    ]));
+    $lookIssued = (int) $db->fetch('SELECT beer_issued FROM gn_alex_voucher WHERE id=?', [(int) $guest['voucher_id']])['beer_issued'];
+    $badLook = $app->lookupGuest(array_merge(auth($quay), [
+        'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'proof_phone' => $phone, 'proof_name' => 'Wrong Name',
+    ]));
+    $shotLook = $app->lookupGuest(array_merge(auth($quay), [
+        'campaign' => Gn_Alex_Engine::ALEX_SLUG, 'proof_phone' => $phone, 'proof_name' => $name, 'ticket_code' => 'CONSTANT',
+    ]));
+    expect('lookup shows mask once and does not redeem', $look['ok'] && $look['redeems'] === false && $look['phone_mask'] === Gn_Alex_Phone::mask($canon) && !str_contains(j($look), $canon) && $lookIssued === 0 && !$badLook['ok'] && $badLook['error'] === 'identity_mismatch' && !$shotLook['ok'] && $shotLook['error'] === 'constant_ticket_not_accepted', j($look) . j($shotLook));
     putenv('GN_ALEX_STAFF_PIN=' . $quayPin);
     putenv('QUAY_PIN=' . $quayPin);
     $envLogin = $app->staffLogin($en['staff_id'], '24681357', '10.2.2.9');
@@ -508,7 +519,7 @@ try {
     $fallback = $down->posRead();
     $recon = $down->posReconcileCsv();
     $metricsPos = $app->publicMetrics(Gn_Alex_Engine::ALEX_SLUG, auth($quanly));
-    expect('pos outage falls back to the last snapshot and does not invent food base', $snap['ok'] && $snap['invoices_created'] === 0 && $snap['wrote'] === false && !$fallback['ok'] && $fallback['error'] === 'pos_outage' && (int) $fallback['fallback_snapshot_at'] === (int) $snap['fetched_at'] && str_contains($recon['csv'], "'=food") && $metricsPos['eligible_food_base'] === 50000, j($fallback));
+    expect('pos outage falls back to the last snapshot and does not invent food base', $snap['ok'] && $snap['invoices_created'] === 0 && $snap['wrote'] === false && !$fallback['ok'] && $fallback['error'] === 'pos_outage' && (int) $fallback['fallback_snapshot_at'] === (int) $snap['fetched_at'] && str_contains($recon['csv'], "'=food") && $recon['vat_unresolved'] === true && $recon['food_total'] === null && !str_contains($recon['csv'], 'eligible_food_lines') && $metricsPos['eligible_food_base'] === 50000, j($fallback));
 
     $crm = $app->crmBoundary();
     expect('crm stays pending wordpress facts without automatic commission', $crm['writes'] === false && $crm['crm_posts'] === false && $crm['automatic_commission'] === false && $crm['staged_attribution_only'] === true && $crm['p1_production_proven'] === false && $crm['beautyos_present'] === false, j($crm));
@@ -518,6 +529,16 @@ try {
 
     $boot = $app->bootstrapQuanly(['manage_options' => false], pin());
     expect('bootstrap requires a wordpress administrator', !$boot['ok']);
+    $enrollDenied = $app->enrollFromWpAdmin(['manage_options' => false], 'quay', pin(), 'nope');
+    $extraPin = pin();
+    $enrolled = $app->enrollFromWpAdmin(['manage_options' => true, 'id' => 44], 'quay', $extraPin, 'counter-extra');
+    $enrollAudit = $db->fetch("SELECT before_json, after_json FROM gn_alex_audit WHERE action='staff_enroll' ORDER BY id DESC LIMIT 1");
+    expect('wordpress admin can enroll another counter person', !$enrollDenied['ok'] && $enrolled['ok'] && $enrolled['role'] === 'quay' && !str_contains(j($enrollAudit), $extraPin), j($enrolled));
+    $queueDenied = $app->partnerQueue(auth($quay));
+    $queue = $app->partnerQueue(auth($quanly));
+    expect('partner queue is private to review roles', !$queueDenied['ok'] && $queue['ok'] && $queue['payout_enabled'] === false && !str_contains(j($queue), '0912000011'), j($queueDenied));
+    $desk = $http->handle('GET', '/gn-alex/desk', [], [], [], []);
+    expect('onboarding desk has no public application list', $desk['status'] === 200 && !str_contains($desk['body'], '0912000011') && str_contains($desk['body'], 'Payout is disabled'), $desk['body']);
 
     $unsigned = $app->ingestWebhook('{"event_key":"unsigned-key-1","tenant":"ganhngon"}', []);
     expect('webhook without a server secret stores nothing', !$unsigned['ok'] && $unsigned['error'] === 'webhook_secret_missing' && (int) $db->fetch('SELECT COUNT(*) AS c FROM gn_alex_webhook')['c'] === 0, j($unsigned));

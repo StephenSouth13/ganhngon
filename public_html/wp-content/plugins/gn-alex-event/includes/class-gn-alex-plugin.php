@@ -19,6 +19,7 @@ class Gn_Alex_Plugin {
         add_rewrite_rule('^su-kien/([^/]+)/?$', 'index.php?gn_alex_event=$matches[1]', 'top');
         add_rewrite_rule('^gn-alex/khach/?$', 'index.php?gn_alex_screen=khach', 'top');
         add_rewrite_rule('^gn-alex/quay/?$', 'index.php?gn_alex_screen=quay', 'top');
+        add_rewrite_rule('^gn-alex/desk/?$', 'index.php?gn_alex_screen=desk', 'top');
         add_rewrite_rule('^gn-alex/dashboard/?$', 'index.php?gn_alex_screen=dashboard', 'top');
         add_rewrite_rule('^gn-alex/partner/?$', 'index.php?gn_alex_screen=partner', 'top');
         add_rewrite_tag('%gn_alex_event%', '([^&]+)');
@@ -130,15 +131,47 @@ class Gn_Alex_Plugin {
         if (!current_user_can('manage_options')) {
             return;
         }
-        echo '<div class="wrap"><h1>Alex event</h1>';
-        echo '<p>First manager PIN is typed here once. It is hashed. There is no default PIN and this screen does not collect bank accounts.</p>';
+        $engine = self::engine();
+        $status = $engine ? $engine->providerStatus() : ['provider' => 'unconfigured', 'production_verified' => false, 'webhook_configured' => false, 'payout_enabled' => false];
+        echo '<div class="wrap"><h1>Alex event staging</h1>';
+        $activation = get_option('gn_alex_activation_error');
+        if (is_string($activation) && $activation !== '') {
+            echo '<div class="notice notice-error"><p>' . esc_html($activation) . '</p></div>';
+        }
+        echo '<h2>Route ownership</h2><ul>';
+        echo '<li>' . esc_html('Owned: /gn-alex/khach, /gn-alex/quay, /gn-alex/desk, /gn-alex/dashboard, /gn-alex/partner') . '</li>';
+        echo '<li>' . esc_html('Not owned and not redirected: /gnv/khach, /gnv/quay. This plugin does not disable another voucher plugin.') . '</li>';
+        echo '</ul>';
+        echo '<h2>Money</h2><p>' . esc_html('Payout is disabled. Alex commission is not calculated. Existing gross commission code is not called and is not switched off by this screen.') . '</p>';
+        echo '<h2>Server config</h2><ul>';
+        echo '<li>' . esc_html('OTP provider id: ' . (string) ($status['provider'] ?? 'unconfigured')) . '</li>';
+        echo '<li>' . esc_html('OTP production verified: ' . (!empty($status['production_verified']) ? 'yes' : 'no')) . '</li>';
+        echo '<li>' . esc_html('Webhook secret configured: ' . (!empty($status['webhook_configured']) ? 'yes' : 'no')) . '</li>';
+        echo '</ul><p>' . esc_html('Set GN_ALEX_WEBHOOK_SECRET and the OTP gateway in server config. This screen does not accept or display those values.') . '</p>';
+        echo '<h2>First manager</h2>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('gn_alex_bootstrap');
         echo '<input type="hidden" name="action" value="gn_alex_bootstrap">';
         echo '<label for="gn-alex-pin">Manager PIN</label><br>';
         echo '<input id="gn-alex-pin" name="pin" type="password" autocomplete="new-password" required minlength="8" maxlength="12">';
         submit_button('Create manager');
-        echo '</form></div>';
+        echo '</form>';
+        echo '<h2>Additional staff</h2>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        wp_nonce_field('gn_alex_enroll');
+        echo '<input type="hidden" name="action" value="gn_alex_enroll">';
+        echo '<label for="gn-alex-role">Role</label><br><select id="gn-alex-role" name="role">';
+        foreach (['quay', 'thungan', 'quanly', 'onboarding'] as $role) {
+            echo '<option value="' . esc_attr($role) . '">' . esc_html($role) . '</option>';
+        }
+        echo '</select><br><label for="gn-alex-label">Label</label><br>';
+        echo '<input id="gn-alex-label" name="label" type="text" maxlength="40" required>';
+        echo '<br><label for="gn-alex-staff-pin">PIN</label><br>';
+        echo '<input id="gn-alex-staff-pin" name="pin" type="password" autocomplete="new-password" required minlength="8" maxlength="12">';
+        submit_button('Create staff');
+        echo '</form>';
+        echo '<p><a href="' . esc_url(home_url('/gn-alex/desk/')) . '">' . esc_html('Open the private onboarding desk') . '</a></p>';
+        echo '</div>';
     }
 
     public static function adminPost(): void {
@@ -153,6 +186,23 @@ class Gn_Alex_Plugin {
         $pin = isset($_POST['pin']) ? (string) wp_unslash($_POST['pin']) : '';
         $result = $engine->bootstrapQuanly(['manage_options' => true, 'id' => get_current_user_id()], $pin, 'quanly');
         wp_safe_redirect(add_query_arg(['page' => 'gn-alex-event', 'gn_alex' => $result['ok'] ? 'ok' : 'denied'], admin_url('tools.php')));
+        exit;
+    }
+
+    public static function enrollPost(): void {
+        if (!current_user_can('manage_options')) {
+            wp_die('unauthorized', 403);
+        }
+        check_admin_referer('gn_alex_enroll');
+        $engine = self::engine();
+        if (!$engine) {
+            wp_die('storage unavailable');
+        }
+        $pin = isset($_POST['pin']) ? (string) wp_unslash($_POST['pin']) : '';
+        $role = isset($_POST['role']) ? sanitize_text_field(wp_unslash($_POST['role'])) : '';
+        $label = isset($_POST['label']) ? sanitize_text_field(wp_unslash($_POST['label'])) : '';
+        $result = $engine->enrollFromWpAdmin(['manage_options' => true, 'id' => get_current_user_id()], $role, $pin, $label);
+        wp_safe_redirect(add_query_arg(['page' => 'gn-alex-event', 'gn_alex_staff' => $result['ok'] ? 'ok' : 'denied'], admin_url('tools.php')));
         exit;
     }
 
@@ -178,16 +228,26 @@ class Gn_Alex_Plugin {
             $storage = Gn_Alex_Storage::mysql($dsn, (string) DB_USER, (string) DB_PASSWORD, $prefix);
             $storage->install();
             $production = defined('GN_ALEX_PRODUCTION') && GN_ALEX_PRODUCTION;
+            $webhookSecret = '';
+            if (defined('GN_ALEX_WEBHOOK_SECRET') && is_string(GN_ALEX_WEBHOOK_SECRET) && strlen(GN_ALEX_WEBHOOK_SECRET) >= 16) {
+                $webhookSecret = GN_ALEX_WEBHOOK_SECRET;
+            }
+            $tenant = defined('GN_ALEX_TENANT') && is_string(GN_ALEX_TENANT) && GN_ALEX_TENANT !== '' ? GN_ALEX_TENANT : 'ganhngon';
             $engine = new Gn_Alex_Engine(
                 $storage,
                 self::key('gn_alex_pepper'),
                 self::key('gn_alex_token_key'),
                 Gn_Alex_Provider_Factory::make(),
                 (bool) $production,
-                false
+                false,
+                null,
+                '',
+                $webhookSecret,
+                $tenant
             );
             $engine->ensureAlexCampaign();
         } catch (Throwable $e) {
+            update_option('gn_alex_activation_error', 'storage_unavailable', false);
             $engine = null;
         }
         return $engine;

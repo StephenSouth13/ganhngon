@@ -298,6 +298,49 @@ class Gn_Alex_Engine {
         ]);
     }
 
+    public function lookupGuest(array $req): array {
+        $staff = $this->activeStaff($req);
+        if (!$staff || !$this->csrfOk($staff, $req)) {
+            return $this->err('unauthorized', 403);
+        }
+        if ($this->hasConstantTicket($req)) {
+            $this->flag(null, null, 'screenshot_rejected');
+            return $this->err('constant_ticket_not_accepted');
+        }
+        $campaign = $this->campaignBySlug((string) ($req['campaign'] ?? ''));
+        if (!$campaign) {
+            return $this->err('campaign_required');
+        }
+        $phone = Gn_Alex_Phone::canonicalize((string) ($req['proof_phone'] ?? ''));
+        $name = mb_strtolower(Gn_Alex_Text::sanitize((string) ($req['proof_name'] ?? '')));
+        if ($phone === null || $name === '') {
+            return $this->err('identity_required');
+        }
+        $hmac = Gn_Alex_Phone::hmac($phone, $this->pepper);
+        $identity = $this->db->fetch("SELECT * FROM {$this->t('identity')} WHERE phone_hmac=?", [$hmac]);
+        if (!$identity || $name !== mb_strtolower((string) $identity['display_name'])) {
+            $this->flag((int) $campaign['id'], $hmac, 'identity_mismatch');
+            return $this->err('identity_mismatch');
+        }
+        $voucher = $this->db->fetch(
+            "SELECT * FROM {$this->t('voucher')} WHERE identity_id=? AND campaign_family=?",
+            [(int) $identity['id'], (string) $campaign['campaign_family']]
+        );
+        if (!$voucher) {
+            return $this->err('not_eligible');
+        }
+        $before = (int) $voucher['beer_issued'];
+        return $this->ok([
+            'display_name' => (string) $identity['display_name'],
+            'phone_mask' => (string) $identity['phone_mask'],
+            'remaining' => (int) $voucher['beer_quota'] - $before,
+            'salad_remaining' => (int) $voucher['salad_quota'] - (int) $voucher['salad_issued'],
+            'voucher_id' => (int) $voucher['id'],
+            'beer_issued' => $before,
+            'redeems' => false,
+        ]);
+    }
+
     public function issuePresenceToken(string $guestToken): array {
         $guest = $this->guestByToken($guestToken, true);
         if (!$guest) {
@@ -655,6 +698,43 @@ class Gn_Alex_Engine {
         return $this->insertStaff($role, $pin, $label, 'staff:' . $staff['staff_id']);
     }
 
+    public function enrollFromWpAdmin(array $wpUser, string $role, string $pin, string $label): array {
+        if (empty($wpUser['manage_options'])) {
+            return $this->err('unauthorized', 403);
+        }
+        $count = (int) $this->db->fetch("SELECT COUNT(*) AS c FROM {$this->t('staff')}")['c'];
+        if ($count === 0) {
+            return $this->err('bootstrap_required');
+        }
+        return $this->insertStaff($role, $pin, $label, 'wp:' . (int) ($wpUser['id'] ?? 0));
+    }
+
+    public function partnerQueue(array $req): array {
+        $staff = $this->activeStaff($req);
+        if (!$staff || !in_array($staff['role'], ['quanly', 'onboarding'], true) || !$this->csrfOk($staff, $req)) {
+            return $this->err('unauthorized', 403);
+        }
+        $rows = $this->db->fetchAll(
+            "SELECT p.id, p.public_id, p.role, p.status, p.attribution, i.phone_mask, p.display_name
+             FROM {$this->t('partner')} p JOIN {$this->t('identity')} i ON i.id=p.identity_id ORDER BY p.id"
+        );
+        return $this->ok(['applications' => $rows, 'payout_enabled' => false]);
+    }
+
+    public function webhookConfigured(): bool {
+        return strlen($this->webhookSecret) >= 16;
+    }
+
+    public function providerStatus(): array {
+        return $this->ok([
+            'provider' => $this->otp->id(),
+            'production_verified' => $this->otp->isProductionVerified(),
+            'webhook_configured' => $this->webhookConfigured(),
+            'payout_enabled' => false,
+            'automatic_commission' => false,
+        ]);
+    }
+
     public function staffLogin(int $staffId, string $pin, string $ip): array {
         if (!$this->rateHit('login:' . $staffId . ':' . substr($ip, 0, 64), 5, 600)) {
             return $this->err('rate_limited', 429);
@@ -909,6 +989,7 @@ class Gn_Alex_Engine {
                 [(int) $invoice['id'], (int) $partner['id'], (int) $invoice['food_base'], $ledgerKey, $this->now()]
             );
             $this->db->commit();
+            $this->audit('staff:' . $staff['staff_id'], 'invoice_paid_unpriced', $externalId, [], ['reason' => 'requires_approval', 'food_base' => (int) $invoice['food_base']]);
             return $this->ok([
                 'invoice_id' => (int) $invoice['id'],
                 'ledger_id' => $pendingId,
@@ -973,6 +1054,7 @@ class Gn_Alex_Engine {
                 );
             }
             $this->db->commit();
+            $this->audit('staff:' . $staff['staff_id'], 'invoice_reverse', $externalId, [], ['kind' => $kind, 'reversal_id' => $reversalId]);
             return $this->ok(['invoice_id' => (int) $invoice['id'], 'reversal_id' => $reversalId]);
         } catch (Throwable $e) {
             if ($this->db->inTx) {
@@ -1071,12 +1153,18 @@ class Gn_Alex_Engine {
         $last = $this->db->fetch("SELECT * FROM {$this->t('pos_snapshot')} ORDER BY id DESC LIMIT 1");
         $fh = fopen('php://temp', 'w+');
         fputcsv($fh, ['fetched_at', 'kind', 'amount', 'note']);
+        $vatKnown = false;
+        $foodTotal = null;
         if ($last) {
+            $decoded = json_decode((string) $last['raw_json'], true);
+            $vatKnown = is_array($decoded) && !empty($decoded['vat_known']);
             $mapped = $this->mapPos((string) $last['raw_json']);
             if (!$mapped['lines']) {
                 fputcsv($fh, [(string) $last['fetched_at'], 'raw', '', Gn_Alex_Text::csvCell('unmapped snapshot')]);
             }
+            $sum = 0;
             foreach ($mapped['lines'] as $line) {
+                $sum += (int) $line['amount'];
                 fputcsv($fh, [
                     (string) $last['fetched_at'],
                     Gn_Alex_Text::csvCell((string) $line['kind']),
@@ -1084,11 +1172,23 @@ class Gn_Alex_Engine {
                     Gn_Alex_Text::csvCell((string) $line['name']),
                 ]);
             }
+            if ($vatKnown && $mapped['lines']) {
+                $foodTotal = $sum;
+                fputcsv($fh, [(string) $last['fetched_at'], 'eligible_food_lines', (string) $sum, 'vat_known']);
+            } else {
+                fputcsv($fh, [(string) $last['fetched_at'], 'vat_unresolved', '', 'food total blocked']);
+            }
         }
         rewind($fh);
         $csv = stream_get_contents($fh);
         fclose($fh);
-        return $this->ok(['csv' => $csv === false ? '' : $csv, 'fallback' => true, 'simulated' => false]);
+        return $this->ok([
+            'csv' => $csv === false ? '' : $csv,
+            'fallback' => true,
+            'simulated' => false,
+            'vat_unresolved' => !$vatKnown,
+            'food_total' => $foodTotal,
+        ]);
     }
 
     /** @param array<string,string> $headers */
@@ -1296,6 +1396,7 @@ class Gn_Alex_Engine {
                 [$id, 'received', $actor, 'recv:' . $external, $this->now()]
             );
             $this->db->commit();
+            $this->audit($actor, 'invoice_record', $external, [], ['food_base' => (int) $in['food_base'], 'source' => $source, 'link_verified' => $link]);
             return $this->ok(['invoice_id' => $id, 'replay' => false, 'created' => true, 'link_verified' => $link]);
         } catch (PDOException $e) {
             if ($this->db->inTx) {
@@ -1610,6 +1711,11 @@ class Gn_Alex_Engine {
             "INSERT INTO {$this->t('ledger')} (invoice_id, partner_id, entry_type, rate_bps, base_minor, amount_minor, reason, idempotency_key, created_at) VALUES (?,?, 'priced', ?,?,?, 'explicit_approval_not_every_bill', ?, ?)",
             [(int) $invoice['id'], (int) $partner['id'], (int) $rule['rate_bps'], (int) $invoice['food_base'], $amount, 'priced:' . (int) $invoice['id'], $this->now()]
         );
+        $this->audit('staff:' . $staff['staff_id'], 'attribution_price', $externalId, [], [
+            'amount_minor' => $amount,
+            'rule_version' => (int) $rule['rule_version'],
+            'food_base' => (int) $invoice['food_base'],
+        ]);
         return $this->ok([
             'ledger_id' => $id,
             'priced' => true,

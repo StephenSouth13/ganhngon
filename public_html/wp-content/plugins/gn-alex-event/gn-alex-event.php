@@ -28,6 +28,7 @@ add_action('template_redirect', ['Gn_Alex_Plugin', 'render'], 2);
 add_action('rest_api_init', ['Gn_Alex_Plugin', 'rest']);
 add_action('admin_menu', ['Gn_Alex_Plugin', 'adminMenu']);
 add_action('admin_post_gn_alex_bootstrap', ['Gn_Alex_Plugin', 'adminPost']);
+add_action('admin_post_gn_alex_enroll', ['Gn_Alex_Plugin', 'enrollPost']);
 add_action('init', static function () {
     load_plugin_textdomain('gn-alex-event', false, dirname(plugin_basename(__FILE__)) . '/languages');
 });
